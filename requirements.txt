@@ -1,0 +1,3 @@
+--extra-index-url https://pypi.gurobi.com
+gurobipy
+matplotlib
