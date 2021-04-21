@@ -21,23 +21,3 @@ class Model:
     def __repr__(self):
         data = ['Model', f"target: {self.target}", ""] + [c.__repr__() for c in self.constrains]
         return '\n'.join(data)
-
-
-def create_monotonicity_constraints(data) -> List[Constraint]:
-    constraints = []
-    for column in data.T:
-        for row in range(len(column)):
-            for next_row in range(row+1, len(column)):
-                if column[row] >= column[next_row]:
-                   constraints.append(
-                       Constraint(
-                           [1, -1],
-                           [
-                               f'{Constraint.alternatives_prefix}{row}',
-                               f'{Constraint.alternatives_prefix}{next_row}'
-                           ],
-                           "<=",
-                           0.0
-                        )
-                    )
-    return constraints

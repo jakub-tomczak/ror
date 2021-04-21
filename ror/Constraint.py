@@ -4,7 +4,7 @@ class Constraint:
     alternatives_prefix = 'a_'
     valid_relations = ['<', '<=', '>', '>=', '==']
 
-    def __init__(self, coefficients: List[float], variables: List[str], relation: str, value: float):
+    def __init__(self, coefficients: List[float], variables: List[str], relation: str, value: float, name: str = "constr"):
         assert len(coefficients) == len(variables),\
             f'Number of coefficients must be equal to the number of variables, {len(coefficients)} != {len(variables)}'
         assert relation in Constraint.valid_relations,\
@@ -19,6 +19,7 @@ class Constraint:
                 {variable: coeff for variable, coeff in zip(variables, coefficients)}
         self.relation = relation
         self.value = value
+        self.name = name
 
     @property
     def get_constraints_variables(self):
