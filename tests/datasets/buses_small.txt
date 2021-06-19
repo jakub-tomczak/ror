@@ -1,0 +1,7 @@
+busId,max speed, torque,fuel cons,horse power
+b01,90,426,27,112
+b02,90,425,27,112
+b03,87,400,23,96
+b06,82,428,33,121
+b01>b02
+b06>b03

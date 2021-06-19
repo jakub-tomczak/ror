@@ -2,12 +2,12 @@ import unittest
 from ror.build_model import create_monotonicity_constraints
 import numpy as np
 
+
 class TestMain(unittest.TestCase):
     def test_creating_monotonicity_constraints_failed(self):
         with self.assertRaises(AssertionError):
             create_monotonicity_constraints([], [])
 
-    
     def test_creating_monotonicity_constraints_success(self):
         criteria = [
             ("gain criterion", "g"),
@@ -30,10 +30,10 @@ class TestMain(unittest.TestCase):
 
         self.assertEqual(len(constraints['gain criterion']), 3)
         # a_1 <= a_3
-        self.assertEqual(constraints['gain criterion'][0].variables[0], "a_1")
-        self.assertEqual(constraints['gain criterion'][0].variables[1], "a_3")
-        
+        self.assertEqual(constraints['gain criterion'][0].name,
+                         "mono_u_gain criterion_1_u_gain criterion_3")
+
         # a_0 <= a_3
         self.assertEqual(len(constraints['cost criterion']), 3)
-        self.assertEqual(constraints['cost criterion'][0].variables[0], "a_0")
-        self.assertEqual(constraints['cost criterion'][0].variables[1], "a_3")
+        self.assertEqual(constraints['cost criterion'][0].name,
+                         "mono_u_cost criterion_0_u_cost criterion_3")

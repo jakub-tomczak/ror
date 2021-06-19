@@ -1,37 +1,219 @@
-from typing import List
+from ror.Relation import Relation
+from typing import Dict, List, Set
+
+
+class ConstraintVariable:
+    '''
+    Class that stores a coefficient and the name of the variable.
+    '''
+    def __init__(self, name: str, coefficient: float) -> None:
+        self._name = name
+        self._coefficient = coefficient
+
+    def __hash__(self) -> int:
+        return hash(self.__attributes)
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ConstraintVariable) and self.__attributes == other.__attributes
+
+    def __repr__(self) -> str:
+        return f'<Variable[name: {self._name}, coeff: {self._coefficient}]>'
+
+    @property
+    def __attributes(self):
+        return (self._name, self._coefficient)
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def coefficient(self):
+        return self._coefficient
+
+    @coefficient.setter
+    def coefficient(self, value):
+        self._coefficient = value
+
+
+class ValueConstraintVariable(ConstraintVariable):
+    '''
+    Class that stores a coefficient of the free variable.
+    '''
+    name = 'free'
+
+    def __init__(self, coefficient: float) -> None:
+        super().__init__(ValueConstraintVariable.name, coefficient)
+
+
+class ConstraintVariablesSet:
+    '''
+    Class that stores a variables for the constraint.
+    '''
+
+    def __init__(self, variables: List[ConstraintVariable] = None, name: str = None):
+        # key: str -> value: ConstraintVariable
+        self._variables: Dict[str, ConstraintVariable] = dict()
+        self._name = name
+        if variables is not None:
+            self.add_variables(variables)
+
+    def add_variable(self, variable: ConstraintVariable):
+        assert variable is not None, "Variable must not be None"
+
+        if variable.name in self._variables:
+            self._variables[variable.name].coefficient += variable.coefficient
+        else:
+            self._variables[variable.name] = variable
+
+    def add_variables(self, variables: List[ConstraintVariable]):
+        assert variables is not None, "Variables list must not be None"
+
+        for variable in variables:
+            self.add_variable(variable)
+
+    @property
+    def variables(self):
+        return self._variables.values()
+
+    @property
+    def variables_names(self):
+        return self._variables.keys()
+
+    def __getitem__(self, key: str):
+        return self._variables[key]
+
+    def __setitem__(self, key: str, value: ConstraintVariable):
+        self.add_variable(value)
+
+    def __repr__(self):
+        return 'no variables' if len(self._variables) < 1 else ",".join([v for v in self._variables])
+
+    def multiply_by_scalar(self, scalar: float):
+        for variable in self._variables.values():
+            variable.coefficient *= scalar
+
+
+def merge_variables(new_variable: ConstraintVariable, variables: List[ConstraintVariable]) -> Set[ConstraintVariable]:
+    '''
+    Adds new_variable to the list with variables. If the new_variable already exists in variables
+    then sum coefficient of the new_variable with the coefficient from the variable in the list.
+    '''
+    for var in variables:
+        if var._name == new_variable._name:
+            var._coefficient += new_variable._coefficient
+            return variables
+    variables.append(new_variable)
+    return variables
+
 
 class Constraint:
-    alternatives_prefix = 'a_'
-    valid_relations = ['<', '<=', '>', '>=', '==']
+    '''
+    Class that stores a constraint for the model.
+    '''
 
-    def __init__(self, coefficients: List[float], variables: List[str], relation: str, value: float, name: str = "constr"):
-        assert len(coefficients) == len(variables),\
-            f'Number of coefficients must be equal to the number of variables, {len(coefficients)} != {len(variables)}'
-        assert relation in Constraint.valid_relations,\
-            f"Relation must be one of {Constraint.valid_relations}, provided value: {relation}"
-        assert type(value) is float,\
-            f"Value must be of float type, provided: {type(value)}"
+    # class members
+    def create_variable_name(function_name: str, criterion_name: str, alternative_name: str):
+        return f'{function_name}_{criterion_name}_{alternative_name}'
 
-        self.coefficients = coefficients
-        self.variables = variables
-        if coefficients is not None and len(coefficients) > 0:
-            self.variable_to_coefficient = \
-                {variable: coeff for variable, coeff in zip(variables, coefficients)}
-        self.relation = relation
-        self.value = value
-        self.name = name
+    # instance members
+    def __init__(self, variables: ConstraintVariablesSet, relation: Relation, name: str = "constr"):
+        assert variables is not None, "VariablesSet cannot be None"
+        assert type(variables) is ConstraintVariablesSet,\
+            "variables must be of type ConstraintVariablesSet"
+        assert type(relation) is Relation,\
+            f"relation must be a Relation object"
+
+        # define fields
+        self._variables_set: ConstraintVariablesSet = ConstraintVariablesSet()
+        self._rhs = ValueConstraintVariable(0.0)
+        self._relation = relation
+        self._name = name
+
+        self.add_variables(variables)
+
+    def add_variables(self, variables_set: ConstraintVariablesSet):
+        for variable in variables_set.variables:
+            self.add_variable(variable)
+
+    def add_variable(self, variable: ConstraintVariable):
+        assert variable._name is not None, 'Variable name must not be None'
+
+        if variable._name == ValueConstraintVariable.name:
+            self._rhs.coefficient += variable.coefficient
+        else:
+            # add variable to constraint variables set
+            self._variables_set.add_variable(variable)
+
+    def get_variable(self, variable_name: str) -> ConstraintVariable:
+        if variable_name in self._variables_set.variables_names:
+            return self._variables_set[variable_name]
+        return None
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def free_variable(self):
+        return self._rhs
+
+    @property
+    def variables(self):
+        return self._variables_set.variables
+
+    @property
+    def variables_names(self):
+        return self._variables_set.variables_names
+
+    @property
+    def relation(self):
+        return self._relation
 
     @property
     def get_constraints_variables(self):
-        return set(self.variable_to_coefficient.keys())
+        return self._variables_set.variables
 
-    def get_constraint(self, variable: str):
-        if variable not in self.variable_to_coefficient:
-            return None
-        return (self.variable_to_coefficient[variable], variable)
+    @property
+    def number_of_variables(self) -> int:
+        return len(self._variables_set.variables)
 
-    def __repr__(self):
-        variables = self.variable_to_coefficient.keys()
-        coefficients = self.variable_to_coefficient.values()
-        lhs = '+'.join([f'({a}*{b})' for a,b in zip(coefficients, variables)])
-        return f'Constraint: {lhs}{self.relation}{self.value}'
+    def multiply_by_scalar(self, scalar: float):
+        self._variables_set.multiply_by_scalar(scalar)
+        self._rhs._coefficient *= scalar
+        if scalar < 0.0:
+            if self._relation.sign == '<':
+                self._relation.sign = '>'
+            elif self._relation.sign == '<=':
+                self._relation.sign = '>='
+            elif self._relation.sign == '>':
+                self._relation.sign = '<'
+            elif self._relation.sign == '>=':
+                self._relation.sign = '<='
+
+    def __repr__(self):        
+        return f'<Constraint:[name: {self._name}, variables: {self._variables_set}, relation: {self._relation.sign}, rhs: {self._rhs}]>'
+
+
+def merge_constraints(constraints: List[Constraint]) -> Constraint:
+    assert len(constraints) > 1,\
+        'There must be at least 2 constraints for merging constraints'
+    assert len(set([constraint._relation for constraint in constraints])) == 1,\
+        'All constraints must have the same relation'
+
+    merged_constraint = Constraint(
+        ConstraintVariablesSet(),
+        constraints[0]._relation,
+        f'merged_constraint_{"_".join([c._name for c in constraints])}'
+    )
+    for constraint in constraints:
+        for variable in constraint.variables:
+            merged_constraint.add_variable(variable)
+        # add free variable
+        merged_constraint.add_variable(constraint.free_variable)
+
+    return merged_constraint

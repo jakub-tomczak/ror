@@ -18,8 +18,8 @@ class TestTxtDatasetReader(unittest.TestCase):
         self.assertEqual(data.alternatives[0], "b01")
         self.assertEqual(data.alternatives[4], "b05")
 
-        self.assertIs(type(data.data[0, 0]), np.int64)
-        self.assertEqual(data.data[0, 0], 90)
+        self.assertIs(type(data.matrix[0, 0]), np.int64)
+        self.assertEqual(data.matrix[0, 0], 90)
 
-        self.assertIs(type(data.data[4, 1]), np.int64)
-        self.assertEqual(data.data[4, 1], 26)
+        self.assertIs(type(data.matrix[4, 1]), np.int64)
+        self.assertEqual(data.matrix[4, 1], 26)
