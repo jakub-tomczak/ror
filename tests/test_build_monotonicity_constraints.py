@@ -1,28 +1,17 @@
+from ror.Dataset import read_dataset_from_txt
 import unittest
-from ror.build_model import create_monotonicity_constraints
-import numpy as np
+from ror.monotonicity_constraints import create_monotonicity_constraints
 
 
-class TestMain(unittest.TestCase):
+class TestMonotonicityConstraints(unittest.TestCase):
     def test_creating_monotonicity_constraints_failed(self):
         with self.assertRaises(AssertionError):
-            create_monotonicity_constraints([], [])
+            create_monotonicity_constraints(None)
 
     def test_creating_monotonicity_constraints_success(self):
-        criteria = [
-            ("gain criterion", "g"),
-            ("cost criterion", "c")
-        ]
-        data = np.array(
-            [
-                [1, 0],
-                [5, 2],
-                [3, 1],
-                [6, -1]
-            ]
-        )
+        data = read_dataset_from_txt("tests/datasets/example2.txt")
 
-        constraints = create_monotonicity_constraints(data, criteria)
+        constraints = create_monotonicity_constraints(data)
 
         self.assertEqual(len(constraints), 2)
         self.assertTrue("gain criterion" in constraints)

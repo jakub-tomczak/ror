@@ -2,15 +2,13 @@ from ror.Relation import Relation
 import numpy as np
 from typing import List, Tuple, Dict
 from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet
-from ror.Dataset import criterion_types
-from ror.PreferenceRelations import PreferenceRelation
+from ror.Dataset import Dataset, criterion_types
 
 
-def create_monotonicity_constraints(data, criteria: List[Tuple[str, str]]) -> Dict[str, List[Constraint]]:
-    assert type(data) is np.ndarray, "data must be a numpy array"
-    assert len(criteria) == data.shape[1], \
-        "number of columns in data must correspond to the number of criteria"
-
+def create_monotonicity_constraints(dataset: Dataset) -> Dict[str, List[Constraint]]:
+    assert dataset is not None, "dataset cannot be None"
+    data = dataset.matrix
+    criteria = dataset.criteria
     constraints = dict()
 
     for column, (criterion_name, criterion_type) in zip(data.T, criteria):
@@ -48,23 +46,3 @@ def create_monotonicity_constraints(data, criteria: List[Tuple[str, str]]) -> Di
             )
         constraints[criterion_name] = _constraints
     return constraints
-
-
-def create_preference_constraints(
-    data,
-    criteria: List[Tuple[str, str]],
-    preferences: List[PreferenceRelation]
-) -> Dict[str, List[Constraint]]:
-    assert type(data) is np.ndarray, "data must be a numpy array"
-    assert len(criteria) == data.shape[1], \
-        "number of columns in data must correspond to the number of criteria"
-
-    return [preference.to_constraint() for preference in preferences]
-
-
-def create_preference__intensities_constraints(
-    data,
-    criteria: List[Tuple[str, str]],
-    preferences: Tuple[List[str], List[str], str]
-) -> Dict[str, List[Constraint]]:
-    pass

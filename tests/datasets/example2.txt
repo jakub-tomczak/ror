@@ -1,0 +1,5 @@
+Id, gain criterion[g], cost criterion[c]
+a1,1, 0
+a2,5, 2
+a3,3, 1
+a4,6, -1
