@@ -49,6 +49,9 @@ class ValueConstraintVariable(ConstraintVariable):
     def __init__(self, coefficient: float) -> None:
         super().__init__(ValueConstraintVariable.name, coefficient)
 
+    def __repr__(self) -> str:
+        return f'{self.coefficient}'
+
 
 class ConstraintVariablesSet:
     '''
@@ -143,7 +146,7 @@ class Constraint:
     def add_variable(self, variable: ConstraintVariable):
         assert variable._name is not None, 'Variable name must not be None'
 
-        if variable._name == ValueConstraintVariable.name:
+        if type(variable) is ValueConstraintVariable:
             self._rhs.coefficient += variable.coefficient
         else:
             # add variable to constraint variables set
@@ -195,8 +198,9 @@ class Constraint:
             elif self._relation.sign == '>=':
                 self._relation.sign = '<='
 
-    def __repr__(self):        
-        return f'<Constraint:[name: {self._name}, variables: {self._variables_set}, relation: {self._relation.sign}, rhs: {self._rhs}]>'
+    def __repr__(self):
+        variables = '+'.join([f'{variable.coefficient}*{variable.name}' for variable in self._variables_set.variables])
+        return f'<Constraint:[name: {self._name}, variables: {variables}, relation: {self._relation.sign}, rhs: {self._rhs}]>'
 
 
 def merge_constraints(constraints: List[Constraint]) -> Constraint:

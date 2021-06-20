@@ -1,6 +1,6 @@
 from ror.Relation import Relation
 import numpy as np
-from typing import List, Tuple, Dict
+from typing import List, Dict
 from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet
 from ror.Dataset import Dataset, criterion_types
 
@@ -40,7 +40,7 @@ def create_monotonicity_constraints(dataset: Dataset) -> Dict[str, List[Constrai
                         -1,
                     )
                 ]),
-                    Relation('monotonicity relation', '<='),
+                    Relation('<=', 'monotonicity relation'),
                     f"mono_{Constraint.create_variable_name('u', criterion_name, row_index)}_{Constraint.create_variable_name('u', criterion_name, best_value_index)}"
                 )
             )

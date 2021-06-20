@@ -1,5 +1,8 @@
 class Relation:
-    def __init__(self, name: str, sign: str):
+    possible_relations = [">=", "<=", "==", ">", "<"]
+    def __init__(self, sign: str, name: str = None):
+        assert sign in Relation.possible_relations,\
+            f"Invalid sign {sign}, accepted values are: {','.join(Relation.possible_relations)}"
         self._sign = sign
         self._name = name
 
@@ -14,6 +17,6 @@ class Relation:
     def sign(self, value: str):
         self._sign = value
 
-WEAK_PREFERENCE = Relation('weak preference', '<=')
-PREFERENCE = Relation('preference', '<=')
-INDIFFERENCE = Relation('indifference', '==')
+WEAK_PREFERENCE = Relation('<=', 'weak preference')
+PREFERENCE = Relation('<=', 'preference')
+INDIFFERENCE = Relation('==', 'indifference')

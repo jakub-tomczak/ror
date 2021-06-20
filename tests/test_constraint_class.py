@@ -70,7 +70,7 @@ class TestConstraintClass(unittest.TestCase):
             value_variable_constr_2
         ])
 
-        constraint = Constraint(variables, Relation('some relation', '<='), 'test_constraint')
+        constraint = Constraint(variables, Relation('<='), 'test_constraint')
 
         self.assertEqual(constraint.number_of_variables, 2)
         self.assertAlmostEqual(constraint.get_variable(
@@ -84,7 +84,7 @@ class TestConstraintClass(unittest.TestCase):
         self.assertEqual(constraint.relation.sign, '<=')
 
     def test_constraint_creation_without_variables(self):
-        constraint = Constraint(ConstraintVariablesSet(), Relation('some relation', '<='), 'test_constraint')
+        constraint = Constraint(ConstraintVariablesSet(), Relation('<='), 'test_constraint')
 
         self.assertEqual(constraint.number_of_variables, 0)
         self.assertEqual(constraint.free_variable.coefficient, 0.0)
@@ -99,7 +99,7 @@ class TestConstraintClass(unittest.TestCase):
             variable_constr_1
         ])
 
-        constraint = Constraint(variables, Relation('some relation', '<='), 'test_constraint')
+        constraint = Constraint(variables, Relation('<='), 'test_constraint')
 
         constraint.add_variable(ValueConstraintVariable(1.0))
         constraint.add_variable(ConstraintVariable('variable1', 1.0))
@@ -124,7 +124,7 @@ class TestConstraintClass(unittest.TestCase):
             free_variable
         ])
 
-        constraint = Constraint(variables, Relation('some relation', '>='), 'test_constraint')
+        constraint = Constraint(variables, Relation('>='), 'test_constraint')
         constraint.multiply_by_scalar(2.0)
         
         self.assertAlmostEqual(constraint.get_variable(
@@ -146,7 +146,7 @@ class TestConstraintClass(unittest.TestCase):
             free_variable
         ])
 
-        constraint = Constraint(variables, Relation('some relation', '>='), 'test_constraint')
+        constraint = Constraint(variables, Relation('>='), 'test_constraint')
         constraint.multiply_by_scalar(-2.0)
         
         self.assertAlmostEqual(constraint.get_variable(

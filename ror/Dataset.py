@@ -23,7 +23,9 @@ class Dataset:
         assert len(criteria) == data.shape[1],\
             "Number of criteria doesn't match the number of data columns"
 
-        self._alternatives = alternatives
+        # list with names of alternatives
+        self._alternatives: List[str] = alternatives
+        # matrix with data for each alternative on each criterion
         self._data = data
         self._criteria = criteria
         self._eps = Dataset.DEFAULT_EPS
