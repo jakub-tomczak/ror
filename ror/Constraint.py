@@ -6,9 +6,11 @@ class ConstraintVariable:
     '''
     Class that stores a coefficient and the name of the variable.
     '''
-    def __init__(self, name: str, coefficient: float) -> None:
+    def __init__(self, name: str, coefficient: float, alternative: str = None, is_binary: bool = False) -> None:
         self._name = name
         self._coefficient = coefficient
+        self._alternative = alternative
+        self._is_binary = is_binary
 
     def __hash__(self) -> int:
         return hash(self.__attributes)
@@ -38,6 +40,14 @@ class ConstraintVariable:
     @coefficient.setter
     def coefficient(self, value):
         self._coefficient = value
+
+    @property
+    def alternative(self):
+        return self._alternative
+
+    @property
+    def is_binary(self):
+        return self._is_binary
 
 
 class ValueConstraintVariable(ConstraintVariable):
@@ -156,6 +166,17 @@ class Constraint:
         if variable_name in self._variables_set.variables_names:
             return self._variables_set[variable_name]
         return None
+
+    @property
+    def alternatives(self) -> List[str]:
+        '''
+        Returns names of all alternatives
+        in this Constraint.
+        '''
+        return [
+            variable.alternative
+            for variable in self._variables_set.variables
+        ]
 
     @property
     def name(self):

@@ -1,6 +1,9 @@
+from ror.helpers import reduce_lists
+from typing import List
 from ror.Relation import PREFERENCE, Relation
 from ror.Constraint import Constraint, ConstraintVariable, ValueConstraintVariable, ConstraintVariablesSet
 from ror.Dataset import Dataset
+
 
 class PreferenceCriterion:
     ALL = -1
@@ -56,7 +59,8 @@ class PreferenceRelation(Preference):
             ConstraintVariable(
                 Constraint.create_variable_name(
                     'u', criterion_name, self._alternative_1),
-                self._alpha * (-1) * alternative._coefficient
+                self._alpha * (-1) * alternative._coefficient,
+                self._alternative_1
             )
             for (criterion_name, _), alternative
             in zip(dataset.criteria, dataset.get_data_for_alternative(self._alternative_1))
@@ -65,7 +69,8 @@ class PreferenceRelation(Preference):
             ConstraintVariable(
                 Constraint.create_variable_name(
                     'lambda', criterion_name, self._alternative_1),
-                (1 - self._alpha)
+                (1 - self._alpha),
+                self._alternative_1
             )
             for (criterion_name, _)
             in dataset.criteria
@@ -80,7 +85,8 @@ class PreferenceRelation(Preference):
             ConstraintVariable(
                 Constraint.create_variable_name(
                     'u', criterion_name, self._alternative_2),
-                self._alpha * alternative._coefficient
+                self._alpha * alternative._coefficient,
+                self._alternative_2
             )
             for (criterion_name, _), alternative
             in zip(dataset.criteria, dataset.get_data_for_alternative(self._alternative_2))
@@ -89,7 +95,8 @@ class PreferenceRelation(Preference):
             ConstraintVariable(
                 Constraint.create_variable_name(
                     'lambda', criterion_name, self._alternative_2),
-                -1 * (1 - self._alpha)
+                -1 * (1 - self._alpha),
+                self._alternative_2
             )
             for (criterion_name, _)
             in dataset.criteria
@@ -152,7 +159,8 @@ class PreferenceIntensityRelation(Preference):
             ConstraintVariable(
                 Constraint.create_variable_name(
                     'u', criterion_name, self._alternative_1),
-                self._alpha * alternative._coefficient
+                self._alpha * alternative._coefficient,
+                self._alternative_1
             )
             for (criterion_name, _), alternative
             in zip(dataset.criteria, dataset.get_data_for_alternative(self._alternative_1))
@@ -161,7 +169,8 @@ class PreferenceIntensityRelation(Preference):
             ConstraintVariable(
                 Constraint.create_variable_name(
                     'lambda', criterion_name, self._alternative_1),
-                -1 * (1 - self._alpha)
+                -1 * (1 - self._alpha),
+                self._alternative_1
             )
             for (criterion_name, _)
             in dataset.criteria
@@ -175,7 +184,8 @@ class PreferenceIntensityRelation(Preference):
             ConstraintVariable(
                 Constraint.create_variable_name(
                     'u', criterion_name, self._alternative_2),
-                -1 * self._alpha * alternative._coefficient
+                -1 * self._alpha * alternative._coefficient,
+                self._alternative_2
             )
             for (criterion_name, _), alternative
             in zip(dataset.criteria, dataset.get_data_for_alternative(self._alternative_2))
@@ -184,7 +194,8 @@ class PreferenceIntensityRelation(Preference):
             ConstraintVariable(
                 Constraint.create_variable_name(
                     'lambda', criterion_name, self._alternative_2),
-                (1 - self._alpha)
+                (1 - self._alpha),
+                self._alternative_2
             )
             for (criterion_name, _)
             in dataset.criteria
@@ -199,7 +210,8 @@ class PreferenceIntensityRelation(Preference):
                 ConstraintVariable(
                     Constraint.create_variable_name(
                         'u', criterion_name, self._alternative_3),
-                    -1 * self._alpha * alternative._coefficient
+                    -1 * self._alpha * alternative._coefficient,
+                    self._alternative_3
                 )
                 for (criterion_name, _), alternative
                 in zip(dataset.criteria, dataset.get_data_for_alternative(self._alternative_3))
@@ -210,7 +222,8 @@ class PreferenceIntensityRelation(Preference):
                 ConstraintVariable(
                     Constraint.create_variable_name(
                         'lambda', criterion_name, self._alternative_3),
-                    (1 - self._alpha)
+                    (1 - self._alpha),
+                    self._alternative_3
                 )
                 for (criterion_name, _)
                 in dataset.criteria
@@ -226,7 +239,8 @@ class PreferenceIntensityRelation(Preference):
                 ConstraintVariable(
                     Constraint.create_variable_name(
                         'u', criterion_name, self._alternative_4),
-                    self._alpha * alternative._coefficient
+                    self._alpha * alternative._coefficient,
+                    self._alternative_4
                 )
                 for (criterion_name, _), alternative
                 in zip(dataset.criteria, dataset.get_data_for_alternative(self._alternative_4))
@@ -237,7 +251,8 @@ class PreferenceIntensityRelation(Preference):
                 ConstraintVariable(
                     Constraint.create_variable_name(
                         'lambda', criterion_name, self._alternative_4),
-                    -1 * (1 - self._alpha)
+                    -1 * (1 - self._alpha),
+                    self._alternative_4
                 )
                 for (criterion_name, _)
                 in dataset.criteria
@@ -252,3 +267,105 @@ class PreferenceIntensityRelation(Preference):
         constraint.add_variable(ValueConstraintVariable(rhs))
 
         return constraint
+
+
+def create_lambda_constraints(data: Dataset, preference_relations_constraints: List[Constraint]) -> List[Constraint]:
+    constraints = []
+
+    # get names of all alternatives created with preference or preference intensity relations
+    # only such alternatives should be accounted into constraints with lambda
+    alternatives_in_preference_constraints = set(reduce_lists(
+        [constraint.alternatives for constraint in preference_relations_constraints]
+    ))
+
+    for alternative in data.alternatives:
+        if alternative not in alternatives_in_preference_constraints:
+            # print(
+            #     f'Alternative {alternative} not used in any preference constraint.\
+            #         No lambda for this alternative exists')
+            continue
+        
+        for criterion_name, _ in data.criteria:
+            # lambda(a_k) + u_i(a_k) - 1 >= 0, transformed to
+            # -lambda_i(a_k) - u_i(a_k) <= -1
+            lower_constraint_1 = Constraint(ConstraintVariablesSet([
+                ConstraintVariable(
+                    Constraint.create_variable_name(
+                        "lambda", _criterion_name, alternative),
+                    -1.0
+                ) for _criterion_name, _ in data.criteria
+            ]), Relation("<="), f"lower_lambda1_{criterion_name}_{alternative}")
+            lower_constraint_1.add_variable(ConstraintVariable(
+                Constraint.create_variable_name(
+                    "u", criterion_name, alternative),
+                -1.0
+            ))
+            lower_constraint_1.add_variable(ValueConstraintVariable(-1.0))
+
+            # lambda(a_k) + u_i(a_k) - 1 >= -M*c_i(a_k), transformed to
+            # -lambda_i(a_k) - u_i(a_k) - M*c_i(a_k) <= -1
+            lower_constraint_2 = Constraint(ConstraintVariablesSet([
+                ConstraintVariable(
+                    Constraint.create_variable_name(
+                        "lambda", _criterion_name, alternative),
+                    -1.0
+                ) for _criterion_name, _ in data.criteria
+            ]), Relation("<="), f"lower_lambda2_{criterion_name}_{alternative}")
+            lower_constraint_2.add_variable(ConstraintVariable(
+                Constraint.create_variable_name(
+                    "c", criterion_name, alternative),
+                data.M * -1.0,
+                is_binary=True
+            ))
+            lower_constraint_2.add_variable(ConstraintVariable(
+                Constraint.create_variable_name(
+                    "u", criterion_name, alternative),
+                -1.0
+            ))
+            lower_constraint_2.add_variable(ValueConstraintVariable(-1.0))
+
+            # lambda(a_k) + u_i(a_k) - 1 <= M*c_i(a_k), transformed to
+            # lambda_i(a_k) + u_i(a_k) - M*c_i(a_k) <= 1
+            upper_constraint = Constraint(ConstraintVariablesSet([
+                ConstraintVariable(
+                    Constraint.create_variable_name(
+                        "lambda", _criterion_name, alternative),
+                    1.0
+                ) for _criterion_name, _ in data.criteria
+            ]), Relation("<="), f"upper_lambda_{criterion_name}_{alternative}")
+            upper_constraint.add_variables(ConstraintVariablesSet([
+                ConstraintVariable(
+                    Constraint.create_variable_name(
+                        "c", criterion_name, alternative),
+                    data.M * -1.0,
+                    is_binary=True
+                )]
+            ))
+            upper_constraint.add_variable(ConstraintVariable(
+                Constraint.create_variable_name("u", criterion_name, alternative), 1.0))
+            upper_constraint.add_variable(ValueConstraintVariable(1.0))
+            
+            constraints.append(lower_constraint_1)
+            constraints.append(lower_constraint_2)
+            constraints.append(upper_constraint)
+
+        # constraint for c_i
+        # sum(c_i(a_k)) <= n-1
+        # n-1 => len(criteria)-1
+        c_sum_constraint = Constraint(
+            ConstraintVariablesSet([
+                ConstraintVariable(
+                    Constraint.create_variable_name("c", criterion_name, alternative),
+                    1.0,
+                    alternative,
+                    is_binary=True
+                )
+                for criterion_name, _ in data.criteria
+            ]),
+            Relation("<="),
+            f"c_sum_constraint_{alternative}"
+        )
+        c_sum_constraint.add_variable(ValueConstraintVariable(len(data.criteria) - 1))
+        constraints.append(c_sum_constraint)
+
+    return constraints
