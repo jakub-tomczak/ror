@@ -13,17 +13,18 @@ class TestMinMaxValueConstraint(unittest.TestCase):
 
         # min value for criterion no. 1
         self.assertEqual(len(min_constraints[0].get_constraints_variables), 1)
+        self.assertIsNotNone(min_constraints[0].get_variable('u_MaxSpeed_b05'))
         self.assertAlmostEqual(
-            min_constraints[0].get_variable('b05').coefficient, 1.0)
+            min_constraints[0].get_variable('u_MaxSpeed_b05').coefficient, 1.0)
         self.assertAlmostEqual(
             min_constraints[0].free_variable.coefficient, 0.0)
         self.assertEqual(min_constraints[0].relation.sign, '==')
 
         # min value for criterion no. 2
         self.assertEqual(len(min_constraints[1].get_constraints_variables), 1)
-        self.assertIsNotNone(min_constraints[1].get_variable('b02'))
+        self.assertIsNotNone(min_constraints[1].get_variable('u_FuelCons_b01'))
         self.assertAlmostEqual(
-            min_constraints[1].get_variable('b02').coefficient, 1.0)
+            min_constraints[1].get_variable('u_FuelCons_b01').coefficient, 1.0)
         self.assertAlmostEqual(
             min_constraints[1].free_variable.coefficient, 0.0)
         self.assertEqual(min_constraints[1].relation.sign, '==')
@@ -34,11 +35,11 @@ class TestMinMaxValueConstraint(unittest.TestCase):
         max_constraint = create_max_value_constraint(data)
 
         self.assertEqual(len(max_constraint.get_constraints_variables), 2)
-        self.assertIsNotNone(max_constraint.get_variable('b02'))
+        self.assertIsNotNone(max_constraint.get_variable('u_MaxSpeed_b02'))
         self.assertAlmostEqual(
-            max_constraint.get_variable('b02').coefficient, 1.0)
-        self.assertIsNotNone(max_constraint.get_variable('b03'))
+            max_constraint.get_variable('u_MaxSpeed_b02').coefficient, 1.0)
+        self.assertIsNotNone(max_constraint.get_variable('u_FuelCons_b03'))
         self.assertAlmostEqual(
-            max_constraint.get_variable('b03').coefficient, 1.0)
+            max_constraint.get_variable('u_FuelCons_b03').coefficient, 1.0)
         self.assertAlmostEqual(max_constraint.free_variable.coefficient, 1.0)
         self.assertEqual(max_constraint.relation.sign, '==')

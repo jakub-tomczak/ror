@@ -18,11 +18,9 @@ class TestMonotonicityConstraints(unittest.TestCase):
         self.assertTrue("cost criterion" in constraints)
 
         self.assertEqual(len(constraints['gain criterion']), 3)
-        # a_1 <= a_3
         self.assertEqual(constraints['gain criterion'][0].name,
                          "mono_u_gain criterion_1_u_gain criterion_3")
 
-        # a_0 <= a_3
         self.assertEqual(len(constraints['cost criterion']), 3)
         self.assertEqual(constraints['cost criterion'][0].name,
                          "mono_u_cost criterion_0_u_cost criterion_3")

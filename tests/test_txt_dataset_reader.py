@@ -20,6 +20,12 @@ class TestTxtDatasetReader(unittest.TestCase):
 
         self.assertIs(type(data.matrix[0, 0]), np.int64)
         self.assertEqual(data.matrix[0, 0], 90)
+        self.assertIs(type(data.matrix[4, 0]), np.int64)
+        self.assertEqual(data.matrix[4, 0], 83)
 
+        # cost type criteria are reversed
+        # (multiplied by -1 so we can treat them as gain type criteria)
         self.assertIs(type(data.matrix[4, 1]), np.int64)
-        self.assertEqual(data.matrix[4, 1], 26)
+        self.assertEqual(data.matrix[4, 1], -26)
+        self.assertIs(type(data.matrix[0, 1]), np.int64)
+        self.assertEqual(data.matrix[0, 1], -27)

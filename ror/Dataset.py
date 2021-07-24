@@ -10,6 +10,15 @@ criterion_types = {
     "cost": "c"
 }
 
+def reverse_cost_type_criteria(data: any, criteria: List[Tuple[str, str]]):
+    assert type(data) is np.ndarray, "Data must be a numpy array"
+    # reverse values in the cost type criteria - assume that all criteria are of a gain type
+    for index, (criterion_name, criterion_type) in enumerate(criteria):
+        if criterion_type == criterion_types["cost"]:
+            print('Flipping values in criterion', criterion_name)
+            data[:, index] *= -1
+    return data
+
 
 class Dataset:
     DEFAULT_EPS = 1e-6
@@ -26,13 +35,13 @@ class Dataset:
         # list with names of alternatives
         self._alternatives: List[str] = alternatives
         # matrix with data for each alternative on each criterion
-        self._data = data
+        self._data = reverse_cost_type_criteria(data, criteria)
         self._criteria = criteria
         self._eps = Dataset.DEFAULT_EPS
         self._M = Dataset.DEFAULT_M
         self._alternative_to_variable = dict()
         self._criterion_to_index = {
-            criterion: index for criterion, index in enumerate(criteria)
+            criterion_name: index for index, (criterion_name, _) in enumerate(criteria)
         }
 
         for alternative_values, alternative_name in zip(data, alternatives):

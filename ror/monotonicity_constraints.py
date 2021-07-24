@@ -11,17 +11,15 @@ def create_monotonicity_constraints(dataset: Dataset) -> Dict[str, List[Constrai
     criteria = dataset.criteria
     constraints = dict()
 
-    for column, (criterion_name, criterion_type) in zip(data.T, criteria):
+    for column, (criterion_name, _) in zip(data.T, criteria):
         _constraints = []
         # sort data in a column and save indices
         _data = np.sort(column)
         _data_indices = np.argsort(column)
 
-        # reverse data in sorted column,
-        # if criterion is of gain type (ascending sort by default)
-        if criterion_type == criterion_types["gain"]:
-            _data = _data[::-1]
-            _data_indices = _data_indices[::-1]
+        # reverse data in sorted column
+        _data = _data[::-1]
+        _data_indices = _data_indices[::-1]
 
         best_value_index = _data_indices[0]
         # iterate over all values, skipping the best (first) value

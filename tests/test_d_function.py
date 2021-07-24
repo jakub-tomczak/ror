@@ -28,7 +28,7 @@ class TestDFunction(unittest.TestCase):
 
         self.assertAlmostEqual(d_constraint[ValueConstraintVariable.name].coefficient, 1.0)
         self.assertAlmostEqual(d_constraint['u_MaxSpeed_b01'].coefficient, -45.0)
-        self.assertAlmostEqual(d_constraint['u_FuelCons_b01'].coefficient, -13.5)
+        self.assertAlmostEqual(d_constraint['u_FuelCons_b01'].coefficient, 13.5)
         self.assertAlmostEqual(d_constraint['lambda_MaxSpeed_b01'].coefficient, 0.5)
         self.assertAlmostEqual(d_constraint['lambda_FuelCons_b01'].coefficient, 0.5)
 
@@ -42,6 +42,6 @@ class TestDFunction(unittest.TestCase):
 
         self.assertAlmostEqual(d_constraint[ValueConstraintVariable.name].coefficient, 2.0)
         self.assertAlmostEqual(d_constraint['u_MaxSpeed_b01'].coefficient, -90.0)
-        self.assertAlmostEqual(d_constraint['u_FuelCons_b01'].coefficient, -27.0)
+        self.assertAlmostEqual(d_constraint['u_FuelCons_b01'].coefficient, 27.0)
         self.assertAlmostEqual(d_constraint['lambda_MaxSpeed_b01'].coefficient, 1.0)
         self.assertAlmostEqual(d_constraint['lambda_FuelCons_b01'].coefficient, 1.0)

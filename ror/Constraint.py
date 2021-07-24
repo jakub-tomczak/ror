@@ -97,6 +97,10 @@ class ConstraintVariablesSet:
     def variables_names(self):
         return self._variables.keys()
 
+    @property
+    def alternative_names(self):
+        return [var.alternative for var in self._variables.values()]
+
     def __getitem__(self, key: str):
         return self._variables[key]
 
