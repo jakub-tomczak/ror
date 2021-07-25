@@ -1,7 +1,7 @@
 from ror.Relation import Relation
 from ror.Dataset import Dataset
-from typing import List, Tuple
-from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet, ValueConstraintVariable
+from typing import Tuple
+from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet
 
 DIFF_EPS = 1e-10
 
