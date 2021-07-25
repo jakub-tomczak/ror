@@ -2,3 +2,4 @@
 gurobipy
 matplotlib
 pandas
+numpy
