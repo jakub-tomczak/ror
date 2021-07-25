@@ -6,6 +6,9 @@ import numpy as np
 
 
 def create_min_value_constraints(dataset: Dataset) -> List[Constraint]:
+    assert dataset is not None, "dataset cannot be None"
+    assert len(
+        dataset.alternatives) > 0, "number of alternatives in the dataset must be greater than 0"
     worst_values = []
 
     for column, (criterion_name, _) in zip(dataset.matrix.T, dataset.criteria):
@@ -24,7 +27,8 @@ def create_min_value_constraints(dataset: Dataset) -> List[Constraint]:
         worst_values.append(Constraint(
             ConstraintVariablesSet([
                 ConstraintVariable(
-                    Constraint.create_variable_name('u', criterion_name, dataset.alternatives[worst_value_index]),
+                    Constraint.create_variable_name(
+                        'u', criterion_name, dataset.alternatives[worst_value_index]),
                     1.0
                 )
             ]),
@@ -35,6 +39,10 @@ def create_min_value_constraints(dataset: Dataset) -> List[Constraint]:
 
 
 def create_max_value_constraint(dataset: Dataset) -> Constraint:
+    assert dataset is not None, "dataset cannot be None"
+    assert len(
+        dataset.alternatives) > 0, "number of alternatives in the dataset must be greater than 0"
+
     constraint_variables = []
     for column, (criterion_name, _) in zip(dataset.matrix.T, dataset.criteria):
         # sort data in a column and save indices
