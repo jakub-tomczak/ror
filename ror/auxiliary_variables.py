@@ -3,12 +3,19 @@ from ror.Constraint import Constraint, ConstraintVariable
 from ror.Dataset import Dataset
 
 
-def get_vector(vector_variable_name: str, alternative: str, coefficient: float, dataset: Dataset) -> List[ConstraintVariable]:
+def get_vector(
+        vector_variable_name: str,
+        alternative: str,
+        coefficient: float,
+        dataset: Dataset,
+        is_binary: bool = False) -> List[ConstraintVariable]:
     return [
         ConstraintVariable(
             Constraint.create_variable_name(
                 vector_variable_name, criterion_name, alternative),
-            coefficient
+            coefficient,
+            alternative,
+            is_binary
         )
         for (criterion_name, _)
         in dataset.criteria
