@@ -16,11 +16,11 @@ class TestSlopeConstraints(unittest.TestCase):
         self.assertEqual(len(constraints), 6)
 
         first_constraint = constraints[0]
-        # there should be b02, b03 and b04
-        self.assertEqual(len(first_constraint.variables), 3)
+        # there should be b02, b03 and b04, delta
+        self.assertEqual(len(first_constraint.variables), 4)
         self.assertEqual(
             set(first_constraint.variables_names),
-            set(["u_MaxSpeed_b02", "u_MaxSpeed_b03", "u_MaxSpeed_b04"])
+            set(["u_MaxSpeed_b02", "u_MaxSpeed_b03", "u_MaxSpeed_b04", "delta"])
         )
 
         first_constraint_slope_first_coeff = \
@@ -95,10 +95,12 @@ class TestSlopeConstraints(unittest.TestCase):
         second_coeff = 1 / (data.matrix[1, 0] - data.matrix[0, 0]) # -1.0
         self.assertAlmostEqual(first_coeff, -0.5)
         self.assertAlmostEqual(second_coeff, -1.0)
+        self.assertAlmostEqual(first_criterion_first_slope.get_variable("delta").coefficient, -1.0)
         self.assertAlmostEqual(first_criterion_first_slope.get_variable("u_First criterion_a1").coefficient, second_coeff)
         self.assertAlmostEqual(first_criterion_first_slope.get_variable("u_First criterion_a2").coefficient, -first_coeff - second_coeff)
         self.assertAlmostEqual(first_criterion_first_slope.get_variable("u_First criterion_a3").coefficient, first_coeff)
 
+        self.assertAlmostEqual(first_criterion_second_slope.get_variable("delta").coefficient, -1.0)
         self.assertAlmostEqual(first_criterion_second_slope.get_variable("u_First criterion_a1").coefficient, -second_coeff)
         self.assertAlmostEqual(first_criterion_second_slope.get_variable("u_First criterion_a2").coefficient, first_coeff + second_coeff)
         self.assertAlmostEqual(first_criterion_second_slope.get_variable("u_First criterion_a3").coefficient, -first_coeff)
@@ -109,10 +111,12 @@ class TestSlopeConstraints(unittest.TestCase):
         second_coeff = 1 / (data.matrix[1, 1] - data.matrix[0, 1]) # -1.0
         self.assertAlmostEqual(first_coeff, 1/8)
         self.assertAlmostEqual(second_coeff, -1.0)
+        self.assertAlmostEqual(second_criterion_first_slope.get_variable("delta").coefficient, -1.0)
         self.assertAlmostEqual(second_criterion_first_slope.get_variable("u_Second criterion_a1").coefficient, second_coeff)
         self.assertAlmostEqual(second_criterion_first_slope.get_variable("u_Second criterion_a2").coefficient, -first_coeff - second_coeff)
         self.assertAlmostEqual(second_criterion_first_slope.get_variable("u_Second criterion_a3").coefficient, first_coeff)
 
+        self.assertAlmostEqual(second_criterion_second_slope.get_variable("delta").coefficient, -1.0)
         self.assertAlmostEqual(second_criterion_second_slope.get_variable("u_Second criterion_a1").coefficient, -second_coeff)
         self.assertAlmostEqual(second_criterion_second_slope.get_variable("u_Second criterion_a2").coefficient, first_coeff + second_coeff)
         self.assertAlmostEqual(second_criterion_second_slope.get_variable("u_Second criterion_a3").coefficient, -first_coeff)

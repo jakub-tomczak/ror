@@ -1,7 +1,7 @@
 from ror.Relation import Relation
 from ror.Dataset import Dataset
 from typing import List, Tuple
-from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet
+from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet, ValueConstraintVariable
 
 DIFF_EPS = 1e-10
 
@@ -63,6 +63,10 @@ def _create_slope_constraint(l: int, data: Dataset, criterion_name: str) -> Tupl
                 'u', criterion_name, data.alternatives[l-2]),
             second_coeff,
             data.alternatives[l-2]
+        ),
+        ConstraintVariable(
+            "delta",
+            -1.0
         )
     ]), Relation("<="), Constraint.create_variable_name("first_slope", criterion_name, l))
 
@@ -90,6 +94,10 @@ def _create_slope_constraint(l: int, data: Dataset, criterion_name: str) -> Tupl
                 'u', criterion_name, data.alternatives[l-2]),
             -second_coeff,
             data.alternatives[l-2]
+        ),
+        ConstraintVariable(
+            "delta",
+            -1.0
         )
     ]), Relation("<="), Constraint.create_variable_name("second_slope", criterion_name, l))
 
