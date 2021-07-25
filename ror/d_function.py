@@ -1,3 +1,4 @@
+from ror.auxiliary_variables import get_vector
 from typing import List
 from ror.Constraint import Constraint, ConstraintVariablesSet, ConstraintVariable, ValueConstraintVariable
 from ror.Dataset import Dataset
@@ -14,24 +15,13 @@ def d_sum(alternative: str, alpha: float, dataset: Dataset) -> List[ConstraintVa
     ]
 
 
-def d_lambda(alternative: str, alpha: float, dataset: Dataset) -> List[ConstraintVariable]:
-    return [
-        ConstraintVariable(
-            Constraint.create_variable_name(
-                'lambda', criterion_name, alternative),
-            (1 - alpha)
-        )
-        for (criterion_name, _)
-        in dataset.criteria
-    ]
-
-
 def d(alternative: str, alpha: float, dataset: Dataset) -> ConstraintVariablesSet:
     '''
     Creates a set of variables that represents d* function.
     '''
     sum_constraint_variables = d_sum(alternative, alpha, dataset)
-    lambda_constraint_variables = d_lambda(alternative, alpha, dataset)
+    lambda_constraint_variables = get_vector(
+        'lambda', alternative, 1-alpha, dataset)
     variables = ConstraintVariablesSet(
         [*sum_constraint_variables, *lambda_constraint_variables],
         f'd*({alternative})'
