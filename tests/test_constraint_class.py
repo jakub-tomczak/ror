@@ -17,6 +17,13 @@ class TestConstraintClass(unittest.TestCase):
 
         self.assertEqual(value_variable_constr_1, value_variable_constr_2)
 
+    def test_constraint_multiplication(self):
+        variable_constr_1 = ConstraintVariable('variable1', 5.0)
+        variable = variable_constr_1.multiply(-2.0)
+
+        self.assertEqual(variable_constr_1, variable)
+        self.assertEqual(variable_constr_1.coefficient, -10.0)
+
     def test_constraint_variables_set(self):
         variable_constr_1 = ConstraintVariable('variable1', 2.0)
         variable_constr_1_1 = ConstraintVariable('variable1', 1.0)
@@ -44,8 +51,9 @@ class TestConstraintClass(unittest.TestCase):
             ValueConstraintVariable(5.0)
         ])
 
-        constraint_variables_set.multiply_by_scalar(-10.0);
+        variables_set = constraint_variables_set.multiply_by_scalar(-10.0);
 
+        self.assertEqual(constraint_variables_set, variables_set)
         self.assertEqual(len(constraint_variables_set.variables), 3)
         self.assertAlmostEqual(
             constraint_variables_set[ValueConstraintVariable.name].coefficient, -50.0)

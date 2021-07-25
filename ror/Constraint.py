@@ -1,3 +1,4 @@
+from __future__ import annotations
 from ror.Relation import Relation
 from typing import Dict, List, Set
 
@@ -6,6 +7,7 @@ class ConstraintVariable:
     '''
     Class that stores a coefficient and the name of the variable.
     '''
+
     def __init__(self, name: str, coefficient: float, alternative: str = None, is_binary: bool = False) -> None:
         self._name = name
         self._coefficient = coefficient
@@ -20,6 +22,10 @@ class ConstraintVariable:
 
     def __repr__(self) -> str:
         return f'<Variable[name: {self._name}, coeff: {self._coefficient}]>'
+
+    def multiply(self, factor: float) -> ConstraintVariable:
+        self.coefficient *= factor
+        return self
 
     @property
     def __attributes(self):
@@ -110,9 +116,10 @@ class ConstraintVariablesSet:
     def __repr__(self):
         return 'no variables' if len(self._variables) < 1 else ",".join([v for v in self._variables])
 
-    def multiply_by_scalar(self, scalar: float):
+    def multiply_by_scalar(self, scalar: float) -> ConstraintVariablesSet:
         for variable in self._variables.values():
-            variable.coefficient *= scalar
+            variable.multiply(scalar)
+        return self
 
 
 def merge_variables(new_variable: ConstraintVariable, variables: List[ConstraintVariable]) -> Set[ConstraintVariable]:
@@ -224,7 +231,8 @@ class Constraint:
                 self._relation.sign = '<='
 
     def __repr__(self):
-        variables = '+'.join([f'{variable.coefficient}*{variable.name}' for variable in self._variables_set.variables])
+        variables = '+'.join(
+            [f'{variable.coefficient}*{variable.name}' for variable in self._variables_set.variables])
         return f'<Constraint:[name: {self._name}, variables: {variables}, relation: {self._relation.sign}, rhs: {self._rhs}]>'
 
 
