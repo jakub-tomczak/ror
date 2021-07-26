@@ -114,7 +114,7 @@ def read_dataset_from_txt(filename: str):
             return ('', '')
         return (data[0], criterion_type)
 
-    alternatives = data.iloc[:, 0]
+    alternatives = data.iloc[:, 0].to_numpy()
     values = data.iloc[:, 1:].to_numpy()
     # skip first column - this should be id
     criteria = [parse_criterion(criterion) for criterion in data.columns[1:]]

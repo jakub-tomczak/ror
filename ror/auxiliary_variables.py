@@ -20,3 +20,11 @@ def get_vector(
         for (criterion_name, _)
         in dataset.criteria
     ]
+
+
+def get_lambda_variable(alternative: str, coefficient: float = 1.0) -> ConstraintVariable:
+    return ConstraintVariable(
+        Constraint.create_variable_name('lambda', 'all', alternative),
+        coefficient,
+        alternative
+    )
