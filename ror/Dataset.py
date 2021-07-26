@@ -109,7 +109,7 @@ class RORDataset(Dataset):
             intensity_relations if intensity_relations is not None else []
 
     @property
-    def preferenceRelations(self) -> List["PreferenceIntensityRelation"]:
+    def preferenceRelations(self) -> List["PreferenceRelation"]:
         return self._preference_relations
 
     @property
