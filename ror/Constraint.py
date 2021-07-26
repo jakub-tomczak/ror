@@ -27,6 +27,10 @@ class ConstraintVariable:
         self.coefficient *= factor
         return self
 
+    def with_coefficient(self, coefficient: float) -> ConstraintVariable:
+        self.coefficient = coefficient
+        return self
+
     @property
     def __attributes(self):
         return (self._name, self._coefficient)
