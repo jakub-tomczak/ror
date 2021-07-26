@@ -1,6 +1,6 @@
 from ror.Relation import INDIFFERENCE, Relation
 from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet, ValueConstraintVariable
-from ror.Dataset import Dataset, criterion_types
+from ror.Dataset import Dataset
 from typing import List
 import numpy as np
 
