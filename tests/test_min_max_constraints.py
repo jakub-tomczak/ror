@@ -1,6 +1,6 @@
 from ror.min_max_value_constraints import create_max_value_constraint, create_min_value_constraints
-from ror.Dataset import read_dataset_from_txt
 import unittest
+from ror.data_loader import read_dataset_from_txt
 
 
 class TestMinMaxValueConstraint(unittest.TestCase):

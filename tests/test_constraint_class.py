@@ -51,7 +51,7 @@ class TestConstraintClass(unittest.TestCase):
             ValueConstraintVariable(5.0)
         ])
 
-        variables_set = constraint_variables_set.multiply_by_scalar(-10.0);
+        variables_set = constraint_variables_set.multiply_by_scalar(-10.0)
 
         self.assertEqual(constraint_variables_set, variables_set)
         self.assertEqual(len(constraint_variables_set.variables), 3)

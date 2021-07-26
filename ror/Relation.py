@@ -34,3 +34,9 @@ class Relation:
 WEAK_PREFERENCE = Relation('<=', 'weak preference')
 PREFERENCE = Relation('<=', 'preference')
 INDIFFERENCE = Relation('==', 'indifference')
+
+PREFERENCE_NAME_TO_RELATION = {
+    "preference": PREFERENCE,
+    "weak preference": WEAK_PREFERENCE,
+    "indifference": INDIFFERENCE
+}

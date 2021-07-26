@@ -1,29 +1,26 @@
+from __future__ import annotations
 from ror.Constraint import ConstraintVariable
 import numpy as np
 from typing import List, Tuple
-import pandas as pd
-import os
-
-
-criterion_types = {
-    "gain": "g",
-    "cost": "c"
-}
-
-def reverse_cost_type_criteria(data: any, criteria: List[Tuple[str, str]]):
-    assert type(data) is np.ndarray, "Data must be a numpy array"
-    # reverse values in the cost type criteria - assume that all criteria are of a gain type
-    for index, (criterion_name, criterion_type) in enumerate(criteria):
-        if criterion_type == criterion_types["cost"]:
-            print('Flipping values in criterion', criterion_name)
-            data[:, index] *= -1
-    return data
 
 
 class Dataset:
     DEFAULT_EPS = 1e-6
     DEFAULT_M = 1e10
     ALL_CRITERIA = 'all'
+    CRITERION_TYPES = {
+        "gain": "g",
+        "cost": "c"
+    }
+
+    def reverse_cost_type_criteria(data: any, criteria: List[Tuple[str, str]]):
+        assert type(data) is np.ndarray, "Data must be a numpy array"
+        # reverse values in the cost type criteria - assume that all criteria are of a gain type
+        for index, (criterion_name, criterion_type) in enumerate(criteria):
+            if criterion_type == Dataset.CRITERION_TYPES["cost"]:
+                print('Flipping values in criterion', criterion_name)
+                data[:, index] *= -1
+        return data
 
     def __init__(self, alternatives: List[str], data: any, criteria: List[Tuple[str, str]]):
         assert type(data) is np.ndarray, "Data must be a numpy array"
@@ -35,7 +32,7 @@ class Dataset:
         # list with names of alternatives
         self._alternatives: List[str] = alternatives
         # matrix with data for each alternative on each criterion
-        self._data = reverse_cost_type_criteria(data, criteria)
+        self._data = Dataset.reverse_cost_type_criteria(data, criteria)
         self._criteria = criteria
         self._eps = Dataset.DEFAULT_EPS
         self._M = Dataset.DEFAULT_M
@@ -94,33 +91,27 @@ class Dataset:
         return self._alternative_to_variable
 
 
-def read_dataset_from_txt(filename: str):
-    if not os.path.exists(filename):
-        print(f"file {filename} doesn't exist")
-        return None
+class RORDataset(Dataset):
+    def __init__(
+            self,
+            alternatives: List[str],
+            data: any,
+            criteria: List[Tuple[str, str]],
+            # HACK: without quotes we would need to import those 2 clases
+            # but then we will get circular import,
+            # this is still better than no type hints
+            preference_relations: List["PreferenceRelation"] = None,
+            intensity_relations: List["PreferenceIntensityRelation"] = None):
+        super().__init__(alternatives, data, criteria)
+        self._preference_relations: List["PreferenceRelation"] = \
+            preference_relations if preference_relations is not None else []
+        self._intensity_relations: List["PreferenceIntensityRelation"] = \
+            intensity_relations if intensity_relations is not None else []
 
-    data = pd.read_csv(filename, sep=',')
+    @property
+    def preferenceRelations(self) -> List["PreferenceIntensityRelation"]:
+        return self._preference_relations
 
-    def parse_criterion(criterion: str) -> Tuple[str, str]:
-        data = criterion.strip().split('[')
-
-        if len(data) != 2 or len(data[0]) < 1 or len(data[1]) < 1:
-            print(f"Failed to parse criterion {criterion}")
-            return ('', '')
-        criterion_type = data[1][0]
-        if criterion_type not in criterion_types.values():
-            print(
-                f"Invalid criterion type: {criterion_type}, expected values: {criterion_type.values()}")
-            return ('', '')
-        return (data[0], criterion_type)
-
-    alternatives = data.iloc[:, 0].to_numpy()
-    values = data.iloc[:, 1:].to_numpy()
-    # skip first column - this should be id
-    criteria = [parse_criterion(criterion) for criterion in data.columns[1:]]
-
-    return Dataset(
-        alternatives=alternatives,
-        data=values,
-        criteria=criteria
-    )
+    @property
+    def intensityRelations(self) -> List["PreferenceIntensityRelation"]:
+        return self._intensity_relations

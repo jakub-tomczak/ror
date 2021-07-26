@@ -1,5 +1,6 @@
+from ror.data_loader import read_dataset_from_txt
 import unittest
-from ror.Dataset import read_dataset_from_txt, Dataset
+from ror.Dataset import Dataset
 from ror.slope_constraints import create_slope_constraints
 import numpy as np
 

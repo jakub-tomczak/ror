@@ -1,5 +1,5 @@
+from ror.data_loader import read_dataset_from_txt
 import unittest
-from ror.Dataset import read_dataset_from_txt
 from ror.PreferenceRelations import PreferenceRelation
 from ror.Relation import INDIFFERENCE, PREFERENCE, Relation, WEAK_PREFERENCE
 
@@ -7,22 +7,24 @@ from ror.Relation import INDIFFERENCE, PREFERENCE, Relation, WEAK_PREFERENCE
 class TestPreferenceRelations(unittest.TestCase):
     def test_creating_preference_invalid_alpha(self):
         with self.assertRaises(AssertionError):
-            PreferenceRelation('b01', 'b02', PREFERENCE, -1e-10)
+            relation = PreferenceRelation('b01', 'b02', PREFERENCE)
+            relation.alpha = -1e-10
         with self.assertRaises(AssertionError):
-            PreferenceRelation('b01', 'b02', PREFERENCE, 1+1e-10)
+            relation = PreferenceRelation('b01', 'b02', PREFERENCE)
+            relation.alpha = 1+1e-10
 
     def test_creating_preference_invalid_relation(self):
         with self.assertRaises(AssertionError):
-            PreferenceRelation('b01', 'b02', "<=", 0)
+            PreferenceRelation('b01', 'b02', "<=")
 
         with self.assertRaises(AssertionError):
-            PreferenceRelation('b01', 'b02', Relation('<='), 0)
+            PreferenceRelation('b01', 'b02', Relation('<='))
 
     def test_strong_preference_alpha_0(self):
         data = read_dataset_from_txt("tests/datasets/example.txt")
 
-        preference = PreferenceRelation('b01', 'b02', PREFERENCE, 0.0)
-        preference_constraint = preference.to_constraint(data)
+        preference = PreferenceRelation('b01', 'b02', PREFERENCE)
+        preference_constraint = preference.to_constraint(data, 0.0)
 
         self.assertEqual(preference_constraint._relation, PREFERENCE)
         self.assertEqual(len(preference_constraint.variables),
@@ -55,9 +57,8 @@ class TestPreferenceRelations(unittest.TestCase):
         data = read_dataset_from_txt("tests/datasets/example.txt")
 
         alpha = 1.0
-        preference = PreferenceRelation(
-            'b01', 'b02', PREFERENCE, alpha)
-        preference_constraint = preference.to_constraint(data)
+        preference = PreferenceRelation('b01', 'b02', PREFERENCE)
+        preference_constraint = preference.to_constraint(data, alpha)
 
         self.assertEqual(preference_constraint._relation, PREFERENCE)
         self.assertEqual(len(preference_constraint.variables),
@@ -93,9 +94,8 @@ class TestPreferenceRelations(unittest.TestCase):
         data = read_dataset_from_txt("tests/datasets/example.txt")
 
         alpha = 1.0
-        preference = PreferenceRelation(
-            'b01', 'b02', WEAK_PREFERENCE, alpha)
-        preference_constraint = preference.to_constraint(data)
+        preference = PreferenceRelation('b01', 'b02', WEAK_PREFERENCE)
+        preference_constraint = preference.to_constraint(data, alpha)
 
         self.assertEqual(preference_constraint._relation,
                          WEAK_PREFERENCE)
@@ -130,9 +130,8 @@ class TestPreferenceRelations(unittest.TestCase):
         data = read_dataset_from_txt("tests/datasets/example.txt")
 
         alpha = 0.5
-        preference = PreferenceRelation(
-            'b01', 'b02', PREFERENCE, alpha)
-        preference_constraint = preference.to_constraint(data)
+        preference = PreferenceRelation('b01', 'b02', PREFERENCE)
+        preference_constraint = preference.to_constraint(data, alpha)
 
         self.assertEqual(preference_constraint._relation, PREFERENCE)
         # 2 * len(data.criteria) -> u_i(a_k); +2 -> lambda(a_k)
@@ -169,9 +168,8 @@ class TestPreferenceRelations(unittest.TestCase):
         data = read_dataset_from_txt("tests/datasets/example.txt")
 
         alpha = 0.5
-        preference = PreferenceRelation(
-            'b01', 'b02', WEAK_PREFERENCE, alpha)
-        preference_constraint = preference.to_constraint(data)
+        preference = PreferenceRelation('b01', 'b02', WEAK_PREFERENCE)
+        preference_constraint = preference.to_constraint(data, alpha)
 
         self.assertEqual(preference_constraint._relation,
                          WEAK_PREFERENCE)
@@ -202,9 +200,8 @@ class TestPreferenceRelations(unittest.TestCase):
         data = read_dataset_from_txt("tests/datasets/example.txt")
 
         alpha = 0.5
-        preference = PreferenceRelation(
-            'b01', 'b02', INDIFFERENCE, alpha)
-        preference_constraint = preference.to_constraint(data)
+        preference = PreferenceRelation('b01', 'b02', INDIFFERENCE)
+        preference_constraint = preference.to_constraint(data, alpha)
 
         self.assertEqual(preference_constraint._relation,
                          INDIFFERENCE)

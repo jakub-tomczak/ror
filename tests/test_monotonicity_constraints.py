@@ -1,4 +1,4 @@
-from ror.Dataset import read_dataset_from_txt
+from ror.data_loader import read_dataset_from_txt
 import unittest
 from ror.monotonicity_constraints import create_monotonicity_constraints
 

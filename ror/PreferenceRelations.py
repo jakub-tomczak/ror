@@ -11,13 +11,28 @@ class PreferenceCriterion:
 
 
 class Preference:
-    def __init__(self, function_name: str, alpha: float) -> None:
+    def __init__(self, function_name: str, relation: Relation) -> None:
         assert function_name != '',\
             'Name of the function that this preference represents must not be empty'
-        assert 0 <= alpha <= 1, "alpha must be in range <0, 1>"
-
         self._function_name = function_name
-        self._alpha = alpha
+        self._alpha = None
+
+        assert type(relation) is Relation, f"relation must be Relation type"
+        self._relation = relation
+
+    @property
+    def relation(self) -> Relation:
+        return self._relation
+
+    @property
+    def alpha(self) -> float:
+        return self._alpha
+
+    @alpha.setter
+    def alpha(self, new_alpha: float):
+        assert new_alpha is not None, "alpha must not be None"
+        assert 0 <= new_alpha <= 1, "alpha must be in range <0, 1>"
+        self._alpha = new_alpha
 
 
 class PreferenceRelation(Preference):
@@ -26,26 +41,31 @@ class PreferenceRelation(Preference):
             alternative_1: str,
             alternative_2: str,
             relation: Relation,
-            alpha: float,
             preference_criterion: int = PreferenceCriterion.ALL):
-        assert type(relation) is Relation,\
-            f"relation object must be of Relation type"
         assert any([relation == WEAK_PREFERENCE, relation == PREFERENCE, relation == INDIFFERENCE]),\
             f"relation object must be of WEAK_PREFERENCE, PREFERENCE or INDIFFERENCE"
-        super().__init__(relation._name, alpha)
+        super().__init__(relation._name, relation)
 
         self._alternative_1: str = alternative_1
         self._alternative_2: str = alternative_2
-        self._relation: Relation = relation
         self._criterion: int = preference_criterion
+
+    @property
+    def alternative_1(self) -> str:
+        return self._alternative_1
+
+    @property
+    def alternative_2(self) -> str:
+        return self._alternative_2
 
     def __repr__(self):
         return f"<Preference: {self._alternative_1} {self._relation} {self._alternative_2}>"
 
-    def to_constraint(self, dataset: Dataset) -> Constraint:
+    def to_constraint(self, dataset: Dataset, alpha: float) -> Constraint:
         '''
         Creates Constraint object for this relation on a specific criterion.
         '''
+        self.alpha = alpha
 
         constraint = Constraint(
             ConstraintVariablesSet(),
@@ -107,27 +127,40 @@ class PreferenceIntensityRelation(Preference):
             alternative_3: str,
             alternative_4: str,
             relation: Relation,
-            alpha: float,
             preference_criterion: int = PreferenceCriterion.ALL):
-        super().__init__('d_intens', alpha)
-
-        assert type(relation) is Relation, f"relation must be Relation type"
+        super().__init__('d_intens', relation)
 
         self._alternative_1 = alternative_1
         self._alternative_2 = alternative_2
         self._alternative_3 = alternative_3
         self._alternative_4 = alternative_4
-        self._relation = relation
         self._preference_criterion = preference_criterion
+
+    @property
+    def alternative_1(self) -> str:
+        return self._alternative_1
+
+    @property
+    def alternative_2(self) -> str:
+        return self._alternative_2
+    
+    @property
+    def alternative_3(self) -> str:
+        return self._alternative_3
+
+    @property
+    def alternative_4(self) -> str:
+        return self._alternative_4
 
     def __repr__(self):
         return f"<Preference: {self._alternative_1} - {self._alternative_2} {self._relation} {self._alternative_3} - {self._alternative_4}>"
 
-    def to_constraint(self, dataset: Dataset) -> Constraint:
+    def to_constraint(self, dataset: Dataset, alpha: float) -> Constraint:
         '''
         Creates Constraint object for this relation on a specific criterion.
         PREFERENCE relation creates a relation
         '''
+        self.alpha = alpha
         # -d(a_k) + d(a_l) + d(a_p) - d(a_q) <= -eps
         # -d(alternative_1) + d(alternative_2) + d(alternative_3) - d(alternative_4) <= -eps
 

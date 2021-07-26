@@ -1,3 +1,4 @@
+#Data
 BusId, MaxSpeed[g], FuelCons[c]
 b01, 90, 27
 b02, 90, 27
