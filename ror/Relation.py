@@ -20,8 +20,12 @@ class Relation:
         return (self._name, self._sign)
 
     @property
-    def sign(self):
+    def sign(self) -> str:
         return self._sign
+
+    @property
+    def name(self) -> str:
+        return self._name
     
     @sign.setter
     def sign(self, value: str):
