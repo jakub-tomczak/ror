@@ -3,6 +3,7 @@ from ror.Dataset import Dataset
 from typing import Tuple
 from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet
 
+# difference of 2 values greater than DIFF_EPS indicates that they are different
 DIFF_EPS = 1e-10
 
 
