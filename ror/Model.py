@@ -1,6 +1,8 @@
 from ror.helpers import reduce_lists
 from ror.Constraint import Constraint
 from typing import List
+import gurobipy as gp
+from gurobipy import GRB
 
 
 class Model:
@@ -26,6 +28,13 @@ class Model:
         data = ['Model', f"target: {self._target}",
                 ""] + [c.__repr__() for c in self._constraints]
         return '\n'.join(data)
+    
+    @property
+    def variables_names(self):
+        variables_name = set()
+        for constraint in self._constraints:
+            variables_name.update(constraint.variables_names)
+        return variables_name
 
     @property
     def constraints(self) -> List[Constraint]:
@@ -44,3 +53,29 @@ class Model:
     @property
     def notes(self) -> str:
         return self._notes
+
+    def to_gurobi_model(self):
+        gurobi_model = gp.Model("model")
+        distinct_variables = self.variables_names
+        gurobi_variables = {variable_name: gurobi_model.addVar(name=variable_name) for variable_name in distinct_variables}
+        gurobi_operators = {
+            "<=": GRB.LESS_EQUAL,
+            "==": GRB.EQUAL
+        }
+
+        for constraint in self._constraints:
+            variables = constraint.variables
+            expr = gp.LinExpr(
+                [variable.coefficient for variable in variables],
+                [gurobi_variables[variable.name] for variable in variables]
+            )
+            gurobi_model.addLConstr(
+                lhs=expr,
+                sense=gurobi_operators[constraint.relation.sign],
+                rhs=constraint.free_variable.coefficient,
+                name=constraint.name
+            )
+            gurobi_model.update()
+
+        return gurobi_model
+

@@ -8,7 +8,7 @@ from ror.Dataset import RORDataset
 
 class RORModel(Model):
     def __init__(self, dataset: RORDataset, alpha: float, notes: str):
-        super().__init__([])
+        super().__init__([], "delta", notes)
         assert dataset is not None, "Dataset must not be None"
         self._dataset = dataset
         self._alpha = alpha
@@ -41,5 +41,3 @@ class RORModel(Model):
         # slope
         slope_constraints = create_slope_constraints(self._dataset)
         self.add_constraints(slope_constraints)
-
-        self.target = "delta"
