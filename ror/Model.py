@@ -1,6 +1,6 @@
 from ror.helpers import reduce_lists
-from ror.Constraint import Constraint
-from typing import List
+from ror.Constraint import Constraint, ConstraintVariable
+from typing import List, Set
 import gurobipy as gp
 from gurobipy import GRB
 
@@ -28,13 +28,16 @@ class Model:
         data = ['Model', f"target: {self._target}",
                 ""] + [c.__repr__() for c in self._constraints]
         return '\n'.join(data)
-    
+
     @property
-    def variables_names(self):
-        variables_name = set()
+    def variables(self) -> Set[ConstraintVariable]:
+        '''
+        Returns all variables in model.
+        '''
+        variables = set()
         for constraint in self._constraints:
-            variables_name.update(constraint.variables_names)
-        return variables_name
+            variables.update(constraint.variables)
+        return variables
 
     @property
     def constraints(self) -> List[Constraint]:
@@ -54,10 +57,13 @@ class Model:
     def notes(self) -> str:
         return self._notes
 
-    def to_gurobi_model(self):
+    def to_gurobi_model(self) -> gp.Model:
         gurobi_model = gp.Model("model")
-        distinct_variables = self.variables_names
-        gurobi_variables = {variable_name: gurobi_model.addVar(name=variable_name) for variable_name in distinct_variables}
+        distinct_variables = self.variables
+        # create a dict
+        # variable name: str -> variable: gurobi variable object
+        gurobi_variables = {variable.name: gurobi_model.addVar(
+            name=variable.name, vtype=GRB.BINARY if variable.is_binary else GRB.CONTINUOUS) for variable in distinct_variables}
         gurobi_operators = {
             "<=": GRB.LESS_EQUAL,
             "==": GRB.EQUAL
@@ -77,5 +83,13 @@ class Model:
             )
             gurobi_model.update()
 
+        # add objective
+        objective = gp.LinExpr(1.0, gurobi_variables[self.target])
+        gurobi_model.setObjective(objective)
+        gurobi_model.update()
+
         return gurobi_model
 
+    def save_model(self):
+        gurobi_model = self.to_gurobi_model()
+        gurobi_model.write('model.lp')
