@@ -37,11 +37,26 @@ class TestMonotonicityConstraints(unittest.TestCase):
         self.assertAlmostEqual(
             worst_value_first_constraint_first_criterion.coefficient, 1.0)
 
-        # last constraint for gain criterion
+        # second constraint for gain criterion
         self.assertEqual(
-            gain_criterion_constraints[2].name, "mono_u_gain criterion_a4_u_gain criterion_a1")
+            gain_criterion_constraints[1].name, "mono_u_gain criterion_a2_u_gain criterion_a3")
+        best_value_first_constraint_first_criterion = gain_criterion_constraints[1].get_variable(
+            'u_gain criterion_a2')
+        self.assertIsNotNone(best_value_first_constraint_first_criterion)
+        self.assertAlmostEqual(
+            best_value_first_constraint_first_criterion.coefficient, -1.0)
+
+        worst_value_first_constraint_first_criterion = gain_criterion_constraints[1].get_variable(
+            'u_gain criterion_a3')
+        self.assertIsNotNone(worst_value_first_constraint_first_criterion)
+        self.assertAlmostEqual(
+            worst_value_first_constraint_first_criterion.coefficient, 1.0)
+
+        # third constraint for gain criterion
+        self.assertEqual(
+            gain_criterion_constraints[2].name, "mono_u_gain criterion_a3_u_gain criterion_a1")
         best_value_third_constraint_first_criterion = gain_criterion_constraints[2].get_variable(
-            'u_gain criterion_a4')
+            'u_gain criterion_a3')
         self.assertIsNotNone(best_value_third_constraint_first_criterion)
         self.assertAlmostEqual(
             best_value_third_constraint_first_criterion.coefficient, -1.0)
@@ -72,11 +87,26 @@ class TestMonotonicityConstraints(unittest.TestCase):
         self.assertAlmostEqual(
             worst_value_first_constraint_first_criterion.coefficient, 1.0)
 
-        # first constraint for cost criterion
+        # second constraint for cost criterion
         self.assertEqual(
-            cost_criterion_constraints[2].name, "mono_u_cost criterion_a4_u_cost criterion_a2")
+            cost_criterion_constraints[1].name, "mono_u_cost criterion_a1_u_cost criterion_a3")
+        best_value_third_constraint_second_criterion = cost_criterion_constraints[1].get_variable(
+            'u_cost criterion_a1')
+        self.assertIsNotNone(best_value_third_constraint_second_criterion)
+        self.assertAlmostEqual(
+            best_value_third_constraint_second_criterion.coefficient, -1.0)
+
+        worst_value_third_constraint_first_criterion = cost_criterion_constraints[1].get_variable(
+            'u_cost criterion_a3')
+        self.assertIsNotNone(worst_value_third_constraint_first_criterion)
+        self.assertAlmostEqual(
+            worst_value_third_constraint_first_criterion.coefficient, 1.0)
+
+        # third constraint for cost criterion
+        self.assertEqual(
+            cost_criterion_constraints[2].name, "mono_u_cost criterion_a3_u_cost criterion_a2")
         best_value_third_constraint_second_criterion = cost_criterion_constraints[2].get_variable(
-            'u_cost criterion_a4')
+            'u_cost criterion_a3')
         self.assertIsNotNone(best_value_third_constraint_second_criterion)
         self.assertAlmostEqual(
             best_value_third_constraint_second_criterion.coefficient, -1.0)

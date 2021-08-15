@@ -22,32 +22,32 @@ def create_monotonicity_constraints(dataset: Dataset) -> Dict[str, List[Constrai
 
     for column, (criterion_name, _) in zip(data.T, criteria):
         _constraints = []
-        # sort data in a column and save indices
+        # sort data (asceding order) in a column
         _data = np.sort(column)
+        # sort indices (asceding order) in a column
         _data_indices = np.argsort(column)
 
         # reverse data in sorted column
         _data = _data[::-1]
         _data_indices = _data_indices[::-1]
 
-        best_value_index = _data_indices[0]
         # iterate over all alternatives' values in the criterion,
         # skipping the best (first) value
-        for row_index in _data_indices[1:]:
-            row_variable_name = Constraint.create_variable_name(
-                'u', criterion_name, dataset.alternatives[row_index])
-            best_variable_name = Constraint.create_variable_name(
-                'u', criterion_name, dataset.alternatives[best_value_index])
+        for idx in range(len(_data_indices)-1):
+            better_variable_name = Constraint.create_variable_name(
+                'u', criterion_name, dataset.alternatives[_data_indices[idx]])
+            worst_variable_name = Constraint.create_variable_name(
+                'u', criterion_name, dataset.alternatives[_data_indices[idx+1]])
             _constraints.append(
                 Constraint(
                     ConstraintVariablesSet([
-                        ConstraintVariable(row_variable_name, 1.0,
-                                           dataset.alternatives[row_index]),
+                        ConstraintVariable(worst_variable_name, 1.0,
+                                           dataset.alternatives[_data_indices[idx]]),
                         ConstraintVariable(
-                            best_variable_name, -1.0, dataset.alternatives[best_value_index])
+                            better_variable_name, -1.0, dataset.alternatives[_data_indices[idx+1]])
                     ]),
                     Relation('<=', 'monotonicity relation'),
-                    f"mono_{best_variable_name}_{row_variable_name}"
+                    f"mono_{better_variable_name}_{worst_variable_name}"
                 )
             )
         constraints[criterion_name] = _constraints
