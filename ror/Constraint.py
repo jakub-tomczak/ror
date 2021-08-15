@@ -100,12 +100,12 @@ class ConstraintVariablesSet:
             self.add_variable(variable)
 
     @property
-    def variables(self):
+    def variables(self) -> List[ConstraintVariable]:
         return self._variables.values()
 
     @property
-    def variables_names(self):
-        return self._variables.keys()
+    def variables_names(self) -> List[str]:
+        return list(self._variables.keys())
 
     @property
     def alternative_names(self):

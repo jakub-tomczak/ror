@@ -1,18 +1,14 @@
-from typing import Dict
-from ror.OptimizationResult import OptimizationResult
 from ror.slope_constraints import create_slope_constraints
 from ror.min_max_value_constraints import create_max_value_constraint, create_min_value_constraints
 from ror.monotonicity_constraints import create_monotonicity_constraints
 from ror.Model import Model
 from ror.inner_maximization_constraints import create_inner_maximization_constraints
 from ror.Dataset import RORDataset
-from gurobipy import GRB
-import gurobipy as gp
 
 
 class RORModel(Model):
     def __init__(self, dataset: RORDataset, alpha: float, notes: str):
-        super().__init__([], "delta", notes)
+        super().__init__([], notes)
         assert dataset is not None, "Dataset must not be None"
         self._dataset = dataset
         self._alpha = alpha
@@ -45,5 +41,3 @@ class RORModel(Model):
         # slope
         slope_constraints = create_slope_constraints(self._dataset)
         self.add_constraints(slope_constraints)
-
-        self.update_model()

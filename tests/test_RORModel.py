@@ -1,7 +1,7 @@
+from ror.Constraint import ConstraintVariable, ConstraintVariablesSet
 from ror.data_loader import read_dataset_from_txt
 import unittest
 from ror.RORModel import RORModel
-from gurobipy import GRB
 
 
 class TestRORModel(unittest.TestCase):
@@ -10,14 +10,16 @@ class TestRORModel(unittest.TestCase):
         model = RORModel(data, 0.0, "Model with alpha 0.0")
 
         self.assertEqual(len(model.constraints), 171)
-        self.assertEqual(model.target, "delta")
+        self.assertIsNone(model.target)
 
     def test_creating_gurobi_model_from_ror_model(self):
         data = read_dataset_from_txt("tests/datasets/ror_dataset.txt")
         model = RORModel(data, 0.0, "Model with alpha 0.0")
 
         self.assertEqual(len(model.constraints), 171)
-        self.assertEqual(model.target, "delta")
+        model.target = ConstraintVariablesSet([
+            ConstraintVariable("delta", 1.0)
+        ])
 
         model.to_gurobi_model()
 
@@ -26,13 +28,18 @@ class TestRORModel(unittest.TestCase):
         model = RORModel(data, 0.0, "Model with alpha 0.0")
 
         self.assertEqual(len(model.constraints), 171)
-        self.assertEqual(model.target, "delta")
+        model.target = ConstraintVariablesSet([
+            ConstraintVariable("delta", 1.0)
+        ])
 
         model.save_model()
 
     def test_solving_model(self):
         data = read_dataset_from_txt("tests/datasets/ror_full_dataset.txt")
         model = RORModel(data, 0.0, "Model with alpha 0.0")
+        model.target = ConstraintVariablesSet([
+            ConstraintVariable("delta", 1.0)
+        ])
 
         result = model.solve()
 

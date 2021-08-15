@@ -1,5 +1,5 @@
 from ror.helpers import reduce_lists
-from ror.Constraint import Constraint, ConstraintVariable
+from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet
 from typing import Dict, List, Set
 import gurobipy as gp
 from gurobipy import GRB
@@ -7,12 +7,13 @@ from ror.OptimizationResult import OptimizationResult
 
 
 class Model:
-    def __init__(self, constraints: List[Constraint] = None, target: str = None, notes: str = None):
+    def __init__(self, constraints: List[Constraint] = None, notes: str = None):
         assert constraints is None or type(constraints) is list,\
             "constrains must be an array of Constraint class or None"
         self._constraints: List[Constraint] = constraints if constraints is not None else [
         ]
-        self._target: str = target
+        # target (objective) is a set of variables
+        self._target: ConstraintVariablesSet = None
         self._notes: str = notes
         self.gurobi_model: gp.Model = None
 
@@ -46,20 +47,28 @@ class Model:
         return self._constraints
 
     @property
-    def target(self) -> str:
+    def target(self) -> ConstraintVariablesSet:
         return self._target
 
     @target.setter
-    def target(self, target: str):
-        assert target in reduce_lists([constr.variables_names for constr in self._constraints]),\
-            f"target variable '{target}' doesn't exist in any constraint"
+    def target(self, target: ConstraintVariablesSet):
+        self._validate_target(target)
         self._target = target
 
     @property
     def notes(self) -> str:
         return self._notes
 
+    def _validate_target(self, target: ConstraintVariablesSet):
+        assert target is not None, "Model's target must not be None"
+        all_variables = set(reduce_lists([constr.variables_names for constr in self._constraints]))
+        variables = set(target.variables_names)
+        diff = variables.difference(all_variables)
+        assert len(diff) == 0, f"target variables '{diff}' doesn't exist in any constraint"
+
     def to_gurobi_model(self) -> gp.Model:
+        self._validate_target(self.target)
+
         gurobi_model = gp.Model("model")
         distinct_variables = self.variables
         # create a dict
@@ -86,7 +95,10 @@ class Model:
             gurobi_model.update()
 
         # add objective
-        objective = gp.LinExpr(1.0, gurobi_variables[self.target])
+
+        objective = gp.LinExpr(
+            [variable.coefficient for variable in self._target.variables],
+            [gurobi_variables[variable.name] for variable in self._target.variables])
         gurobi_model.setObjective(objective)
         gurobi_model.update()
 
