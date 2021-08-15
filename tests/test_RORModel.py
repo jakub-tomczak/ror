@@ -34,8 +34,6 @@ class TestRORModel(unittest.TestCase):
         data = read_dataset_from_txt("tests/datasets/ror_full_dataset.txt")
         model = RORModel(data, 0.0, "Model with alpha 0.0")
 
-        gurobi_model = model.to_gurobi_model()
-        gurobi_model.optimize()
+        result = model.solve()
 
-        self.assertEqual(gurobi_model.status, GRB.OPTIMAL)
-        self.assertAlmostEqual(gurobi_model.objVal, 0.0)
+        self.assertAlmostEqual(result.objective_value, 0.0)

@@ -1,7 +1,7 @@
 from ror.Relation import Relation
 from ror.Dataset import Dataset
-from typing import Tuple
-from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet
+from typing import List, Tuple
+from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet, ValueConstraintVariable
 
 # difference of 2 values greater than DIFF_EPS indicates that they are different
 DIFF_EPS = 1e-10
@@ -39,6 +39,14 @@ def _create_slope_constraint(l: int, data: Dataset, criterion_name: str) -> Tupl
             f'Criterion {criterion_name} for alternative {data.alternatives[l-1]} has the same value ({data.get_data_for_alternative_and_criterion(data.alternatives[l], criterion_name).coefficient}) as alternative {data.alternatives[l-2]} on this criterion.')
         return None
     second_coeff = 1 / (second_diff)
+
+    delta_constraint = ConstraintVariable(
+            "delta",
+            -1.0
+        ) if data.delta is None else ValueConstraintVariable(
+            data.delta
+        )
+
     # create constraint
     first_constraint = Constraint(ConstraintVariablesSet([
         ConstraintVariable(
@@ -65,10 +73,7 @@ def _create_slope_constraint(l: int, data: Dataset, criterion_name: str) -> Tupl
             second_coeff,
             data.alternatives[l-2]
         ),
-        ConstraintVariable(
-            "delta",
-            -1.0
-        )
+        delta_constraint
     ]), Relation("<="), Constraint.create_variable_name("first_slope", criterion_name, l))
 
     second_constraint = Constraint(ConstraintVariablesSet([
@@ -96,16 +101,13 @@ def _create_slope_constraint(l: int, data: Dataset, criterion_name: str) -> Tupl
             -second_coeff,
             data.alternatives[l-2]
         ),
-        ConstraintVariable(
-            "delta",
-            -1.0
-        )
+        delta_constraint
     ]), Relation("<="), Constraint.create_variable_name("second_slope", criterion_name, l))
 
     return (first_constraint, second_constraint)
 
 
-def create_slope_constraints(data: Dataset):
+def create_slope_constraints(data: Dataset) -> List[Constraint]:
     '''
     Returns slope constraints for all alternatives except the ones that have duplicated
     values in the criterion space.

@@ -121,3 +121,33 @@ class TestSlopeConstraints(unittest.TestCase):
         self.assertAlmostEqual(second_criterion_second_slope.get_variable("u_Second criterion_a1").coefficient, -second_coeff)
         self.assertAlmostEqual(second_criterion_second_slope.get_variable("u_Second criterion_a2").coefficient, first_coeff + second_coeff)
         self.assertAlmostEqual(second_criterion_second_slope.get_variable("u_Second criterion_a3").coefficient, -first_coeff)
+
+    def test_creating_one_slope_contraint__with_delta_value_success(self):
+        delta_value = 1.0
+        data = Dataset(
+            ["a1", "a2", "a3"],
+            np.array([
+                [10, 11],
+                [9, 12],
+                [7, 4]
+            ]),
+            [("First criterion", "g"), ("Second criterion", "c")],
+            delta_value
+        )
+        
+        slope_constraints = create_slope_constraints(data)
+        # no repetition in criterion values so there will be
+        # 2 x number of criteria + (n-2)*2 slope constraints
+        # where n is the number of alternatives
+        self.assertEqual(len(slope_constraints), 4)
+
+        first_criterion_first_slope, first_criterion_second_slope = slope_constraints[:2]
+        # delta value is a free variable
+        self.assertAlmostEqual(first_criterion_first_slope.free_variable.coefficient, delta_value)
+        self.assertAlmostEqual(first_criterion_second_slope.free_variable.coefficient, delta_value)
+
+        second_criterion_first_slope, second_criterion_second_slope = slope_constraints[2:]
+        # delta value is a free variable
+        self.assertAlmostEqual(second_criterion_first_slope.free_variable.coefficient, delta_value)
+        self.assertAlmostEqual(second_criterion_second_slope.free_variable.coefficient, delta_value)
+

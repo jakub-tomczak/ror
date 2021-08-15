@@ -1,8 +1,9 @@
 from ror.helpers import reduce_lists
 from ror.Constraint import Constraint, ConstraintVariable
-from typing import List, Set
+from typing import Dict, List, Set
 import gurobipy as gp
 from gurobipy import GRB
+from ror.OptimizationResult import OptimizationResult
 
 
 class Model:
@@ -13,6 +14,7 @@ class Model:
         ]
         self._target: str = target
         self._notes: str = notes
+        self.gurobi_model: gp.Model = None
 
     def add_constraints(self, constraints: List[Constraint]):
         for constraint in constraints:
@@ -90,6 +92,34 @@ class Model:
 
         return gurobi_model
 
+    def update_model(self):
+        self.gurobi_model = self.to_gurobi_model()
+        return self.gurobi_model
+
     def save_model(self):
-        gurobi_model = self.to_gurobi_model()
-        gurobi_model.write('model.lp')
+        self.update_model()
+        self.gurobi_model.write('model.lp')
+
+    def solve(self) -> OptimizationResult:
+        model = self.to_gurobi_model()
+
+        model.optimize()
+        if model.status == GRB.INF_OR_UNBD:
+            # Turn presolve off to determine whether model is infeasible
+            # or unbounded
+            print("Turning presolve off")
+            model.setParam(GRB.Param.Presolve, 0)
+            model.optimize()
+
+        print('Solution found, objective = %g' % model.ObjVal)
+        if model.status == GRB.OPTIMAL:
+            print('Optimal objective: %g' % model.objVal)
+            variables_values: Dict[str, float] = {}
+            for v in model.getVars():
+                variables_values[v.VarName] = v.X
+                if v.X != 0.0:
+                    print('%s %g' % (v.VarName, v.X))
+            return OptimizationResult(self, model.objVal, variables_values)
+        elif model.status != GRB.INFEASIBLE:
+            print('Optimization was stopped with status %d' % model.status)
+            return None

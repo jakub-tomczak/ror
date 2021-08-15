@@ -22,7 +22,7 @@ class Dataset:
                 data[:, index] *= -1
         return data
 
-    def __init__(self, alternatives: List[str], data: any, criteria: List[Tuple[str, str]]):
+    def __init__(self, alternatives: List[str], data: any, criteria: List[Tuple[str, str]], delta: float = None):
         assert type(data) is np.ndarray, "Data must be a numpy array"
         assert len(alternatives) == data.shape[0],\
             "Number of alternatives labels doesn't match the number of data rows"
@@ -40,6 +40,9 @@ class Dataset:
         self._criterion_to_index = {
             criterion_name: index for index, (criterion_name, _) in enumerate(criteria)
         }
+        # delta value used as objective in step 1
+        # in step 2 used as a free value obained in step 1
+        self._delta: float = delta
 
         for alternative_values, alternative_name in zip(data, alternatives):
             self._alternative_to_variable[alternative_name] = [
@@ -89,6 +92,10 @@ class Dataset:
     @property
     def alternative_to_variable(self):
         return self._alternative_to_variable
+
+    @property
+    def delta(self) -> float:
+        return self._delta
 
 
 class RORDataset(Dataset):
