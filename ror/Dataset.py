@@ -97,6 +97,10 @@ class Dataset:
     def delta(self) -> float:
         return self._delta
 
+    @delta.setter
+    def delta(self, delta):
+        self._delta = delta
+
 
 class RORDataset(Dataset):
     def __init__(

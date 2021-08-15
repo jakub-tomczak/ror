@@ -1,7 +1,6 @@
 from ror.data_loader import read_dataset_from_txt
 from ror.Constraint import ValueConstraintVariable
 import unittest
-from ror.Dataset import Dataset
 from ror.d_function import d
 
 

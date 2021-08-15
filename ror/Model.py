@@ -62,6 +62,8 @@ class Model:
     def _validate_target(self, target: ConstraintVariablesSet):
         assert target is not None, "Model's target must not be None"
         all_variables = set(reduce_lists([constr.variables_names for constr in self._constraints]))
+        # free variable should be always available in target
+        all_variables.add("free")
         variables = set(target.variables_names)
         diff = variables.difference(all_variables)
         assert len(diff) == 0, f"target variables '{diff}' doesn't exist in any constraint"
@@ -97,8 +99,11 @@ class Model:
         # add objective
 
         objective = gp.LinExpr(
-            [variable.coefficient for variable in self._target.variables],
-            [gurobi_variables[variable.name] for variable in self._target.variables])
+            [variable.coefficient for variable in self._target.variables if variable.name != "free"],
+            [gurobi_variables[variable.name] for variable in self._target.variables if variable.name != "free"])
+        if "free" in self._target.variables_names:
+            objective.addConstant(self._target["free"].coefficient)
+            print("Model name", self.notes, "objective is", objective, "free value is", self._target["free"].coefficient)
         gurobi_model.setObjective(objective)
         gurobi_model.update()
 
