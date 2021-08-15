@@ -72,6 +72,8 @@ class Model:
         self._validate_target(self.target)
 
         gurobi_model = gp.Model("model")
+        # set lower verbosity
+        gurobi_model.Params.OutputFlag = 0
         distinct_variables = self.variables
         # create a dict
         # variable name: str -> variable: gurobi variable object
@@ -103,7 +105,6 @@ class Model:
             [gurobi_variables[variable.name] for variable in self._target.variables if variable.name != "free"])
         if "free" in self._target.variables_names:
             objective.addConstant(self._target["free"].coefficient)
-            print("Model name", self.notes, "objective is", objective, "free value is", self._target["free"].coefficient)
         gurobi_model.setObjective(objective)
         gurobi_model.update()
 
@@ -128,14 +129,12 @@ class Model:
             model.setParam(GRB.Param.Presolve, 0)
             model.optimize()
 
-        print('Solution found, objective = %g' % model.ObjVal)
         if model.status == GRB.OPTIMAL:
             print('Optimal objective: %g' % model.objVal)
             variables_values: Dict[str, float] = {}
+            # save calculated coefficients
             for v in model.getVars():
                 variables_values[v.VarName] = v.X
-                if v.X != 0.0:
-                    print('%s %g' % (v.VarName, v.X))
             return OptimizationResult(self, model.objVal, variables_values)
         elif model.status != GRB.INFEASIBLE:
             print('Optimization was stopped with status %d' % model.status)
