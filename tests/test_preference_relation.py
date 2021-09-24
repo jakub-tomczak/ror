@@ -64,14 +64,14 @@ class TestPreferenceRelations(unittest.TestCase):
         self.assertEqual(len(preference_constraint.variables),
                          2 * len(data.criteria) + 2)
         self.assertEqual(preference_constraint._name,
-                         'preference_all_b02_<=_b01')
+                         'preference_{all}_(b02) <= preference_{all}_(b01)')
 
         self.assertTrue(
-            'lambda_all_b01' in preference_constraint.variables_names)
+            'lambda_{all}_(b01)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'lambda_all_b01').coefficient, 0.0)
+            'lambda_{all}_(b01)').coefficient, 0.0)
         self.assertTrue(
-            'u_MaxSpeed_b01' in preference_constraint.variables_names)
+            'u_{MaxSpeed}_(b01)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
             'u_MaxSpeed_b01').coefficient, -1.0)
 
@@ -103,25 +103,25 @@ class TestPreferenceRelations(unittest.TestCase):
         self.assertEqual(len(preference_constraint.variables),
                          2 * len(data.criteria) + 2)
         self.assertEqual(preference_constraint.name,
-                         'weak preference_all_b02_<=_b01')
+                         'weak preference_{all}_(b02) <= weak preference_{all}_(b01)')
 
         self.assertTrue(
-            'lambda_all_b01' in preference_constraint.variables_names)
+            'lambda_{all}_(b01)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'lambda_all_b01').coefficient, 0.0)
+            'lambda_{all}_(b01)').coefficient, 0.0)
         self.assertTrue(
-            'u_MaxSpeed_b01' in preference_constraint.variables_names)
+            'u_{MaxSpeed}_(b01)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'u_MaxSpeed_b01').coefficient, -1.0)
+            'u_{MaxSpeed}_(b01)').coefficient, -1.0)
 
         self.assertTrue(
-            'lambda_all_b02' in preference_constraint.variables_names)
+            'lambda_{all}_(b02)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'lambda_all_b02').coefficient, 0.0)
+            'lambda_{all}_(b02)').coefficient, 0.0)
         self.assertTrue(
-            'u_MaxSpeed_b02' in preference_constraint.variables_names)
+            'u_{MaxSpeed}_(b02)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'u_MaxSpeed_b02').coefficient, 1.0)
+            'u_{MaxSpeed}_(b02)').coefficient, 1.0)
 
         self.assertAlmostEqual(
             preference_constraint.free_variable.coefficient, 0)
@@ -138,25 +138,25 @@ class TestPreferenceRelations(unittest.TestCase):
         self.assertEqual(len(preference_constraint.variables),
                          2 * len(data.criteria) + 2)
         self.assertEqual(preference_constraint.name,
-                         'preference_all_b02_<=_b01')
+                         'preference_{all}_(b02) <= preference_{all}_(b01)')
 
         self.assertTrue(
-            'lambda_all_b01' in preference_constraint.variables_names)
+            'lambda_{all}_(b01)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'lambda_all_b01').coefficient, 0.5)
+            'lambda_{all}_(b01)').coefficient, 0.5)
         self.assertTrue(
-            'u_MaxSpeed_b01' in preference_constraint.variables_names)
+            'u_{MaxSpeed}_(b01)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'u_MaxSpeed_b01').coefficient, -0.5)
+            'u_{MaxSpeed}_(b01)').coefficient, -0.5)
 
         self.assertTrue(
-            'lambda_all_b02' in preference_constraint.variables_names)
+            'lambda_{all}_(b02)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'lambda_all_b02').coefficient, -0.5)
+            'lambda_{all}_(b02)').coefficient, -0.5)
         self.assertTrue(
-            'u_MaxSpeed_b02' in preference_constraint.variables_names)
+            'u_{MaxSpeed}_(b02)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'u_MaxSpeed_b02').coefficient, 0.5)
+            'u_{MaxSpeed}_(b02)').coefficient, 0.5)
 
         self.assertAlmostEqual(
             preference_constraint.free_variable.coefficient,
@@ -177,18 +177,18 @@ class TestPreferenceRelations(unittest.TestCase):
         self.assertEqual(len(preference_constraint.variables),
                          2 * len(data.criteria) + 2)
         self.assertEqual(preference_constraint._name,
-                         'weak preference_all_b02_<=_b01')
+                         'weak preference_{all}_(b02) <= weak preference_{all}_(b01)')
 
         # all constraints are the same as in the strong preference, except free variable
         # that should be equal to 0 (there is no epsilion value)
         self.assertTrue(
-            'lambda_all_b01' in preference_constraint.variables_names)
+            'lambda_{all}_(b01)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'lambda_all_b01').coefficient, 0.5)
+            'lambda_{all}_(b01)').coefficient, 0.5)
         self.assertTrue(
-            'u_MaxSpeed_b01' in preference_constraint.variables_names)
+            'u_{MaxSpeed}_(b01)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'u_MaxSpeed_b01').coefficient, -0.5)
+            'u_{MaxSpeed}_(b01)').coefficient, -0.5)
 
         self.assertAlmostEqual(
             preference_constraint.free_variable.coefficient,
@@ -209,18 +209,18 @@ class TestPreferenceRelations(unittest.TestCase):
         self.assertEqual(len(preference_constraint.variables),
                          2 * len(data.criteria) + 2)
         self.assertEqual(preference_constraint._name,
-                         'indifference_all_b02_==_b01')
+                         'indifference_{all}_(b02) == indifference_{all}_(b01)')
 
         # all constraints are the same as in the strong preference, except free variable
         # that should be equal to 0 (there is no epsilion value)
         self.assertTrue(
-            'lambda_all_b01' in preference_constraint.variables_names)
+            'lambda_{all}_(b01)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'lambda_all_b01').coefficient, 0.5)
+            'lambda_{all}_(b01)').coefficient, 0.5)
         self.assertTrue(
-            'u_MaxSpeed_b01' in preference_constraint.variables_names)
+            'u_{MaxSpeed}_(b01)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'u_MaxSpeed_b01').coefficient, -0.5)
+            'u_{MaxSpeed}_(b01)').coefficient, -0.5)
 
         self.assertAlmostEqual(
             preference_constraint.free_variable.coefficient,

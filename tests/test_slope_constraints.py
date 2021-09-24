@@ -21,7 +21,7 @@ class TestSlopeConstraints(unittest.TestCase):
         self.assertEqual(len(first_constraint.variables), 4)
         self.assertEqual(
             set(first_constraint.variables_names),
-            set(["u_MaxSpeed_b02", "u_MaxSpeed_b03", "u_MaxSpeed_b04", "delta"])
+            set(["u_{MaxSpeed}_(b02)", "u_{MaxSpeed}_(b03)", "u_{MaxSpeed}_(b04)", "delta"])
         )
 
         first_constraint_slope_first_coeff = \

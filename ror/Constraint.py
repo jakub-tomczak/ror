@@ -146,7 +146,7 @@ class Constraint:
 
     # class members
     def create_variable_name(function_name: str, criterion_name: str, alternative_name: str):
-        return f'{function_name}_{criterion_name}_{alternative_name}'
+        return f'{function_name}_{{{criterion_name}}}_({alternative_name})'
 
     # instance members
     def __init__(self, variables: ConstraintVariablesSet, relation: Relation, name: str = "constr"):
