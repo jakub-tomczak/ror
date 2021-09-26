@@ -3,3 +3,4 @@ gurobipy
 matplotlib
 pandas
 numpy
+graphviz
