@@ -70,9 +70,18 @@ class PreferenceRelation(Preference):
         constraint = Constraint(
             ConstraintVariablesSet(),
             self._relation,
-            Constraint.create_variable_name(
-                self._function_name, Dataset.ALL_CRITERIA,
-                f'{self._alternative_2}_{self._relation.sign}_{self._alternative_1}'
+            '{} {} {}'.format(
+                Constraint.create_variable_name(
+                    self._function_name,
+                    Dataset.ALL_CRITERIA,
+                    self._alternative_2
+                ),
+                self._relation.sign,
+                Constraint.create_variable_name(
+                    self._function_name,
+                    Dataset.ALL_CRITERIA,
+                    self._alternative_1
+                )
             )
         )
 
@@ -143,7 +152,7 @@ class PreferenceIntensityRelation(Preference):
     @property
     def alternative_2(self) -> str:
         return self._alternative_2
-    
+
     @property
     def alternative_3(self) -> str:
         return self._alternative_3
