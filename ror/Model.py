@@ -136,6 +136,6 @@ class Model:
             for v in model.getVars():
                 variables_values[v.VarName] = v.X
             return OptimizationResult(self, model.objVal, variables_values)
-        elif model.status != GRB.INFEASIBLE:
-            print('Optimization was stopped with status %d' % model.status)
+        elif model.status == GRB.INFEASIBLE:
+            print('Model is infeasible.')
             return None
