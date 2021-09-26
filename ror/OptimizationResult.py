@@ -8,3 +8,9 @@ class OptimizationResult:
         self.model: Model = model
         self.objective_value = objective_value
         self.variables_values = variables_values
+
+class AlternativeOptimizedValue():
+    def __init__(self, alternative_name: str, alpha_value: float, alpha_value_name: str) -> None:
+        self._alternative_name = alternative_name
+        self._alpha_value = alpha_value
+        self._alpha_value_name = alpha_value_name
