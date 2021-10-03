@@ -16,40 +16,40 @@ class TestIntensityPreferenceRelations(unittest.TestCase):
                          4 * len(data.criteria) + 4)
 
         self.assertTrue(
-            'lambda_all_b01' in preference_constraint.variables_names)
+            'lambda_{all}_(b01)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'lambda_all_b01').coefficient, -1.0)
+            'lambda_{all}_(b01)').coefficient, -1.0)
         self.assertTrue(
-            'u_MaxSpeed_b01' in preference_constraint.variables_names)
+            'u_{MaxSpeed}_(b01)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'u_MaxSpeed_b01').coefficient, 0.0)
+            'u_{MaxSpeed}_(b01)').coefficient, 0.0)
 
         self.assertTrue(
-            'lambda_all_b02' in preference_constraint.variables_names)
+            'lambda_{all}_(b02)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'lambda_all_b02').coefficient, 1.0)
+            'lambda_{all}_(b02)').coefficient, 1.0)
         self.assertTrue(
-            'u_MaxSpeed_b02' in preference_constraint.variables_names)
+            'u_{MaxSpeed}_(b02)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'u_MaxSpeed_b02').coefficient, 0.0)
+            'u_{MaxSpeed}_(b02)').coefficient, 0.0)
 
         self.assertTrue(
-            'lambda_all_b03' in preference_constraint.variables_names)
+            'lambda_{all}_(b03)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'lambda_all_b03').coefficient, 1.0)
+            'lambda_{all}_(b03)').coefficient, 1.0)
         self.assertTrue(
-            'u_MaxSpeed_b03' in preference_constraint.variables_names)
+            'u_{MaxSpeed}_(b03)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'u_MaxSpeed_b03').coefficient, 0.0)
+            'u_{MaxSpeed}_(b03)').coefficient, 0.0)
 
         self.assertTrue(
-            'lambda_all_b04' in preference_constraint.variables_names)
+            'lambda_{all}_(b04)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'lambda_all_b04').coefficient, -1.0)
+            'lambda_{all}_(b04)').coefficient, -1.0)
         self.assertTrue(
-            'u_MaxSpeed_b04' in preference_constraint.variables_names)
+            'u_{MaxSpeed}_(b04)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(
-            'u_MaxSpeed_b04').coefficient, 0.0)
+            'u_{MaxSpeed}_(b04)').coefficient, 0.0)
 
         self.assertAlmostEqual(
             preference_constraint.free_variable.coefficient, -data.eps)

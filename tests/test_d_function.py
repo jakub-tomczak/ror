@@ -31,12 +31,12 @@ class TestDFunction(unittest.TestCase):
 
         # when alpha is 0 then only lambda variables are present
         self.assertAlmostEqual(d_constraint[ValueConstraintVariable.name].coefficient, 0.0)
-        self.assertAlmostEqual(d_constraint['u_MaxSpeed_b01'].coefficient, 0.0)
-        self.assertAlmostEqual(d_constraint['u_FuelCons_b01'].coefficient, 0.0)
-        self.assertTrue('lambda_all_b01' in d_constraint.variables_names)
-        self.assertAlmostEqual(d_constraint['lambda_all_b01'].coefficient, 1.0)
-        self.assertTrue('lambda_all_b01' in d_constraint.variables_names)
-        self.assertAlmostEqual(d_constraint['lambda_all_b01'].coefficient, 1.0)
+        self.assertAlmostEqual(d_constraint['u_{MaxSpeed}_(b01)'].coefficient, 0.0)
+        self.assertAlmostEqual(d_constraint['u_{FuelCons}_(b01)'].coefficient, 0.0)
+        self.assertTrue('lambda_{all}_(b01)' in d_constraint.variables_names)
+        self.assertAlmostEqual(d_constraint['lambda_{all}_(b01)'].coefficient, 1.0)
+        self.assertTrue('lambda_{all}_(b01)' in d_constraint.variables_names)
+        self.assertAlmostEqual(d_constraint['lambda_{all}_(b01)'].coefficient, 1.0)
 
     def test_creating_d_function_alpha_0_5(self):
         dataset = read_dataset_from_txt("tests/datasets/example.txt")
@@ -46,12 +46,12 @@ class TestDFunction(unittest.TestCase):
         d_constraint = d(alternative, alpha, dataset)
 
         self.assertAlmostEqual(d_constraint[ValueConstraintVariable.name].coefficient, 1.0)
-        self.assertAlmostEqual(d_constraint['u_MaxSpeed_b01'].coefficient, -0.5)
-        self.assertAlmostEqual(d_constraint['u_FuelCons_b01'].coefficient, -0.5)
-        self.assertTrue('lambda_all_b01' in d_constraint.variables_names)
-        self.assertAlmostEqual(d_constraint['lambda_all_b01'].coefficient, 0.5)
-        self.assertTrue('lambda_all_b01' in d_constraint.variables_names)
-        self.assertAlmostEqual(d_constraint['lambda_all_b01'].coefficient, 0.5)
+        self.assertAlmostEqual(d_constraint['u_{MaxSpeed}_(b01)'].coefficient, -0.5)
+        self.assertAlmostEqual(d_constraint['u_{FuelCons}_(b01)'].coefficient, -0.5)
+        self.assertTrue('lambda_{all}_(b01)' in d_constraint.variables_names)
+        self.assertAlmostEqual(d_constraint['lambda_{all}_(b01)'].coefficient, 0.5)
+        self.assertTrue('lambda_{all}_(b01)' in d_constraint.variables_names)
+        self.assertAlmostEqual(d_constraint['lambda_{all}_(b01)'].coefficient, 0.5)
 
     def test_multiplying_d_function(self):
         dataset = read_dataset_from_txt("tests/datasets/example.txt")
@@ -62,9 +62,9 @@ class TestDFunction(unittest.TestCase):
         d_constraint.multiply_by_scalar(2.0)
 
         self.assertAlmostEqual(d_constraint[ValueConstraintVariable.name].coefficient, 2.0)
-        self.assertAlmostEqual(d_constraint['u_MaxSpeed_b01'].coefficient, -1.0)
-        self.assertAlmostEqual(d_constraint['u_FuelCons_b01'].coefficient, -1.0)
-        self.assertTrue('lambda_all_b01' in d_constraint.variables_names)
-        self.assertAlmostEqual(d_constraint['lambda_all_b01'].coefficient, 1.0)
-        self.assertTrue('lambda_all_b01' in d_constraint.variables_names)
-        self.assertAlmostEqual(d_constraint['lambda_all_b01'].coefficient, 1.0)
+        self.assertAlmostEqual(d_constraint['u_{MaxSpeed}_(b01)'].coefficient, -1.0)
+        self.assertAlmostEqual(d_constraint['u_{FuelCons}_(b01)'].coefficient, -1.0)
+        self.assertTrue('lambda_{all}_(b01)' in d_constraint.variables_names)
+        self.assertAlmostEqual(d_constraint['lambda_{all}_(b01)'].coefficient, 1.0)
+        self.assertTrue('lambda_{all}_(b01)' in d_constraint.variables_names)
+        self.assertAlmostEqual(d_constraint['lambda_{all}_(b01)'].coefficient, 1.0)
