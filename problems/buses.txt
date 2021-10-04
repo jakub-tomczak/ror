@@ -1,3 +1,4 @@
+#Data
 BusId[g], MaxSpeed[g], Torque[g], FuelCons[c], HorsePower[g]
 b01, 90, 426, 27, 112
 b02, 90, 425, 27, 112
@@ -13,3 +14,8 @@ b11, 72, 479, 35, 145
 b12, 68, 440, 26, 126
 b13, 82, 428, 25, 120
 b14, 86, 425, 35, 126
+#Preferences
+b01, b02,indifference
+b06, b03, preference
+b08, b07, preference
+b04, b08, b07,b06, preference
