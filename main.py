@@ -8,7 +8,7 @@ from ror.RORModel import RORModel
 from ror.d_function import d
 from collections import defaultdict
 
-data = read_dataset_from_txt("problems/buses_small.txt")
+data = read_dataset_from_txt("problems/buses.txt")
 # step 1
 print('Starting step 1')
 alpha = 0.0
@@ -48,7 +48,7 @@ for alternative in data.alternatives:
         print(f"alternative {alternative}, objective value {result.objective_value}")
     results["id"].append(alternative)
 
-aggregate_result_default(alternative_results, {'Q': 'alpha_0.0', 'R': 'alpha_0.5', 'S': 'alpha_1.0'})
+aggregate_result_default(alternative_results, {'Q': 'alpha_0.0', 'R': 'alpha_0.5', 'S': 'alpha_1.0'}, data.eps)
 # ---
 # all_data = pd.DataFrame(results)
 # all_data.set_index("id", inplace=True)

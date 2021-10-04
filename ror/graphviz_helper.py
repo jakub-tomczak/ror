@@ -4,7 +4,7 @@ import graphviz
 
 def draw_rank(alternatives: List[str], suffix=''):
     dot = graphviz.Digraph(comment='ROR result')
-    dot.format = 'svg'
+    dot.format = 'png'
     last_node_id = 1
     for rank_variable in alternatives:
         if type(rank_variable) in [list, tuple]:
