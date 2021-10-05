@@ -16,7 +16,6 @@ setup(
   long_description_content_type = 'text/markdown',
   author = 'Jakub Tomczak',
   url = 'https://github.com/jtomczak/ror',
-  keywords = ['tkinter', 'table', 'widget'],
   install_requires = [],
   classifiers = [
     'Development Status :: 3 - Alpha',
