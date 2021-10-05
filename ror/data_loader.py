@@ -6,12 +6,7 @@ from typing import Dict, List, Tuple, DefaultDict
 from ror.Dataset import Dataset, RORDataset
 from collections import defaultdict
 import numpy as np
-from enum import Enum
-
-
-class AvailableParameters(Enum):
-    EPS = 'eps'
-    INITIAL_ALPHA = 'initial_alpha'
+from ror.loader_utils import AvailableParameters, DATA_SECTION, PREFERENCES_SECTION, PARAMETERS_SECTION, PARAMETERS_VALUE_SEPARATOR, VALID_SEPARATORS
 
 
 class LoaderResult:
@@ -60,7 +55,8 @@ def read_txt_by_section(filename: str) -> DefaultDict[str, List[str]]:
             elif current_section is not None:
                 sections_data[current_section].append(line_no_whitespaces)
             else:
-                logging.warning('Every line with no section defined is skipped.')
+                logging.warning(
+                    'Every line with no section defined is skipped.')
     if len(sections_data) < 1:
         return None
 
@@ -185,10 +181,9 @@ def parse_preferences_section(sectioned_data: List[str], alternatives: List[str]
 
 
 def parse_parameters_section(sectioned_data: List[str]) -> Dict[AvailableParameters, float]:
-    parameter_value_separator = '='
     parameters: Dict[AvailableParameters, float] = dict()
     for line in sectioned_data:
-        splited = line.split(parameter_value_separator)
+        splited = line.split(PARAMETERS_VALUE_SEPARATOR)
         if len(splited) != 2:
             raise DatasetReaderException(
                 f"Failed to read dataset from txt file: failed to parse parameter from line: {line}. Parameter should be in format 'key=value'")
@@ -204,7 +199,8 @@ def parse_parameters_section(sectioned_data: List[str]) -> Dict[AvailableParamet
             if key == parameter.value:
                 parameters[parameter] = parsed_value
     # set default values to parameters that were not in the file
-    parameters_with_no_value = set(AvailableParameters) - set(parameters.keys())
+    parameters_with_no_value = set(
+        AvailableParameters) - set(parameters.keys())
     for parameter in parameters_with_no_value:
         default_value = get_default_parameter_value(parameter)
         logging.info(
@@ -215,10 +211,6 @@ def parse_parameters_section(sectioned_data: List[str]) -> Dict[AvailableParamet
 
 
 def read_dataset_from_txt(filename: str) -> LoaderResult:
-    DATA_SECTION = "#Data"
-    PREFERENCES_SECTION = "#Preferences"
-    PARAMETERS_SECTION = "#Parameters"
-
     section_data = read_txt_by_section(filename)
     if section_data is None:
         raise DatasetReaderException("Failed to read dataset from txt file.")
@@ -230,15 +222,14 @@ def read_dataset_from_txt(filename: str) -> LoaderResult:
     # detect column separator by looking at header
     # valid separators are , and ;
     # , has precedence over ;
-    valid_separators = [',', ';']
     separator = None
-    for sep in valid_separators:
+    for sep in VALID_SEPARATORS:
         if sectioned_data[0].find(sep):
             separator = sep
             break
     if separator is None:
         raise DatasetReaderException(
-            f'No column separator detected. Valid separators are: {" or ".join(valid_separators)}')
+            f'No column separator detected. Valid separators are: {" or ".join(VALID_SEPARATORS)}')
 
     if len(sectioned_data) < 2:
         raise DatasetReaderException(

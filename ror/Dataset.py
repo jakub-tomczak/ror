@@ -2,7 +2,9 @@ from __future__ import annotations
 import logging
 from ror.Constraint import ConstraintVariable
 import numpy as np
-from typing import List, Tuple
+from typing import Dict, List, Tuple
+from ror.loader_utils import DATA_SECTION, PARAMETERS_SECTION, PARAMETERS_VALUE_SEPARATOR, PREFERENCES_SECTION, VALID_SEPARATORS, AvailableParameters
+import os
 
 
 class Dataset:
@@ -102,18 +104,50 @@ class Dataset:
     def delta(self, delta):
         self._delta = delta
 
-    def save_to_file(self, filename: str):
+    def _prepare_data_for_saving(self, parameters: Dict[AvailableParameters, float] = None) -> Tuple[List[str], List[str]]:
         # data section
-        data_section_lines = ['#Data']
+        data_section_lines = [DATA_SECTION]
+        header = ['alternative id']
+        header.extend([f'{criterion_name}[{criterion_type}]' for criterion_name,
+                                      criterion_type in self.criteria])
         data_section_lines.append(
-            ','.join([f'{criterion_name}[{criterion_type}]' for criterion_name, criterion_type in self.criteria])
+            VALID_SEPARATORS[0].join(header)
         )
-        for alternative, alternative_values in (self.alternatives, self.matrix):
-            values = ','.join([str(value) for value in alternative_values])
-            line = f'{alternative}, {values}'
-            data_section_lines.append(line)
-        
+        for alternative, alternative_values in zip(self.alternatives, self.matrix):
+            values = [alternative]
+            values.append(VALID_SEPARATORS[0].join(
+                [str(value) for value in alternative_values]))
+            data_section_lines.append(VALID_SEPARATORS[0].join(values))
+
         # parameters section
+        parameters_section = [PARAMETERS_SECTION]
+        parameters_section.append(
+            f'{AvailableParameters.EPS.value}{PARAMETERS_VALUE_SEPARATOR}{self.eps}')
+        if parameters is not None:
+            for parameter in parameters:
+                parameters_section.append(
+                    f'{parameter.value}{PARAMETERS_VALUE_SEPARATOR}{parameters[parameter]}')
+
+        return (data_section_lines, parameters_section)
+
+    def _save_data(self, filename: str, data: List[str]):
+        if os.path.exists(filename):
+            msg = f'File {filename} already exists. Saving dataset skipped.'
+            logging.error(msg)
+            raise Exception(msg)
+        try:
+            data_str: str = os.linesep.join(data)
+            with open(filename, 'w') as file:
+                file.write(data_str)
+                    
+        except Exception as e:
+            logging.error(f'Failed to save file: {e}')
+            raise e
+    
+    def save_to_file(self, filename: str, parameters: Dict[AvailableParameters, float] = None):
+        data_section, preferences_section = self._prepare_data_for_saving(parameters)
+        data_section.extend(preferences_section)
+        self._save_data(filename, data_section)
 
 
 class RORDataset(Dataset):
@@ -141,3 +175,29 @@ class RORDataset(Dataset):
     @property
     def intensityRelations(self) -> List["PreferenceIntensityRelation"]:
         return self._intensity_relations
+
+    def __prepare_preferences_data_for_saving(self) -> List[str]:
+        relations = [PREFERENCES_SECTION]
+        sep = VALID_SEPARATORS[0]
+        for preference in self._preference_relations:
+            relations.append(
+                f'{preference.alternative_1}{sep}{preference.alternative_2}{sep}{preference.relation.name}')
+
+        for relation in self._intensity_relations:
+            relations.append(sep.join(
+                [
+                    relation.alternative_1,
+                    relation.alternative_2,
+                    relation.alternative_3,
+                    relation.alternative_4,
+                    relation.relation.name
+                ]
+            ))
+        return relations
+
+    def save_to_file(self, filename: str, parameters: Dict[AvailableParameters, float] = None):
+        data, preferences = super()._prepare_data_for_saving(parameters)
+        data.extend(self.__prepare_preferences_data_for_saving())
+        data.extend(preferences)
+
+        self._save_data(filename, data)
