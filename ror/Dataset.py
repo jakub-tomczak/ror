@@ -19,7 +19,7 @@ class Dataset:
         # reverse values in the cost type criteria - assume that all criteria are of a gain type
         for index, (criterion_name, criterion_type) in enumerate(criteria):
             if criterion_type == Dataset.CRITERION_TYPES["cost"]:
-                logging.info('Flipping values in criterion', criterion_name)
+                logging.info(f'Flipping values in criterion {criterion_name}')
                 data[:, index] *= -1
         return data
 

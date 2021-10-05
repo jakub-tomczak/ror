@@ -131,7 +131,7 @@ class Model:
             model.optimize()
 
         if model.status == GRB.OPTIMAL:
-            logging.info('Optimal objective: %g' % model.objVal)
+            logging.info(f'Optimal objective: {model.objVal}')
             variables_values: Dict[str, float] = {}
             # save calculated coefficients
             for v in model.getVars():
