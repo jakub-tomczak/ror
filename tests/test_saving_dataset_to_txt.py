@@ -35,3 +35,25 @@ class TestTxtDatasetWriter(unittest.TestCase):
         self.assertTrue('#Parameters' in read_data)
         self.assertTrue(f'eps={parameters[AvailableParameters.EPS]}' in read_data)
         self.assertTrue(f'initial_alpha=0.01' in read_data)
+
+    def read_save_and_read(self):
+        loading_result = read_dataset_from_txt(
+            "tests/datasets/ror_dataset_with_parameters.txt")
+        data = loading_result.dataset
+        parameters = loading_result.parameters
+        dir = tempfile.mkdtemp()
+
+        filename = os.path.join(dir, 'test_saving_dataset_to_txt.txt')
+        data.save_to_file(filename, {AvailableParameters.INITIAL_ALPHA: 0.01})
+
+        loading_result_2 = read_dataset_from_txt(
+            "tests/datasets/ror_dataset_with_parameters.txt")
+        data_2 = loading_result_2.dataset
+        parameters_2 = loading_result_2.parameters
+
+        self.assertEqual(len(data_2.alternatives), len(data.alternatives))
+        self.assertEqual(len(data_2.criteria), len(data.criteria))
+        self.assertEqual(len(data_2.preferenceRelations), len(data.preferenceRelations))
+        self.assertEqual(len(data_2.intensityRelations), len(data.intensityRelations))
+        self.assertAlmostEqual(data_2.eps, data.eps)
+        self.assertAlmostEqual(parameters_2[AvailableParameters.INITIAL_ALPHA], parameters[AvailableParameters.INITIAL_ALPHA])
