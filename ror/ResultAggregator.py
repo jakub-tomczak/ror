@@ -1,8 +1,8 @@
+import logging
 from collections import defaultdict
 from ror.graphviz_helper import draw_rank
 from typing import Dict, List, Set, Tuple
 from ror.OptimizationResult import AlternativeOptimizedValue
-from functools import reduce
 import numpy as np
 import datetime
 
@@ -120,7 +120,6 @@ def create_flat_ranks(data: Dict[str, List[float]]) -> Tuple[List[RankItem], Lis
 
 
 def aggregate_result_default(data: Dict[str, List[float]], mapping: Dict[str, str], eps: float) -> List[List[RankItem]]:
-    debug_aggregating_results = False
     validate_aggregator_arguments(data, mapping, eps)
     flat_r_rank, flat_q_rank, flat_s_rank = create_flat_ranks(data)
 
@@ -142,73 +141,60 @@ def aggregate_result_default(data: Dict[str, List[float]], mapping: Dict[str, st
     s_rank = group_equal_alternatives_in_ranking(flat_s_rank, eps)
     s_rank_positions = create_rank_positions(s_rank)
 
-    if debug_aggregating_results:
-        print('flat r rank')
-        print(flat_r_rank)
-        print()
+    logging.debug('flat r rank')
+    logging.debug(flat_r_rank)
 
     final_rank: List[List[RankItem]] = []
     alternatives_checked: Set[str] = set()
 
-    if debug_aggregating_results:
-        print('*'*100)
+    logging.debug('*'*100)
     # now we check whether there are indifferent alternatives
     # alternative a_i and a_j are indifferent if:
     # 1. If a_i < a_j in r_rank and a_i > a_j in q_rank and a_i > a_j in s_rank (position changes in q and s ranks)
     for alternative_index in range(len(flat_r_rank)-1):
         current_alternative = flat_r_rank[alternative_index]
         if current_alternative.alternative in alternatives_checked:
-            if debug_aggregating_results:
-                print(
-                    f'skipping alternative {current_alternative.alternative} - already in final rank')
+            logging.debug(
+                f'skipping alternative {current_alternative.alternative} - already in final rank')
             continue
-        if debug_aggregating_results:
-            print(f'checked alternatives {alternatives_checked}')
+
+        logging.debug(f'checked alternatives {alternatives_checked}')
         alternatives_checked.add(current_alternative.alternative)
-        if debug_aggregating_results:
-            print(
-                f'checking alternative {current_alternative.alternative}, r rank position: {alternative_index+1}')
+        logging.debug(
+            f'checking alternative {current_alternative.alternative}, r rank position: {alternative_index+1}')
         final_rank.append([current_alternative])
         # get rank position of the current alternative in q and s rank to compare it with the position
         # of the next alternative in q and s rank
         q_rank_current_alternative_position = q_rank_positions[current_alternative.alternative]
         s_rank_current_alternative_position = s_rank_positions[current_alternative.alternative]
-        if debug_aggregating_results:
-            print(
-                f'q rank: {q_rank_current_alternative_position}, s rank {s_rank_current_alternative_position}')
-            print()
+        logging.debug(
+            f'q rank: {q_rank_current_alternative_position}, s rank {s_rank_current_alternative_position}')
         for next_alternative_index in range(alternative_index+1, len(flat_r_rank)):
             next_alternative = flat_r_rank[next_alternative_index]
             if next_alternative.alternative in alternatives_checked:
-                if debug_aggregating_results:
-                    print(
-                        f'skipping next alternative {next_alternative.alternative} - already in final rank')
+                logging.debug(
+                    f'skipping next alternative {next_alternative.alternative} - already in final rank')
                 continue
             q_rank_next_alternative_position = q_rank_positions[next_alternative.alternative]
             s_rank_next_alternative_position = s_rank_positions[next_alternative.alternative]
-            if debug_aggregating_results:
-                print(
-                    f'next alternative: {next_alternative.alternative}, r rank {next_alternative_index+1}')
-                print(
-                    f'q rank: {q_rank_next_alternative_position}, s rank {s_rank_next_alternative_position}')
-                print()
+            logging.debug(
+                f'next alternative: {next_alternative.alternative}, r rank {next_alternative_index+1}')
+            logging.debug(
+                f'q rank: {q_rank_next_alternative_position}, s rank {s_rank_next_alternative_position}')
             # r_rank was sorted so current_alternative_position <= r_rank_next_alternative_position must be always true
             # which means that next_alternative must have higher position in the rank (worst) than current_alternative
             if q_rank_current_alternative_position > q_rank_next_alternative_position and s_rank_current_alternative_position > s_rank_next_alternative_position:
-                if debug_aggregating_results:
-                    print(
-                        f'alternative {next_alternative} is indifferent to {current_alternative}')
-                    print(
-                        f'adding alternative {next_alternative.alternative} to the alternatives {final_rank[len(final_rank)-1]}')
+                logging.debug(
+                    f'alternative {next_alternative} is indifferent to {current_alternative}')
+                logging.debug(
+                    f'adding alternative {next_alternative.alternative} to the alternatives {final_rank[len(final_rank)-1]}')
                 # add next_alternative at the same place in the final rank as the current alternative
                 final_rank[len(final_rank)-1].append(next_alternative)
                 alternatives_checked.add(next_alternative.alternative)
             else:
-                if debug_aggregating_results:
-                    print(
-                        f'alternative {next_alternative} is worst than alternative {current_alternative}')
-                    print('-'*30)
-                    print()
+                logging.debug(
+                    f'alternative {next_alternative} is worst than alternative {current_alternative}')
+                logging.debug('-'*30)
             # else: next alternative is not added to the final rank yet - it will be added
             # in the next iteration of the outer for loop
 

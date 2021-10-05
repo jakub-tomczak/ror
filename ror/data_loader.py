@@ -1,3 +1,4 @@
+import logging
 import os
 from ror.Relation import PREFERENCE_NAME_TO_RELATION
 from ror.PreferenceRelations import PreferenceIntensityRelation, PreferenceRelation
@@ -59,7 +60,7 @@ def read_txt_by_section(filename: str) -> DefaultDict[str, List[str]]:
             elif current_section is not None:
                 sections_data[current_section].append(line_no_whitespaces)
             else:
-                print('Warning: every line with no section defined is skipped.')
+                logging.warning('Every line with no section defined is skipped.')
     if len(sections_data) < 1:
         return None
 
@@ -206,8 +207,8 @@ def parse_parameters_section(sectioned_data: List[str]) -> Dict[AvailableParamet
     parameters_with_no_value = set(AvailableParameters) - set(parameters.keys())
     for parameter in parameters_with_no_value:
         default_value = get_default_parameter_value(parameter)
-        print(
-            f'Info: Parameter {parameter.name} is not present in the dataset, adding it with default value: {default_value}')
+        logging.info(
+            f'Parameter {parameter.name} is not present in the dataset, adding it with default value: {default_value}')
         parameters[parameter] = default_value
 
     return parameters

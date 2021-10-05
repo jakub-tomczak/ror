@@ -33,7 +33,6 @@ class TestPreferenceRelations(unittest.TestCase):
         self.assertEqual(preference_constraint._name,
                          'preference_{all}_(b02) <= preference_{all}_(b01)')
 
-        print(preference_constraint.variables_names)
         self.assertTrue(
             'lambda_{all}_(b01)' in preference_constraint.variables_names)
         self.assertAlmostEqual(preference_constraint.get_variable(

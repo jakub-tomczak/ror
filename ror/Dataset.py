@@ -1,4 +1,5 @@
 from __future__ import annotations
+import logging
 from ror.Constraint import ConstraintVariable
 import numpy as np
 from typing import List, Tuple
@@ -18,7 +19,7 @@ class Dataset:
         # reverse values in the cost type criteria - assume that all criteria are of a gain type
         for index, (criterion_name, criterion_type) in enumerate(criteria):
             if criterion_type == Dataset.CRITERION_TYPES["cost"]:
-                print('Flipping values in criterion', criterion_name)
+                logging.info('Flipping values in criterion', criterion_name)
                 data[:, index] *= -1
         return data
 

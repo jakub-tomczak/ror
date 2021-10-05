@@ -1,3 +1,4 @@
+import logging
 from ror.Relation import Relation
 from ror.Dataset import Dataset
 from typing import List, Tuple
@@ -9,7 +10,7 @@ DIFF_EPS = 1e-10
 
 def check_preconditions(data: Dataset) -> bool:
     if len(data.alternatives) < 3:
-        print('number of alternatives is lower than 3, skipping slope constraint')
+        logging.info('number of alternatives is lower than 3, skipping slope constraint')
         return False
     return True
 
@@ -26,8 +27,8 @@ def _create_slope_constraint(l: int, data: Dataset, criterion_name: str) -> Tupl
             data.alternatives[l-1], criterion_name).coefficient
     # check if the 2 following points are not in the same place
     if abs(first_diff) < DIFF_EPS:
-        # print(
-        #     f'Criterion {criterion_name} for alternative {data.alternatives[l]} has the same value ({data.get_data_for_alternative_and_criterion(data.alternatives[l], criterion_name).coefficient}) as alternative {data.alternatives[l-1]} on this criterion.')
+        logging.debug(
+            f'Criterion {criterion_name} for alternative {data.alternatives[l]} has the same value ({data.get_data_for_alternative_and_criterion(data.alternatives[l], criterion_name).coefficient}) as alternative {data.alternatives[l-1]} on this criterion.')
         return None
     first_coeff = 1 / (first_diff)
     second_diff = data.get_data_for_alternative_and_criterion(data.alternatives[l-1], criterion_name).coefficient -\
@@ -35,8 +36,8 @@ def _create_slope_constraint(l: int, data: Dataset, criterion_name: str) -> Tupl
             data.alternatives[l-2], criterion_name).coefficient
     # check if the 2 following points are not in the same place
     if abs(second_diff) < DIFF_EPS:
-        # print(
-        #     f'Criterion {criterion_name} for alternative {data.alternatives[l-1]} has the same value ({data.get_data_for_alternative_and_criterion(data.alternatives[l], criterion_name).coefficient}) as alternative {data.alternatives[l-2]} on this criterion.')
+        logging.debug(
+            f'Criterion {criterion_name} for alternative {data.alternatives[l-1]} has the same value ({data.get_data_for_alternative_and_criterion(data.alternatives[l], criterion_name).coefficient}) as alternative {data.alternatives[l-2]} on this criterion.')
         return None
     second_coeff = 1 / (second_diff)
 

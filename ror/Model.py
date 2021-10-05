@@ -4,6 +4,7 @@ from typing import Dict, List, Set
 import gurobipy as gp
 from gurobipy import GRB
 from ror.OptimizationResult import OptimizationResult
+import logging
 
 
 class Model:
@@ -125,17 +126,17 @@ class Model:
         if model.status == GRB.INF_OR_UNBD:
             # Turn presolve off to determine whether model is infeasible
             # or unbounded
-            print("Turning presolve off")
+            logging.info("Turning presolve off")
             model.setParam(GRB.Param.Presolve, 0)
             model.optimize()
 
         if model.status == GRB.OPTIMAL:
-            print('Optimal objective: %g' % model.objVal)
+            logging.info('Optimal objective: %g' % model.objVal)
             variables_values: Dict[str, float] = {}
             # save calculated coefficients
             for v in model.getVars():
                 variables_values[v.VarName] = v.X
             return OptimizationResult(self, model.objVal, variables_values)
         elif model.status == GRB.INFEASIBLE:
-            print('Model is infeasible.')
+            logging.error('Model is infeasible.')
             return None

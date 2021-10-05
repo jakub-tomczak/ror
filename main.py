@@ -8,12 +8,14 @@ from ror.data_loader import AvailableParameters, read_dataset_from_txt
 from ror.RORModel import RORModel
 from ror.d_function import d
 from collections import defaultdict
+import logging
 
 loading_result = read_dataset_from_txt("problems/buses.txt")
 data = loading_result.dataset
 parameters = loading_result.parameters
 # step 1
-print('Starting step 1')
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.info('Starting step 1')
 model = RORModel(
     data,
     parameters[AvailableParameters.INITIAL_ALPHA],
@@ -23,9 +25,9 @@ model.target = ConstraintVariablesSet([
     ConstraintVariable("delta", 1.0)
 ])
 result = model.solve()
-print("Solved step 1, delta value is", result.objective_value)
+logging.info(f"Solved step 1, delta value is {result.objective_value}")
 
-print('Starting step 2')
+logging.info('Starting step 2')
 # assign delta value to the data
 data.delta = result.objective_value
 
@@ -51,13 +53,13 @@ for alternative in data.alternatives:
         model.target = d(alternative, alpha, data)
         result = model.solve()
         if result is None:
-            print('Failed to optimize the problem')
+            logging.error('Failed to optimize the problem')
             exit(1)
 
         alternative_results[alternative].append(result.objective_value)
         results[alpha_value_key_generator(alpha)].append(
             result.objective_value)
-        print(
+        logging.info(
             f"alternative {alternative}, objective value {result.objective_value}")
     results["id"].append(alternative)
 
