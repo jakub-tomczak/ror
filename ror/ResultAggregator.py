@@ -120,7 +120,7 @@ def create_flat_ranks(data: Dict[str, List[float]]) -> Tuple[List[RankItem], Lis
 
 
 def aggregate_result_default(data: Dict[str, List[float]], mapping: Dict[str, str], eps: float) -> List[List[RankItem]]:
-    debug_aggregating_results = True
+    debug_aggregating_results = False
     validate_aggregator_arguments(data, mapping, eps)
     flat_r_rank, flat_q_rank, flat_s_rank = create_flat_ranks(data)
 
