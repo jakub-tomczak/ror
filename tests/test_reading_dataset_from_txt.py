@@ -1,5 +1,5 @@
 from ror.Relation import INDIFFERENCE, PREFERENCE
-from ror.data_loader import read_dataset_from_txt
+from ror.data_loader import AvailableParameters, read_dataset_from_txt
 import unittest
 from ror.Dataset import Dataset, RORDataset
 import numpy as np
@@ -7,7 +7,8 @@ import numpy as np
 
 class TestTxtDatasetReader(unittest.TestCase):
     def test_reading_dataset_from_txt(self):
-        data = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        data = loading_result.dataset
 
         self.assertIs(type(data), RORDataset)
         self.assertEqual(len(data.criteria), 2)
@@ -33,7 +34,8 @@ class TestTxtDatasetReader(unittest.TestCase):
         self.assertEqual(data.matrix[0, 1], -27)
 
     def test_reading_dataset_from_txt(self):
-        data = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        data = loading_result.dataset
 
         self.assertIs(type(data), RORDataset)
         self.assertEqual(len(data.criteria), 2)
@@ -60,7 +62,8 @@ class TestTxtDatasetReader(unittest.TestCase):
 
 
     def test_reading_dataset_from_txt_with_preferences(self):
-        data = read_dataset_from_txt("tests/datasets/ror_dataset.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/ror_dataset.txt")
+        data = loading_result.dataset
 
         self.assertIs(type(data), RORDataset)
         self.assertEqual(len(data.criteria), 2)
@@ -96,3 +99,16 @@ class TestTxtDatasetReader(unittest.TestCase):
         self.assertEqual(data.intensityRelations[0].alternative_3, "b07")
         self.assertEqual(data.intensityRelations[0].alternative_4, "b06")
         
+    def test_reading_with_preferences(self):
+        loading_result = read_dataset_from_txt("tests/datasets/ror_dataset_with_parameters.txt")
+        data = loading_result.dataset
+        parameters = loading_result.parameters
+
+        self.assertIs(type(data), RORDataset)
+        self.assertEqual(len(data.criteria), 2)
+        self.assertEqual(len(data.alternatives), 14)
+        self.assertEqual(len(data.preferenceRelations), 3)
+        self.assertEqual(len(data.intensityRelations), 1)
+
+        self.assertAlmostEqual(parameters[AvailableParameters.EPS], 2e-11)
+        self.assertAlmostEqual(parameters[AvailableParameters.INITIAL_ALPHA], 0.1)

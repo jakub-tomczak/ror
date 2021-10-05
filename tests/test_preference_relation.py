@@ -21,7 +21,8 @@ class TestPreferenceRelations(unittest.TestCase):
             PreferenceRelation('b01', 'b02', Relation('<='))
 
     def test_strong_preference_alpha_0(self):
-        data = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        data = loading_result.dataset
 
         preference = PreferenceRelation('b01', 'b02', PREFERENCE)
         preference_constraint = preference.to_constraint(data, 0.0)
@@ -55,7 +56,8 @@ class TestPreferenceRelations(unittest.TestCase):
             preference_constraint.free_variable.coefficient, data.eps)
 
     def test_strong_preference_alpha_1(self):
-        data = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        data = loading_result.dataset
 
         alpha = 1.0
         preference = PreferenceRelation('b01', 'b02', PREFERENCE)
@@ -92,7 +94,8 @@ class TestPreferenceRelations(unittest.TestCase):
         )
 
     def test_weak_preference_alpha_1(self):
-        data = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        data = loading_result.dataset
 
         alpha = 1.0
         preference = PreferenceRelation('b01', 'b02', WEAK_PREFERENCE)
@@ -128,7 +131,8 @@ class TestPreferenceRelations(unittest.TestCase):
             preference_constraint.free_variable.coefficient, 0)
 
     def test_strong_preference_alpha_0_5(self):
-        data = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        data = loading_result.dataset
 
         alpha = 0.5
         preference = PreferenceRelation('b01', 'b02', PREFERENCE)
@@ -166,7 +170,8 @@ class TestPreferenceRelations(unittest.TestCase):
         )
 
     def test_weak_preference_alpha_0_5(self):
-        data = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        data = loading_result.dataset
 
         alpha = 0.5
         preference = PreferenceRelation('b01', 'b02', WEAK_PREFERENCE)
@@ -198,7 +203,8 @@ class TestPreferenceRelations(unittest.TestCase):
         )
 
     def test_indifference_preference_alpha_0_5(self):
-        data = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        data = loading_result.dataset
 
         alpha = 0.5
         preference = PreferenceRelation('b01', 'b02', INDIFFERENCE)

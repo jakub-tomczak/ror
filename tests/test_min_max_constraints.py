@@ -5,7 +5,8 @@ from ror.data_loader import read_dataset_from_txt
 
 class TestMinMaxValueConstraint(unittest.TestCase):
     def test_creating_min_value_constraints(self):
-        data = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        data = loading_result.dataset
 
         min_constraints = create_min_value_constraints(data)
 
@@ -30,7 +31,8 @@ class TestMinMaxValueConstraint(unittest.TestCase):
         self.assertEqual(min_constraints[1].relation.sign, '==')
 
     def test_creating_max_value_constraints(self):
-        data = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        data = loading_result.dataset
 
         max_constraint = create_max_value_constraint(data)
 

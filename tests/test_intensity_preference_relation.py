@@ -6,7 +6,8 @@ from ror.PreferenceRelations import PreferenceIntensityRelation
 
 class TestIntensityPreferenceRelations(unittest.TestCase):
     def test_strong_intensity_preference_alpha_0(self):
-        data = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        data = loading_result.dataset
 
         preference = PreferenceIntensityRelation('b01', 'b02', 'b03', 'b04', PREFERENCE)
         preference_constraint = preference.to_constraint(data, 0.0)

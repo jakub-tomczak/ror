@@ -22,7 +22,7 @@ class Dataset:
                 data[:, index] *= -1
         return data
 
-    def __init__(self, alternatives: List[str], data: any, criteria: List[Tuple[str, str]], delta: float = None):
+    def __init__(self, alternatives: List[str], data: any, criteria: List[Tuple[str, str]], delta: float = None, eps: float = None):
         assert type(data) is np.ndarray, "Data must be a numpy array"
         assert len(alternatives) == data.shape[0],\
             "Number of alternatives labels doesn't match the number of data rows"
@@ -34,7 +34,7 @@ class Dataset:
         # matrix with data for each alternative on each criterion
         self._data = Dataset.reverse_cost_type_criteria(data, criteria)
         self._criteria = criteria
-        self._eps = Dataset.DEFAULT_EPS
+        self._eps = eps if eps is not None else Dataset.DEFAULT_EPS
         self._M = Dataset.DEFAULT_M
         self._alternative_to_variable = dict()
         self._criterion_to_index = {
@@ -101,6 +101,19 @@ class Dataset:
     def delta(self, delta):
         self._delta = delta
 
+    def save_to_file(self, filename: str):
+        # data section
+        data_section_lines = ['#Data']
+        data_section_lines.append(
+            ','.join([f'{criterion_name}[{criterion_type}]' for criterion_name, criterion_type in self.criteria])
+        )
+        for alternative, alternative_values in (self.alternatives, self.matrix):
+            values = ','.join([str(value) for value in alternative_values])
+            line = f'{alternative}, {values}'
+            data_section_lines.append(line)
+        
+        # parameters section
+
 
 class RORDataset(Dataset):
     def __init__(
@@ -112,8 +125,9 @@ class RORDataset(Dataset):
             # but then we will get circular import,
             # this is still better than no type hints
             preference_relations: List["PreferenceRelation"] = None,
-            intensity_relations: List["PreferenceIntensityRelation"] = None):
-        super().__init__(alternatives, data, criteria)
+            intensity_relations: List["PreferenceIntensityRelation"] = None,
+            eps: float = None):
+        super().__init__(alternatives, data, criteria, eps=eps)
         self._preference_relations: List["PreferenceRelation"] = \
             preference_relations if preference_relations is not None else []
         self._intensity_relations: List["PreferenceIntensityRelation"] = \

@@ -1,10 +1,39 @@
 import os
 from ror.Relation import PREFERENCE_NAME_TO_RELATION
 from ror.PreferenceRelations import PreferenceIntensityRelation, PreferenceRelation
-from typing import List, Tuple, DefaultDict
+from typing import Dict, List, Tuple, DefaultDict
 from ror.Dataset import Dataset, RORDataset
 from collections import defaultdict
 import numpy as np
+from enum import Enum
+
+
+class AvailableParameters(Enum):
+    EPS = 'eps'
+    INITIAL_ALPHA = 'initial_alpha'
+
+
+class LoaderResult:
+    def __init__(self, ror_dataset: RORDataset, parameters: Dict[AvailableParameters, float]) -> None:
+        self._ror_dataset: RORDataset = ror_dataset
+        self._parameters: Dict[AvailableParameters, float] = parameters
+
+    @property
+    def dataset(self) -> RORDataset:
+        return self._ror_dataset
+
+    @property
+    def parameters(self) -> Dict[AvailableParameters, float]:
+        return self._parameters
+
+
+def get_default_parameter_value(parameter: AvailableParameters) -> float:
+    if parameter == AvailableParameters.EPS:
+        return Dataset.DEFAULT_EPS
+    elif parameter == AvailableParameters.INITIAL_ALPHA:
+        return 0.0
+    else:
+        return None
 
 
 def read_txt_by_section(filename: str) -> DefaultDict[str, List[str]]:
@@ -65,7 +94,8 @@ def parse_data_section(sectioned_data: List[str], column_separator: str) -> Tupl
         filter(lambda criterion: criterion is not None, parsed_criteria))
     # header should have id column as the first one, so subtract 1
     if len(criteria) != expected_number_of_columns - 1:
-        raise DatasetReaderException("Failed to read dataset from txt file: failed to parse all criteria.")
+        raise DatasetReaderException(
+            "Failed to read dataset from txt file: failed to parse all criteria.")
     # rest of the lines in the data list should have only alternatives data
     alternatives_data = [line.split(column_separator)
                          for line in sectioned_data[1:]]
@@ -153,15 +183,47 @@ def parse_preferences_section(sectioned_data: List[str], alternatives: List[str]
     return (preference_relations, preference_intensities)
 
 
-def read_dataset_from_txt(filename: str) -> RORDataset:
+def parse_parameters_section(sectioned_data: List[str]) -> Dict[AvailableParameters, float]:
+    parameter_value_separator = '='
+    parameters: Dict[AvailableParameters, float] = dict()
+    for line in sectioned_data:
+        splited = line.split(parameter_value_separator)
+        if len(splited) != 2:
+            raise DatasetReaderException(
+                f"Failed to read dataset from txt file: failed to parse parameter from line: {line}. Parameter should be in format 'key=value'")
+        key, value = splited
+        parsed_value: float = None
+        try:
+            parsed_value = float(value)
+        except:
+            raise DatasetReaderException(
+                f"Failed to read dataset from txt file: failed to parse parameter value: {value}. All parameter values should be of float type")
+        # check whether parameter has a valid value
+        for parameter in AvailableParameters:
+            if key == parameter.value:
+                parameters[parameter] = parsed_value
+    # set default values to parameters that were not in the file
+    parameters_with_no_value = set(AvailableParameters) - set(parameters.keys())
+    for parameter in parameters_with_no_value:
+        default_value = get_default_parameter_value(parameter)
+        print(
+            f'Info: Parameter {parameter.name} is not present in the dataset, adding it with default value: {default_value}')
+        parameters[parameter] = default_value
+
+    return parameters
+
+
+def read_dataset_from_txt(filename: str) -> LoaderResult:
     DATA_SECTION = "#Data"
     PREFERENCES_SECTION = "#Preferences"
+    PARAMETERS_SECTION = "#Parameters"
 
     section_data = read_txt_by_section(filename)
     if section_data is None:
         raise DatasetReaderException("Failed to read dataset from txt file.")
     if DATA_SECTION not in section_data:
-        raise DatasetReaderException("Failed to read dataset from txt file: no data section in the file.")
+        raise DatasetReaderException(
+            "Failed to read dataset from txt file: no data section in the file.")
 
     sectioned_data = section_data[DATA_SECTION]
     # detect column separator by looking at header
@@ -178,7 +240,8 @@ def read_dataset_from_txt(filename: str) -> RORDataset:
             f'No column separator detected. Valid separators are: {" or ".join(valid_separators)}')
 
     if len(sectioned_data) < 2:
-        raise DatasetReaderException("Failed to read dataset: expected at least 2 lines: first with header, rest with alternatives data.")
+        raise DatasetReaderException(
+            "Failed to read dataset: expected at least 2 lines: first with header, rest with alternatives data.")
 
     result = parse_data_section(section_data[DATA_SECTION], separator)
     alternatives, criteria, values = result
@@ -187,14 +250,21 @@ def read_dataset_from_txt(filename: str) -> RORDataset:
         section_data[PREFERENCES_SECTION], alternatives, separator)
     preference_relations, preferences_intensities = result
 
+    parameters = parse_parameters_section(
+        section_data[PARAMETERS_SECTION]
+    )
+
     numpy_values = np.array(values)
-    return RORDataset(
+    dataset = RORDataset(
         alternatives=alternatives,
         data=numpy_values,
         criteria=criteria,
         preference_relations=preference_relations,
-        intensity_relations=preferences_intensities
+        intensity_relations=preferences_intensities,
+        eps=parameters[AvailableParameters.EPS]
     )
+    return LoaderResult(dataset, parameters)
+
 
 class DatasetReaderException(Exception):
     def __init__(self, *args: object) -> None:

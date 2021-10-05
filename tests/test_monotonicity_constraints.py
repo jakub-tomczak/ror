@@ -9,7 +9,8 @@ class TestMonotonicityConstraints(unittest.TestCase):
             create_monotonicity_constraints(None)
 
     def test_creating_monotonicity_constraints_success(self):
-        data = read_dataset_from_txt("tests/datasets/example2.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example2.txt")
+        data = loading_result.dataset
 
         constraints = create_monotonicity_constraints(data)
 

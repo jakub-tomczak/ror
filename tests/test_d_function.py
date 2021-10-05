@@ -12,7 +12,8 @@ class TestDFunction(unittest.TestCase):
             d('', 1.0 + 1e-10, None)
 
     def test_creating_d_function_invalid_alternative(self):
-        dataset = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        dataset = loading_result.dataset
         alternative = 'non-existing_alternative'
         with self.assertRaises(AssertionError):
             d(alternative, 0, dataset)
@@ -23,7 +24,8 @@ class TestDFunction(unittest.TestCase):
             d(alternative, 0, None)
 
     def test_creating_d_function_alpha_0(self):
-        dataset = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        dataset = loading_result.dataset
         alternative = "b01"
         alpha = 0.0
 
@@ -39,7 +41,8 @@ class TestDFunction(unittest.TestCase):
         self.assertAlmostEqual(d_constraint['lambda_{all}_(b01)'].coefficient, 1.0)
 
     def test_creating_d_function_alpha_0_5(self):
-        dataset = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        dataset = loading_result.dataset
         alternative = "b01"
         alpha = 0.5
 
@@ -54,7 +57,8 @@ class TestDFunction(unittest.TestCase):
         self.assertAlmostEqual(d_constraint['lambda_{all}_(b01)'].coefficient, 0.5)
 
     def test_multiplying_d_function(self):
-        dataset = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        dataset = loading_result.dataset
         alternative = "b01"
         alpha = 0.5
 

@@ -19,3 +19,6 @@ b01, b02,indifference
 b06, b03, preference
 b08, b07, preference
 b04, b08, b07,b06, preference
+#Parameters
+eps=1e-6
+initial_alpha=0.0

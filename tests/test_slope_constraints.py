@@ -7,7 +7,8 @@ import numpy as np
 
 class TestSlopeConstraints(unittest.TestCase):
     def test_creating_slope_contraint_success(self):
-        data = read_dataset_from_txt("tests/datasets/example.txt")
+        loading_result = read_dataset_from_txt("tests/datasets/example.txt")
+        data = loading_result.dataset
 
         constraints = create_slope_constraints(data)
 

@@ -1,0 +1,24 @@
+#Data
+BusId, MaxSpeed[g], FuelCons[c]
+b01, 90, 27
+b02, 90, 27
+b03, 87, 23
+b04, 86, 26
+b05, 83, 26
+b06, 82, 33
+b07, 80, 26
+b08, 71, 23
+b09, 75, 26
+b10, 74, 25
+b11, 72, 35
+b12, 68, 26
+b13, 82, 25
+b14, 86, 35
+#Preferences
+b01, b02,indifference
+b06, b03, preference
+b08, b07, preference
+b04, b08, b07,b06, preference
+#Parameters
+eps=2e-11
+initial_alpha=0.1
