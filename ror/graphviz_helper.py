@@ -2,7 +2,7 @@ from typing import List
 import graphviz
 
 
-def draw_rank(alternatives: List[str], suffix=''):
+def draw_rank(alternatives: List[str], suffix='') -> None:
     dot = graphviz.Digraph(comment='ROR result')
     dot.format = 'png'
     last_node_id = 1
