@@ -1,8 +1,12 @@
+from collections import defaultdict
 from ror.graphviz_helper import draw_rank
-from typing import Dict, List, Set, Union
+from typing import Dict, List, Set, Tuple
 from ror.OptimizationResult import AlternativeOptimizedValue
+from functools import reduce
 import numpy as np
 import datetime
+
+BIG_NUMBER = 10e10
 
 
 class ResultAlternative:
@@ -63,7 +67,8 @@ def from_rank_to_alternatives(rank: List[List[RankItem]]) -> List[List[str]]:
     return [[item.alternative for item in items] for items in rank]
 
 
-def aggregate_result_default(data: Dict[str, List[float]], mapping: Dict[str, str], eps: float) -> List[ResultAlternative]:
+def validate_aggregator_arguments(data: Dict[str, List[float]], mapping: Dict[str, str], eps: float):
+    assert eps > 0.0, 'Epsilon value must be higher than 0'
     '''
     Mapping is a dictionary containing letter with ranking [Q, R, S] as key and their description as values.
     '''
@@ -73,7 +78,20 @@ def aggregate_result_default(data: Dict[str, List[float]], mapping: Dict[str, st
     for key in data:
         assert len(data[key]) == 3, 'Each alternative must have 3 values'
 
-    debug_aggregating_results = True
+
+'''
+Creates ranks from alternatives and their values
+Flat rank is a rank with no items at the same position.
+If two alternatives have the same position then they are on different places in the list anyway.
+i.e.
+alternatives: [b01, b02, b03]
+values: [0.1, 0.4, 0.1]
+results in
+[(b01, 0.1), (b03, 0.1), (b02, 0.4)]
+'''
+
+
+def create_flat_ranks(data: Dict[str, List[float]]) -> Tuple[List[RankItem], List[RankItem], List[RankItem]]:
     # columns - data per alpha value
     # rows - data per alternative
     values = np.array([data_values for data_values in data.values()])
@@ -98,8 +116,18 @@ def aggregate_result_default(data: Dict[str, List[float]], mapping: Dict[str, st
         ranking_list_Q, Q_sorted)
     flat_s_rank = from_alternatives_and_values_to_rank(
         ranking_list_S, S_sorted)
+    return flat_r_rank, flat_q_rank, flat_s_rank
 
-    def create_rank_positions(rank: List[List[RankItem]]):
+
+def aggregate_result_default(data: Dict[str, List[float]], mapping: Dict[str, str], eps: float) -> List[List[RankItem]]:
+    debug_aggregating_results = True
+    validate_aggregator_arguments(data, mapping, eps)
+    flat_r_rank, flat_q_rank, flat_s_rank = create_flat_ranks(data)
+
+    '''
+    Creates a mapping: alternative -> position
+    '''
+    def create_rank_positions(rank: List[List[RankItem]]) -> Dict[str, int]:
         positions: Dict[str, int] = dict()
         position_index = 1
         for rank_items in rank:
@@ -109,7 +137,6 @@ def aggregate_result_default(data: Dict[str, List[float]], mapping: Dict[str, st
         return positions
 
     r_rank = group_equal_alternatives_in_ranking(flat_r_rank, eps)
-    r_rank_positions = create_rank_positions(r_rank)
     q_rank = group_equal_alternatives_in_ranking(flat_q_rank, eps)
     q_rank_positions = create_rank_positions(q_rank)
     s_rank = group_equal_alternatives_in_ranking(flat_s_rank, eps)
@@ -122,6 +149,7 @@ def aggregate_result_default(data: Dict[str, List[float]], mapping: Dict[str, st
 
     final_rank: List[List[RankItem]] = []
     alternatives_checked: Set[str] = set()
+
     if debug_aggregating_results:
         print('*'*100)
     # now we check whether there are indifferent alternatives
@@ -187,17 +215,75 @@ def aggregate_result_default(data: Dict[str, List[float]], mapping: Dict[str, st
     now = datetime.datetime.now()
     date_time = now.strftime("%H-%M-%S_%Y-%m-%d")
 
-    if debug_aggregating_results:
-        print('R (0.5) rank', ','.join(
-            [f'{alternative}={value}' for alternative, value in zip(ranking_list_R, R_sorted)]))
-        print('Q (0.0) rank', ','.join(
-            [f'{alternative}={value}' for alternative, value in zip(ranking_list_Q, Q_sorted)]))
-        print('S (1.0) rank', ','.join(
-            [f'{alternative}={value}' for alternative, value in zip(ranking_list_S, S_sorted)]))
+    draw_rank(from_rank_to_alternatives(r_rank), f'default_{date_time}_rank_R')
+    draw_rank(from_rank_to_alternatives(q_rank), f'default_{date_time}_rank_Q')
+    draw_rank(from_rank_to_alternatives(s_rank), f'default_{date_time}_rank_S')
+    draw_rank(from_rank_to_alternatives(final_rank),
+              f'default_{date_time}_final_rank')
 
-    draw_rank(from_rank_to_alternatives(r_rank), f'{date_time}_rank_R')
-    draw_rank(from_rank_to_alternatives(q_rank), f'{date_time}_rank_Q')
-    draw_rank(from_rank_to_alternatives(s_rank), f'{date_time}_rank_S')
-    draw_rank(from_rank_to_alternatives(final_rank), f'{date_time}_final_rank')
+    return final_rank
 
+
+'''
+Function that aggregates results from ranks: R, Q and S by adding weights to ranks.
+Weights must be greater or equal 0.0
+Weight > 1.0 increases importance of the rank (lowers value)
+Weight < 1.0 decreases importance of the rank (increases value)
+Weight == 1.0 doesn't change the importance of the rank
+'''
+
+
+def weighted_results_aggregator(data: Dict[str, List[float]], mapping: Dict[str, str], weights: Dict[str, float], eps: float) -> List[List[RankItem]]:
+    validate_aggregator_arguments(data, mapping, eps)
+    assert 'S' in weights, 'weights dict must contain weight for S rank'
+    assert 'R' in weights, 'weights dict must contain weight for R rank'
+    assert 'Q' in weights, 'weights dict must contain weight for Q rank'
+
+    assert all([weight >= 0.0 for weight in weights.values()]
+               ), 'All weights must be greater or equal 0.0'
+
+    # divide values by weights - alternative value is the distance to the ideal alternative
+    # so we need to divide instead of multiplying
+    weighted_data: Dict[str, List[float]] = {}
+    for alternative in data:
+        r_value, q_value, s_value = data[alternative]
+        weighted_data[alternative] = [
+            r_value / weights['R'] if weights['R'] > 0.0 else BIG_NUMBER,
+            q_value / weights['Q'] if weights['Q'] > 0.0 else BIG_NUMBER,
+            s_value / weights['S'] if weights['S'] > 0.0 else BIG_NUMBER
+        ]
+
+    flat_r_rank, flat_q_rank, flat_s_rank = create_flat_ranks(weighted_data)
+
+    values_per_alternative: Dict[str, float] = defaultdict(lambda: 0)
+    for r_item, q_item, s_item in zip(flat_r_rank, flat_q_rank, flat_s_rank):
+        values_per_alternative[r_item.alternative] += r_item.value
+        values_per_alternative[q_item.alternative] += q_item.value
+        values_per_alternative[s_item.alternative] += s_item.value
+
+    sorted_final_rank = sorted(
+        values_per_alternative.items(), key=lambda alternative: alternative[1])
+    # wrap sorted final rank into RankItem
+    final_rank = [RankItem(alternative, value)
+                  for alternative, value in sorted_final_rank]
+    # place same results into same positions
+    final_rank = group_equal_alternatives_in_ranking(final_rank, eps)
+
+    # draw positions
+    # create intermediate ranks for drawing
+    r_rank = group_equal_alternatives_in_ranking(flat_r_rank, eps)
+    q_rank = group_equal_alternatives_in_ranking(flat_q_rank, eps)
+    s_rank = group_equal_alternatives_in_ranking(flat_s_rank, eps)
+    now = datetime.datetime.now()
+    date_time = now.strftime("%H-%M-%S_%Y-%m-%d")
+    draw_rank(from_rank_to_alternatives(r_rank),
+              f'weighted_{date_time}_rank_R')
+    draw_rank(from_rank_to_alternatives(q_rank),
+              f'weighted_{date_time}_rank_Q')
+    draw_rank(from_rank_to_alternatives(s_rank),
+              f'weighted_{date_time}_rank_S')
+    draw_rank(from_rank_to_alternatives(final_rank),
+              f'weighted_{date_time}_final_rank')
+
+    # return result
     return final_rank
