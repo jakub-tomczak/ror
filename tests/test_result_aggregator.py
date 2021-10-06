@@ -1,13 +1,11 @@
 from functools import reduce
-from io import DEFAULT_BUFFER_SIZE
-from typing import final
-from ror.ResultAggregator import BIG_NUMBER, RankItem, group_equal_alternatives_in_ranking, weighted_results_aggregator
+from ror.result_aggregator_utils import BIG_NUMBER, RankItem, group_equal_alternatives_in_ranking
+from ror.ResultAggregator import weighted_results_aggregator
 import unittest
+from tests.helpers.test_ror_result_helpers import DEFAULT_MAPPING, create_ror_result
 
 
 class TestResultAggregator(unittest.TestCase):
-    DEFAULT_MAPPING = {'Q': 'alpha_0.0', 'R': 'alpha_0.5', 'S': 'alpha_1.0'}
-
     def test_groupping_alternatives_in_rank(self):
         rank = ['a1', 'a2', 'a3']
         rank_values = [0.0, 0.0, 1.0]
@@ -48,15 +46,15 @@ class TestResultAggregator(unittest.TestCase):
             'a2': [0.0, 1.0, 2.0],
             'a3': [2.0, 1.0, 2.0]
         }
+        ror_result = create_ror_result(data)
         weights = {
             'R': 1.0,
             'Q': 2.0,
             'S': 1.0
         }
 
-        final_rank = weighted_results_aggregator(
-            data, TestResultAggregator.DEFAULT_MAPPING, weights, eps=1e-9)
-
+        result = weighted_results_aggregator(ror_result, DEFAULT_MAPPING, weights, eps=1e-9)
+        final_rank = result.final_rank
         # get all alternative names in the final rank
         alternatives_in_final_rank = list(map(lambda rank_item: rank_item.alternative, reduce(
             list.__add__, (list(items) for items in final_rank))))
@@ -79,15 +77,16 @@ class TestResultAggregator(unittest.TestCase):
             'a2': [0.0, 1.0, 2.0],
             'a3': [2.0, 1.0, 2.0]
         }
+        ror_result = create_ror_result(data)
         weights = {
             'R': 0.0,
             'Q': 2.0,
             'S': 0.0
         }
 
-        final_rank = weighted_results_aggregator(
-            data, TestResultAggregator.DEFAULT_MAPPING, weights, eps=1e-9)
-
+        result = weighted_results_aggregator(
+            ror_result, DEFAULT_MAPPING, weights, eps=1e-9)
+        final_rank = result.final_rank
         # get all alternative names in the final rank
         alternatives_in_final_rank = list(map(lambda rank_item: rank_item.alternative, reduce(
             list.__add__, (list(items) for items in final_rank))))
@@ -96,9 +95,10 @@ class TestResultAggregator(unittest.TestCase):
 
         # there are 2 items on the first place
         self.assertEqual(len(final_rank[0]), 2)
-        first_place_alternatives = set(item.alternative for item in final_rank[0])
+        first_place_alternatives = set(
+            item.alternative for item in final_rank[0])
         self.assertSetEqual(first_place_alternatives, set(['a2', 'a3']))
-        self.assertAlmostEqual(final_rank[0][0].value, 2*BIG_NUMBER +0.5)
+        self.assertAlmostEqual(final_rank[0][0].value, 2*BIG_NUMBER + 0.5)
         self.assertAlmostEqual(final_rank[0][0].value, final_rank[0][1].value)
         self.assertEqual(final_rank[1][0].alternative, 'a1')
         self.assertAlmostEqual(final_rank[1][0].value, 2*BIG_NUMBER+1.0)
