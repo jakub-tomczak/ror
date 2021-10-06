@@ -5,6 +5,9 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'README.md'), encoding = 'utf-8') as f:
     long_description = f.read()
 
+# with open(path.join(this_directory, 'requirements.txt'), encoding = 'utf-8') as f:
+#     long_description = f.read()
+
 setup(
   name = 'ror',
   packages = ['ror'],
@@ -16,7 +19,13 @@ setup(
   long_description_content_type = 'text/markdown',
   author = 'Jakub Tomczak',
   url = 'https://github.com/jtomczak/ror',
-  install_requires = [],
+  install_requires = [
+    'gurobipy',
+    'pandas',
+    'numpy',
+    'graphviz'
+  ],
+  dependency_links = ['https://pypi.gurobi.com'],
   classifiers = [
     'Development Status :: 3 - Alpha',
     'Programming Language :: Python :: 3',

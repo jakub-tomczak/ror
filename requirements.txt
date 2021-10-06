@@ -1,6 +1,2 @@
---extra-index-url https://pypi.gurobi.com
-gurobipy
-matplotlib
-pandas
-numpy
-graphviz
+# install dependencies from setup.py
+-e .
