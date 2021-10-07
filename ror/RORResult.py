@@ -1,7 +1,7 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from typing import DefaultDict, Dict, List, Union
 import pandas as pd
-from ror.result_aggregator_utils import RankItem
+from ror.result_aggregator_utils import Rank, RankItem
 from ror.alpha import AlphaValues
 
 
@@ -13,16 +13,15 @@ class RORResult:
         self.__optimization_results: Dict[str, Dict[str, float]] = DefaultDict(
             lambda: defaultdict(lambda: 1.0))
         # final rank after aggregation with one of the available methods
-        self.__final_rank: List[List[RankItem]] = []
+        self.__final_rank: Rank = None
         # ranks for different alpha values - those ranks are used for aggregation
-        self.__intermediate_ranks: Dict[List[List[RankItem]]] = defaultdict(lambda: [
-        ])
+        self.__intermediate_ranks: Dict[str, Rank] = dict()
 
     def add_result(self, alternative: str, alpha_value: str, result: float):
         self.__optimization_results[alternative][str(alpha_value)] = result
 
-    def add_intermediate_rank(self, alpha: str, rank: List[List[RankItem]]):
-        self.__intermediate_ranks[alpha] = rank
+    def add_intermediate_rank(self, name: str, rank: Rank):
+        self.__intermediate_ranks[name] = rank
 
     def get_result_table(self) -> pd.DataFrame:
         columns: Dict[str, List[Union[float, str]]] = defaultdict(lambda: [])
@@ -52,20 +51,15 @@ class RORResult:
             ])
         return result
 
-    '''
-    Returns an intermediate rank for a specific alpha
-    Returns None if there is no rank for the specified alpha
-    '''
-
-    def get_intermediate_rank(self, alpha: str) -> List[List[RankItem]]:
-        if alpha in self.__intermediate_ranks:
-            return self.__intermediate_ranks[alpha]
+    def get_intermediate_rank(self, name: str) -> Rank:
+        if name in self.__intermediate_ranks:
+            return self.__intermediate_ranks[name]
         return None
 
     @property
-    def final_rank(self) -> List[List[RankItem]]:
+    def final_rank(self) -> Rank:
         return self.__final_rank
 
     @final_rank.setter
-    def final_rank(self, final_rank: List[List[RankItem]]):
+    def final_rank(self, final_rank: Rank):
         self.__final_rank = final_rank

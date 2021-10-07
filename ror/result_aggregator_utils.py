@@ -37,6 +37,18 @@ class RankItem:
         return False
 
 
+class Rank:
+    def __init__(self, rank: Dict[str, List[List[RankItem]]], img_filename: str) -> None:
+        self.__rank: Dict[str, List[List[RankItem]]] = rank
+        self.__img_filename: str = img_filename
+
+    @property
+    def image_filename(self) -> str:
+        return self.__img_filename
+    
+    def rank(self) -> Dict[str, List[List[RankItem]]]:
+        return self.__rank
+
 def values_equal_with_epsilon(first_alternative_value, second_alternative_value, epsilon: float) -> bool:
     return abs(first_alternative_value - second_alternative_value) < epsilon
 

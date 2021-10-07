@@ -5,7 +5,7 @@ from ror.alpha import AlphaValues
 from ror.graphviz_helper import draw_rank
 from typing import Dict, List, Set
 import datetime
-from ror.result_aggregator_utils import BIG_NUMBER, RankItem, create_flat_ranks,\
+from ror.result_aggregator_utils import BIG_NUMBER, Rank, RankItem, create_flat_ranks,\
     from_rank_to_alternatives, group_equal_alternatives_in_ranking, validate_aggregator_arguments
 
 
@@ -92,13 +92,17 @@ def aggregate_result_default(ror_result: RORResult, alpha_values: AlphaValues, e
     now = datetime.datetime.now()
     date_time = now.strftime("%H-%M-%S_%Y-%m-%d")
 
-    draw_rank(from_rank_to_alternatives(r_rank), f'default_{date_time}_rank_R')
-    draw_rank(from_rank_to_alternatives(q_rank), f'default_{date_time}_rank_Q')
-    draw_rank(from_rank_to_alternatives(s_rank), f'default_{date_time}_rank_S')
+    rank_names = ['R', 'Q', 'S']
+    ranks = [r_rank, q_rank, s_rank]
+    filename = [f'default_{date_time}_rank_R', f'default_{date_time}_rank_Q', f'default_{date_time}_rank_S']
+    for name, rank, filename in zip(rank_names, ranks, filename):
+        image_filename = draw_rank(from_rank_to_alternatives(rank), filename)
+        ror_result.add_intermediate_rank(name, Rank(rank, image_filename))
     draw_rank(from_rank_to_alternatives(final_rank),
               f'default_{date_time}_final_rank')
 
     ror_result.final_rank = final_rank
+    logging.info(ror_result.get_intermediate_rank('R').image_filename)
     return ror_result
 
 
