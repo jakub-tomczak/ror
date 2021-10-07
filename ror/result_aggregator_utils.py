@@ -1,6 +1,7 @@
 from typing import Dict, List, Tuple
 from ror.OptimizationResult import AlternativeOptimizedValue
 import numpy as np
+from ror.alpha import AlphaValue, AlphaValues
 
 BIG_NUMBER = 10e10
 
@@ -38,13 +39,18 @@ class RankItem:
 
 
 class Rank:
-    def __init__(self, rank: Dict[str, List[List[RankItem]]], img_filename: str) -> None:
+    def __init__(self, rank: Dict[str, List[List[RankItem]]], img_filename: str, alpha_value: AlphaValue) -> None:
         self.__rank: Dict[str, List[List[RankItem]]] = rank
         self.__img_filename: str = img_filename
+        self.__alpha_value: AlphaValue = alpha_value
 
     @property
     def image_filename(self) -> str:
         return self.__img_filename
+
+    @property
+    def alpha_value(self) -> AlphaValue:
+        return self.__alpha_value
     
     def rank(self) -> Dict[str, List[List[RankItem]]]:
         return self.__rank

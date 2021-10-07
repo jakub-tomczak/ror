@@ -1,7 +1,7 @@
 from collections import defaultdict, namedtuple
 from typing import DefaultDict, Dict, List, Union
 import pandas as pd
-from ror.result_aggregator_utils import Rank, RankItem
+from ror.result_aggregator_utils import Rank
 from ror.alpha import AlphaValues
 
 
@@ -16,6 +16,7 @@ class RORResult:
         self.__final_rank: Rank = None
         # ranks for different alpha values - those ranks are used for aggregation
         self.__intermediate_ranks: Dict[str, Rank] = dict()
+        self.__alpha_values: AlphaValues = None
 
     def add_result(self, alternative: str, alpha_value: str, result: float):
         self.__optimization_results[alternative][str(alpha_value)] = result
@@ -57,9 +58,21 @@ class RORResult:
         return None
 
     @property
+    def intermediate_ranks(self) -> List[Rank]:
+        return [rank for rank in self.__intermediate_ranks.values()]
+
+    @property
     def final_rank(self) -> Rank:
         return self.__final_rank
 
     @final_rank.setter
     def final_rank(self, final_rank: Rank):
         self.__final_rank = final_rank
+
+    @property
+    def alpha_values(self) -> AlphaValues:
+        return self.__alpha_values
+
+    @alpha_values.setter
+    def alpha_values(self, alpha_values: AlphaValues):
+        self.__alpha_values = alpha_values

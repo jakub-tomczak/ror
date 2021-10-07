@@ -96,8 +96,10 @@ def aggregate_result_default(ror_result: RORResult, alpha_values: AlphaValues, e
     ranks = [r_rank, q_rank, s_rank]
     filename = [f'default_{date_time}_rank_R', f'default_{date_time}_rank_Q', f'default_{date_time}_rank_S']
     for name, rank, filename in zip(rank_names, ranks, filename):
+        alpha_value = alpha_values[name]
+        assert alpha_value is not None, f'Rank name {name} is not present in alpha_values provided'
         image_filename = draw_rank(from_rank_to_alternatives(rank), filename)
-        ror_result.add_intermediate_rank(name, Rank(rank, image_filename))
+        ror_result.add_intermediate_rank(name, Rank(rank, image_filename, alpha_value))
     draw_rank(from_rank_to_alternatives(final_rank),
               f'default_{date_time}_final_rank')
 
@@ -159,6 +161,16 @@ def weighted_results_aggregator(ror_result: RORResult, alpha_values: AlphaValues
     s_rank = group_equal_alternatives_in_ranking(flat_s_rank, eps)
     now = datetime.datetime.now()
     date_time = now.strftime("%H-%M-%S_%Y-%m-%d")
+
+    rank_names = ['R', 'Q', 'S']
+    ranks = [r_rank, q_rank, s_rank]
+    filename = [f'default_{date_time}_rank_R', f'default_{date_time}_rank_Q', f'default_{date_time}_rank_S']
+    for name, rank, filename in zip(rank_names, ranks, filename):
+        alpha_value = alpha_values[name]
+        assert alpha_value is not None, f'Rank name {name} is not present in alpha_values provided'
+        image_filename = draw_rank(from_rank_to_alternatives(rank), filename)
+        ror_result.add_intermediate_rank(name, Rank(rank, image_filename, alpha_value))
+
     draw_rank(from_rank_to_alternatives(r_rank),
               f'weighted_{date_time}_rank_R')
     draw_rank(from_rank_to_alternatives(q_rank),

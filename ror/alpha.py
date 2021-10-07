@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 
 
 class AlphaValue:
@@ -17,15 +17,19 @@ class AlphaValue:
 
 class AlphaValues:
     def __init__(self, alpha_values: List[AlphaValue]) -> None:
-        self.__alpha_values = alpha_values
+        self.__alpha_values: Dict[str, AlphaValue] = {
+            alpha_value.name: alpha_value for alpha_value in alpha_values}
 
     @property
     def alpha(self) -> List[AlphaValue]:
-        return [alpha_value for alpha_value in self.__alpha_values]
+        return [alpha_value for alpha_value in self.__alpha_values.values()]
 
     @property
     def values(self) -> List[float]:
-        return [alpha_value.value for alpha_value in self.__alpha_values]
+        return [alpha_value.value for alpha_value in self.__alpha_values.values()]
 
-    def __getitem__(self, items) -> AlphaValue:
-        return self.__alpha_values[items]
+    def __getitem__(self, alpha_name: str) -> AlphaValue:
+        if self.__alpha_values is not None and alpha_name in self.__alpha_values:
+            return self.__alpha_values[alpha_name]
+        else:
+            return None
