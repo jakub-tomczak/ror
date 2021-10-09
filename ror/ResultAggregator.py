@@ -100,11 +100,10 @@ def aggregate_result_default(ror_result: RORResult, alpha_values: AlphaValues, e
         assert alpha_value is not None, f'Rank name {name} is not present in alpha_values provided'
         image_filename = draw_rank(from_rank_to_alternatives(rank), filename)
         ror_result.add_intermediate_rank(name, Rank(rank, image_filename, alpha_value))
-    draw_rank(from_rank_to_alternatives(final_rank),
+    final_rank_img_path = draw_rank(from_rank_to_alternatives(final_rank),
               f'default_{date_time}_final_rank')
 
-    ror_result.final_rank = final_rank
-    logging.info(ror_result.get_intermediate_rank('R').image_filename)
+    ror_result.final_rank = Rank(final_rank, final_rank_img_path, 'final rank')
     return ror_result
 
 

@@ -39,8 +39,8 @@ class RankItem:
 
 
 class Rank:
-    def __init__(self, rank: Dict[str, List[List[RankItem]]], img_filename: str, alpha_value: AlphaValue) -> None:
-        self.__rank: Dict[str, List[List[RankItem]]] = rank
+    def __init__(self, rank: List[List[RankItem]], img_filename: str, alpha_value: AlphaValue) -> None:
+        self.__rank: List[List[RankItem]] = rank
         self.__img_filename: str = img_filename
         self.__alpha_value: AlphaValue = alpha_value
 
@@ -52,7 +52,7 @@ class Rank:
     def alpha_value(self) -> AlphaValue:
         return self.__alpha_value
     
-    def rank(self) -> Dict[str, List[List[RankItem]]]:
+    def rank(self) -> List[List[RankItem]]:
         return self.__rank
 
 def values_equal_with_epsilon(first_alternative_value, second_alternative_value, epsilon: float) -> bool:
