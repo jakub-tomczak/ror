@@ -21,14 +21,14 @@ def solve_model(loaderResult: LoaderResult) -> RORResult:
     return solve_model(loaderResult.dataset, loaderResult.parameters)
 
 
-def solve_model(data: RORDataset, parameters: Dict[AvailableParameters, float], progress_callback: Callable[[ProcessingCallbackData], None] = None) -> RORResult:
+def solve_model(data: RORDataset, parameters: Dict[AvailableParameters, float], progress_callback: Callable[[ProcessingCallbackData], None] = None, values_for_alpha: AlphaValues = None) -> RORResult:
     alpha_values = AlphaValues(
         [
             AlphaValue(0.0, 'Q'),
             AlphaValue(0.5, 'R'),
             AlphaValue(1.0, 'S')
         ]
-    )
+    ) if values_for_alpha is None else values_for_alpha
     # models to solve is the number of all models that needs to be solved by the solver
     # used to calculate the total progress of calculations
     models_to_solve = 1 + len(data.alternatives) * len(alpha_values.values) + 1
