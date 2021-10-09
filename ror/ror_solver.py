@@ -1,3 +1,4 @@
+from collections import namedtuple
 import logging
 from typing import Callable, Dict
 from ror.Constraint import ConstraintVariable, ConstraintVariablesSet
@@ -11,11 +12,16 @@ from ror.d_function import d
 from ror.ResultAggregator import aggregate_result_default
 
 
+class ProcessingCallbackData:
+    def __init__(self, progress: float, status: str):
+        self.progress: float = progress
+        self.status: str = status
+
 def solve_model(loaderResult: LoaderResult) -> RORResult:
     return solve_model(loaderResult.dataset, loaderResult.parameters)
 
 
-def solve_model(data: RORDataset, parameters: Dict[AvailableParameters, float], progress_callback: Callable[[float], None] = None) -> RORResult:
+def solve_model(data: RORDataset, parameters: Dict[AvailableParameters, float], progress_callback: Callable[[ProcessingCallbackData], None] = None) -> RORResult:
     alpha_values = AlphaValues(
         [
             AlphaValue(0.0, 'Q'),
@@ -41,7 +47,7 @@ def solve_model(data: RORDataset, parameters: Dict[AvailableParameters, float], 
     ])
     result = model.solve()
     models_solved += 1
-    progress_callback(models_solved / models_to_solve)
+    progress_callback(ProcessingCallbackData(models_solved / models_to_solve, 'Step 1'))
     logging.info(f"Solved step 1, delta value is {result.objective_value}")
 
     logging.info('Starting step 2')
@@ -59,13 +65,14 @@ def solve_model(data: RORDataset, parameters: Dict[AvailableParameters, float], 
             assert result is not None, 'Failed to optimize the problem. Model is infeasible'
 
             models_solved += 1
-            progress_callback(models_solved / models_to_solve)
+            progress_callback(ProcessingCallbackData(models_solved / models_to_solve, f'Step 2, alternative: {alternative}, alpha {alpha}.'))
 
             ror_result.add_result(alternative, alpha, result.objective_value)
             logging.info(
                 f"alternative {alternative}, objective value {result.objective_value}")
 
+    progress_callback(ProcessingCallbackData(models_solved / models_to_solve, f'Aggregating results.'))
     final_result = aggregate_result_default(ror_result, alpha_values, data.eps)
     models_solved += 1
-    progress_callback(models_solved / models_to_solve)
+    progress_callback(ProcessingCallbackData(models_solved / models_to_solve, f'Calculations done.'))
     return final_result
