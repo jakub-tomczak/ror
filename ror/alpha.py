@@ -14,6 +14,15 @@ class AlphaValue:
     def name(self) -> float:
         return self._name
 
+    def __repr__(self) -> str:
+        return f'<AlphaValue [name: {self.name}, value: {self.value}]>'
+
+    def __eq__(self, o: object) -> bool:
+        return type(o) is AlphaValue and o.value == self.value and o.name == self.name
+
+    def __hash__(self) -> int:
+        return 19*hash(self.value) + 13*hash(self.name)
+
 
 class AlphaValues:
     def __init__(self, alpha_values: List[AlphaValue]) -> None:
