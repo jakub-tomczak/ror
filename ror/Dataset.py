@@ -149,6 +149,10 @@ class Dataset:
         data_section.extend(preferences_section)
         self._save_data(filename, data_section)
 
+    def deep_copy(self) -> Dataset:
+        import copy
+        return copy.deepcopy(self)
+
 
 class RORDataset(Dataset):
     def __init__(
@@ -162,7 +166,7 @@ class RORDataset(Dataset):
             preference_relations: List["PreferenceRelation"] = None,
             intensity_relations: List["PreferenceIntensityRelation"] = None,
             eps: float = None):
-        super().__init__(alternatives, data, criteria, eps=eps)
+        Dataset.__init__(self, alternatives, data, criteria, eps=eps)
         self._preference_relations: List["PreferenceRelation"] = \
             preference_relations if preference_relations is not None else []
         self._intensity_relations: List["PreferenceIntensityRelation"] = \
