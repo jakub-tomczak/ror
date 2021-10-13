@@ -52,6 +52,7 @@ class Rank:
     def alpha_value(self) -> AlphaValue:
         return self.__alpha_value
     
+    @property
     def rank(self) -> List[List[RankItem]]:
         return self.__rank
 
