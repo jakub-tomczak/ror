@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple, Union
 from ror.OptimizationResult import AlternativeOptimizedValue
 import numpy as np
-from ror.alpha import AlphaValue, AlphaValues
+from ror.alpha import AlphaValue
 
 BIG_NUMBER = 10e10
 
