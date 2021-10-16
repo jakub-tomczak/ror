@@ -16,6 +16,8 @@ class RORParameters:
             return 0.0
         elif parameter == RORParameter.ALPHA_VALUES:
             return [0.0, 0.5, 1.0]
+        elif parameter == RORParameter.PRECISION:
+            return 3
         else:
             return None
 

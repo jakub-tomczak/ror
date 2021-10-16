@@ -11,4 +11,6 @@ PARAMETERS_SECTION = "#Parameters"
 class RORParameter(Enum):
     EPS = 'eps'
     INITIAL_ALPHA = 'initial_alpha'
-    ALPHA_VALUES = 'alpha_values' 
+    ALPHA_VALUES = 'alpha_values'
+    # digit place precision in solutions
+    PRECISION = 'precision'
