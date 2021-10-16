@@ -4,12 +4,13 @@ from typing import Callable, Dict
 from ror.Constraint import ConstraintVariable, ConstraintVariablesSet
 from ror.Dataset import RORDataset
 from ror.RORModel import RORModel
+from ror.RORParameters import RORParameters
 from ror.RORResult import RORResult
 from ror.alpha import AlphaValue, AlphaValues
 from ror.data_loader import LoaderResult
-from ror.loader_utils import AvailableParameters
+from ror.loader_utils import RORParameter
 from ror.d_function import d
-from ror.ResultAggregator import aggregate_result_default
+from ror.ResultAggregator import AbstractResultAggregator, DefaultResultAggregator, aggregate_result_default
 
 
 class ProcessingCallbackData:
@@ -20,15 +21,13 @@ class ProcessingCallbackData:
 def solve_model(loaderResult: LoaderResult) -> RORResult:
     return solve_model(loaderResult.dataset, loaderResult.parameters)
 
+def get_available_aggregators() -> Dict[str, AbstractResultAggregator]:
+    return {
+        'Default aggregator': DefaultResultAggregator
+    }
 
-def solve_model(data: RORDataset, parameters: Dict[AvailableParameters, float], progress_callback: Callable[[ProcessingCallbackData], None] = None, values_for_alpha: AlphaValues = None) -> RORResult:
-    alpha_values = AlphaValues(
-        [
-            AlphaValue(0.0, 'Q'),
-            AlphaValue(0.5, 'R'),
-            AlphaValue(1.0, 'S')
-        ]
-    ) if values_for_alpha is None else values_for_alpha
+def solve_model(data: RORDataset, parameters: RORParameters, progress_callback: Callable[[ProcessingCallbackData], None] = None) -> RORResult:
+    alpha_values = AlphaValues.from_list(parameters.get_parameter(RORParameter.ALPHA_VALUES))
     # models to solve is the number of all models that needs to be solved by the solver
     # used to calculate the total progress of calculations
     models_to_solve = 1 + len(data.alternatives) * len(alpha_values.values) + 2
@@ -43,8 +42,8 @@ def solve_model(data: RORDataset, parameters: Dict[AvailableParameters, float], 
     logging.info('Starting step 1')
     model = RORModel(
         data,
-        parameters[AvailableParameters.INITIAL_ALPHA],
-        f"ROR Model, step 1, with alpha {parameters[AvailableParameters.INITIAL_ALPHA]}"
+        parameters[RORParameter.INITIAL_ALPHA],
+        f"ROR Model, step 1, with alpha {parameters[RORParameter.INITIAL_ALPHA]}"
     )
 
     model.target = ConstraintVariablesSet([
@@ -75,7 +74,7 @@ def solve_model(data: RORDataset, parameters: Dict[AvailableParameters, float], 
                 f"alternative {alternative}, objective value {result.objective_value}")
 
     models_solved = report_progress(models_solved, f'Aggregating results.')
-    final_result = aggregate_result_default(ror_result, alpha_values, data.eps)
+    final_result = aggregate_result_default(ror_result, parameters)
     final_result.model = model
     models_solved = report_progress(models_solved, 'Calculations done.')
     return final_result

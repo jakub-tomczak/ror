@@ -1,5 +1,5 @@
 from ror.Relation import INDIFFERENCE, PREFERENCE
-from ror.data_loader import AvailableParameters, read_dataset_from_txt
+from ror.data_loader import RORParameter, read_dataset_from_txt
 import unittest
 from ror.Dataset import Dataset, RORDataset
 import numpy as np
@@ -110,5 +110,5 @@ class TestTxtDatasetReader(unittest.TestCase):
         self.assertEqual(len(data.preferenceRelations), 3)
         self.assertEqual(len(data.intensityRelations), 1)
 
-        self.assertAlmostEqual(parameters[AvailableParameters.EPS], 2e-11)
-        self.assertAlmostEqual(parameters[AvailableParameters.INITIAL_ALPHA], 0.1)
+        self.assertAlmostEqual(parameters[RORParameter.EPS], 2e-11)
+        self.assertAlmostEqual(parameters[RORParameter.INITIAL_ALPHA], 0.1)

@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 from ror.OptimizationResult import AlternativeOptimizedValue
 import numpy as np
 from ror.alpha import AlphaValue, AlphaValues
@@ -81,6 +81,15 @@ def from_alternatives_and_values_to_rank(alternatives: List[str], values: List[f
 def from_rank_to_alternatives(rank: List[List[RankItem]]) -> List[List[str]]:
     return [[item.alternative for item in items] for items in rank]
 
+def get_position_in_rank(alternative_name: str, rank: Union[Rank, List[List[RankItem]]]) -> int:
+    position = 1
+    iterable = rank if type(rank) is list else rank.rank
+    for rank_item in iterable:
+        for item in rank_item:
+            if item.alternative == alternative_name:
+                return position
+        position += 1
+    raise Exception(f'Alternative {alternative_name} is not in rank with alpha value {rank.alpha_value}')
 
 def validate_aggregator_arguments(data: Dict[str, List[float]], eps: float):
     assert eps > 0.0, 'Epsilon value must be higher than 0'

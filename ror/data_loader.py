@@ -1,35 +1,27 @@
 import logging
 import os
+from ror.RORParameters import RORParameterValue, RORParameters
 from ror.Relation import PREFERENCE_NAME_TO_RELATION
 from ror.PreferenceRelations import PreferenceIntensityRelation, PreferenceRelation
-from typing import Dict, List, Tuple, DefaultDict
+from typing import Any, Dict, List, Tuple, DefaultDict
 from ror.Dataset import Dataset, RORDataset
 from collections import defaultdict
 import numpy as np
-from ror.loader_utils import AvailableParameters, DATA_SECTION, PREFERENCES_SECTION, PARAMETERS_SECTION, PARAMETERS_VALUE_SEPARATOR, VALID_SEPARATORS
+from ror.loader_utils import RORParameter, DATA_SECTION, PREFERENCES_SECTION, PARAMETERS_SECTION, PARAMETERS_VALUE_SEPARATOR, VALID_SEPARATORS
 
 
 class LoaderResult:
-    def __init__(self, ror_dataset: RORDataset, parameters: Dict[AvailableParameters, float]) -> None:
+    def __init__(self, ror_dataset: RORDataset, parameters: RORParameters) -> None:
         self._ror_dataset: RORDataset = ror_dataset
-        self._parameters: Dict[AvailableParameters, float] = parameters
+        self._parameters: RORParameters = parameters
 
     @property
     def dataset(self) -> RORDataset:
         return self._ror_dataset
 
     @property
-    def parameters(self) -> Dict[AvailableParameters, float]:
+    def parameters(self) -> RORParameters:
         return self._parameters
-
-
-def get_default_parameter_value(parameter: AvailableParameters) -> float:
-    if parameter == AvailableParameters.EPS:
-        return Dataset.DEFAULT_EPS
-    elif parameter == AvailableParameters.INITIAL_ALPHA:
-        return 0.0
-    else:
-        return None
 
 
 def read_txt_by_section(filename: str) -> DefaultDict[str, List[str]]:
@@ -180,32 +172,55 @@ def parse_preferences_section(sectioned_data: List[str], alternatives: List[str]
     return (preference_relations, preference_intensities)
 
 
-def parse_parameters_section(sectioned_data: List[str]) -> Dict[AvailableParameters, float]:
-    parameters: Dict[AvailableParameters, float] = dict()
+def parse_parameters_section(sectioned_data: List[str]) -> RORParameters:
+    parameters: RORParameters = RORParameters()
     for line in sectioned_data:
         splited = line.split(PARAMETERS_VALUE_SEPARATOR)
         if len(splited) != 2:
             raise DatasetReaderException(
                 f"Failed to read dataset from txt file: failed to parse parameter from line: {line}. Parameter should be in format 'key=value'")
         key, value = splited
-        parsed_value: float = None
-        try:
-            parsed_value = float(value)
-        except:
-            raise DatasetReaderException(
-                f"Failed to read dataset from txt file: failed to parse parameter value: {value}. All parameter values should be of float type")
+        '''
+        Parses value. Returns a tuple indicating what is a type of the value (in string format)
+        i.e. 'float', 'list'
+        and a parsed value
+
+        example return values
+        ('float', 3.0)
+        ('list', [1, 2, 3])
+        '''
+        def get_value_type(value: str) -> Tuple[str, RORParameterValue]:
+            # try parsing an int value
+            try:
+                parsed_value = int(value)
+                return 'int', parsed_value
+            except:
+                pass
+            # try parsing a float value
+            try:
+                parsed_value = float(value)
+                return 'float', parsed_value
+            except:
+                pass
+            # try parsing a list
+            if value.startswith('[') and value.endswith(']'):
+                return 'list', eval(value)
+            return 'str', value
+
+        parsed_type, parsed_value = get_value_type(value)
+        logging.info(f'Parsed parameter key {key}, value {parsed_value}, type {parsed_type}')
         # check whether parameter has a valid value
-        for parameter in AvailableParameters:
+        for parameter in RORParameter:
             if key == parameter.value:
-                parameters[parameter] = parsed_value
+                parameters.add_parameter(parameter, parsed_value)
     # set default values to parameters that were not in the file
     parameters_with_no_value = set(
-        AvailableParameters) - set(parameters.keys())
+        RORParameter) - set(parameters.keys())
     for parameter in parameters_with_no_value:
-        default_value = get_default_parameter_value(parameter)
+        default_value = RORParameters.get_default_parameter_value(parameter)
         logging.info(
             f'Parameter {parameter.name} is not present in the dataset, adding it with default value: {default_value}')
-        parameters[parameter] = default_value
+        parameters.add_parameter(parameter, default_value)
 
     return parameters
 
@@ -253,7 +268,7 @@ def read_dataset_from_txt(filename: str) -> LoaderResult:
         criteria=criteria,
         preference_relations=preference_relations,
         intensity_relations=preferences_intensities,
-        eps=parameters[AvailableParameters.EPS]
+        eps=parameters[RORParameter.EPS]
     )
     return LoaderResult(dataset, parameters)
 

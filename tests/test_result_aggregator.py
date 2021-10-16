@@ -1,5 +1,5 @@
 from functools import reduce
-from ror.result_aggregator_utils import BIG_NUMBER, RankItem, group_equal_alternatives_in_ranking
+from ror.result_aggregator_utils import BIG_NUMBER, Rank, RankItem, get_position_in_rank, group_equal_alternatives_in_ranking
 from ror.ResultAggregator import weighted_results_aggregator
 import unittest
 from tests.helpers.test_ror_result_helpers import DEFAULT_MAPPING, create_ror_result
@@ -102,3 +102,33 @@ class TestResultAggregator(unittest.TestCase):
         self.assertAlmostEqual(final_rank[0][0].value, final_rank[0][1].value)
         self.assertEqual(final_rank[1][0].alternative, 'a1')
         self.assertAlmostEqual(final_rank[1][0].value, 2*BIG_NUMBER+1.0)
+
+    def test_getting_position_in_rank(self):
+        rank = ['a1', 'a2', 'a3']
+        rank_values = [0.0, 0.5, 1.0]
+        rank_items = [[RankItem(item, value)]
+                for item, value in zip(rank, rank_values)]
+        # place a4 at second position with a2
+        rank_items[1] = [rank_items[1][0], RankItem('a4', 0.5)]
+        rank = Rank(
+            rank_items,
+            '',
+            0.0
+        )
+
+        position_a1 = get_position_in_rank('a1', rank)
+        self.assertEqual(position_a1, 1)
+        position_a2 = get_position_in_rank('a2', rank)
+        self.assertEqual(position_a2, 2)
+        position_a4 = get_position_in_rank('a4', rank)
+        self.assertEqual(position_a4, 2)
+        position_a3 = get_position_in_rank('a3', rank)
+        self.assertEqual(position_a3, 3)
+    
+    def test_getting_position_in_rank_for_not_present_alternative(self):
+        rank = Rank([], '', 0.0)
+
+        exception_msg = f'Alternative a1 is not in rank with alpha value 0.0'
+        function = get_position_in_rank
+        args = ('a1', rank)
+        self.assertRaisesRegex(Exception, exception_msg, function, *args)

@@ -25,6 +25,11 @@ class AlphaValue:
 
 
 class AlphaValues:
+    def from_list(alpha_values: List[float]) -> 'AlphaValues':
+        return AlphaValues(
+            [AlphaValue(value, f'alpha_{value}') for value in alpha_values]
+        )
+
     def __init__(self, alpha_values: List[AlphaValue]) -> None:
         self.__alpha_values: Dict[str, AlphaValue] = {
             alpha_value.name: alpha_value for alpha_value in alpha_values}

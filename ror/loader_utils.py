@@ -8,6 +8,7 @@ PREFERENCES_SECTION = "#Preferences"
 PARAMETERS_SECTION = "#Parameters"
 
 
-class AvailableParameters(Enum):
+class RORParameter(Enum):
     EPS = 'eps'
     INITIAL_ALPHA = 'initial_alpha'
+    ALPHA_VALUES = 'alpha_values' 

@@ -3,7 +3,7 @@ import logging
 from ror.Constraint import ConstraintVariable
 import numpy as np
 from typing import Dict, List, Tuple
-from ror.loader_utils import DATA_SECTION, PARAMETERS_SECTION, PARAMETERS_VALUE_SEPARATOR, PREFERENCES_SECTION, VALID_SEPARATORS, AvailableParameters
+from ror.loader_utils import DATA_SECTION, PARAMETERS_SECTION, PARAMETERS_VALUE_SEPARATOR, PREFERENCES_SECTION, VALID_SEPARATORS, RORParameter
 import os
 
 
@@ -104,7 +104,7 @@ class Dataset:
     def delta(self, delta):
         self._delta = delta
 
-    def _prepare_data_for_saving(self, parameters: Dict[AvailableParameters, float] = None) -> Tuple[List[str], List[str]]:
+    def _prepare_data_for_saving(self, parameters: Dict[RORParameter, float] = None) -> Tuple[List[str], List[str]]:
         # data section
         data_section_lines = [DATA_SECTION]
         header = ['alternative id']
@@ -122,7 +122,7 @@ class Dataset:
         # parameters section
         parameters_section = [PARAMETERS_SECTION]
         parameters_section.append(
-            f'{AvailableParameters.EPS.value}{PARAMETERS_VALUE_SEPARATOR}{self.eps}')
+            f'{RORParameter.EPS.value}{PARAMETERS_VALUE_SEPARATOR}{self.eps}')
         if parameters is not None:
             for parameter in parameters:
                 parameters_section.append(
@@ -144,7 +144,7 @@ class Dataset:
             logging.error(f'Failed to save file: {e}')
             raise e
     
-    def save_to_file(self, filename: str, parameters: Dict[AvailableParameters, float] = None):
+    def save_to_file(self, filename: str, parameters: Dict[RORParameter, float] = None):
         data_section, preferences_section = self._prepare_data_for_saving(parameters)
         data_section.extend(preferences_section)
         self._save_data(filename, data_section)
@@ -199,7 +199,7 @@ class RORDataset(Dataset):
             ))
         return relations
 
-    def save_to_file(self, filename: str, parameters: Dict[AvailableParameters, float] = None):
+    def save_to_file(self, filename: str, parameters: Dict[RORParameter, float] = None):
         data, preferences = super()._prepare_data_for_saving(parameters)
         data.extend(self.__prepare_preferences_data_for_saving())
         data.extend(preferences)
