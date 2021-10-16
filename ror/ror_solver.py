@@ -10,7 +10,7 @@ from ror.alpha import AlphaValue, AlphaValues
 from ror.data_loader import LoaderResult
 from ror.loader_utils import RORParameter
 from ror.d_function import d
-from ror.ResultAggregator import AbstractResultAggregator, DefaultResultAggregator, aggregate_result_default
+from ror.ResultAggregator import AbstractResultAggregator, DefaultResultAggregator
 
 
 class ProcessingCallbackData:
@@ -26,7 +26,14 @@ def get_available_aggregators() -> Dict[str, AbstractResultAggregator]:
         'Default aggregator': DefaultResultAggregator
     }
 
-def solve_model(data: RORDataset, parameters: RORParameters, progress_callback: Callable[[ProcessingCallbackData], None] = None) -> RORResult:
+def solve_model(
+        data: RORDataset,
+        parameters: RORParameters,
+        aggregation_method: AbstractResultAggregator,
+        *aggregation_method_args,
+        progress_callback: Callable[[ProcessingCallbackData], None] = None,
+        **aggregation_method_kwargs,
+    ) -> RORResult:
     alpha_values = AlphaValues.from_list(parameters.get_parameter(RORParameter.ALPHA_VALUES))
     # models to solve is the number of all models that needs to be solved by the solver
     # used to calculate the total progress of calculations
@@ -74,7 +81,14 @@ def solve_model(data: RORDataset, parameters: RORParameters, progress_callback: 
                 f"alternative {alternative}, objective value {result.objective_value}")
 
     models_solved = report_progress(models_solved, f'Aggregating results.')
-    final_result = aggregate_result_default(ror_result, parameters)
+    # create new instance of aggregator
+    aggregator = aggregation_method()
+    final_result = aggregator.aggregate_results(
+        ror_result,
+        parameters,
+        *aggregation_method_args,
+        **aggregation_method_kwargs
+    )
     final_result.model = model
     models_solved = report_progress(models_solved, 'Calculations done.')
     return final_result

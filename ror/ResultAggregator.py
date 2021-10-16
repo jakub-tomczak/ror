@@ -222,10 +222,6 @@ otherwise consider them as indifferent, i.e., put them in the same position in t
 """
 
 
-def aggregate_result_default(ror_result: RORResult, parameters: RORParameters) -> RORResult:
-    return DefaultResultAggregator().aggregate_results(ror_result, parameters)
-
-
 '''
 Function that aggregates results from ranks: R, Q and S by adding weights to ranks.
 Weights must be greater or equal 0.0
@@ -233,8 +229,6 @@ Weight > 1.0 increases importance of the rank (lowers value)
 Weight < 1.0 decreases importance of the rank (increases value)
 Weight == 1.0 doesn't change the importance of the rank
 '''
-
-
 def weighted_results_aggregator(ror_result: RORResult, alpha_values: AlphaValues, weights: Dict[str, float], eps: float) -> RORResult:
     data = ror_result.get_results_dict(alpha_values)
     validate_aggregator_arguments(data, eps)
