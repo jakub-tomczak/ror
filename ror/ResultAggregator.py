@@ -2,8 +2,10 @@ from abc import abstractmethod
 from typing import List
 from ror.RORParameters import RORParameters
 from ror.RORResult import RORResult
+from ror.datetime_utils import get_date_time
 from ror.graphviz_helper import draw_rank
 from ror.result_aggregator_utils import RankItem, from_rank_to_alternatives
+import os
 
 
 class AbstractResultAggregator:
@@ -43,5 +45,9 @@ class AbstractResultAggregator:
         '''
         pass
 
-    def draw_rank(self, rank: List[List[RankItem]], rank_name: str):
-        draw_rank(from_rank_to_alternatives(rank), rank_name)
+    def draw_rank(self, rank: List[List[RankItem]], dir: str, rank_name: str) -> str:
+        return draw_rank(from_rank_to_alternatives(rank), dir, rank_name)
+
+    def get_dir_for_rank_image(self) -> str:
+        current_dir = os.path.abspath(os.path.curdir)
+        return os.path.join(current_dir, 'output', get_date_time())

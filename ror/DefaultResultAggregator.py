@@ -1,5 +1,6 @@
 from io import StringIO
 from typing import Dict, List, Set
+from ror.RORParameters import RORParameters
 from ror.RORResult import RORResult
 from ror.ResultAggregator import AbstractResultAggregator
 from ror.alpha import AlphaValues
@@ -89,7 +90,7 @@ class DefaultResultAggregator(AbstractResultAggregator):
 
         return explanation.getvalue()
 
-    def aggregate_results(self, result: RORResult, parameters: RORParameter, *args, **kwargs) -> RORResult:
+    def aggregate_results(self, result: RORResult, parameters: RORParameters, *args, **kwargs) -> RORResult:
         super().aggregate_results(result, parameters, *args, **kwargs)
         alpha_values = AlphaValues.from_list(
             parameters.get_parameter(RORParameter.ALPHA_VALUES))
@@ -179,13 +180,15 @@ class DefaultResultAggregator(AbstractResultAggregator):
         rank_names = ['alpha_0.5', 'alpha_0.0', 'alpha_1.0']
         ranks = [r_rank, q_rank, s_rank]
         filename = [f'default_rank_R', f'default_rank_Q', f'default_rank_S']
+        # get dir for all ranks because dir contains datetime so must be one for all
+        dir = self.get_dir_for_rank_image()
         for name, rank, filename in zip(rank_names, ranks, filename):
             alpha_value = alpha_values[name]
             assert alpha_value is not None, f'Rank name {name} is not present in alpha_values provided'
-            image_filename = self.draw_rank(rank, filename)
+            image_filename = self.draw_rank(rank, dir, filename)
             result.add_intermediate_rank(
                 name, Rank(rank, image_filename, alpha_value))
-        final_rank_img_path = self.draw_rank(final_rank, f'default_final_rank')
+        final_rank_img_path = self.draw_rank(final_rank, dir, f'default_final_rank')
 
         result.final_rank = Rank(final_rank, final_rank_img_path, 'final rank')
         return result

@@ -57,16 +57,18 @@ class WeightedResultAggregator(AbstractResultAggregator):
         final_rank = group_equal_alternatives_in_ranking(final_rank, eps)
 
         # draw positions
-        # create intermediate ranks for drawing
-        for alpha_value, intermediate_flat_rank in zip(self.alpha_values, flat_ranks):
+        # get dir for all ranks because dir contains datetime so must be one for all
+        dir = self.get_dir_for_rank_image()
+        for alpha_value, intermediate_flat_rank in zip(self.alpha_values.values, flat_ranks):
+            # create intermediate ranks for drawing
             grouped_rank = group_equal_alternatives_in_ranking(
                 intermediate_flat_rank, eps)
-            name = f'alpha_{self.alpha_values.values}'
-            image_filename = self.draw_rank(grouped_rank, f'weighted_{name}')
+            name = f'alpha_{alpha_value}'
+            image_filename = self.draw_rank(grouped_rank, dir, f'weighted_{name}')
             result.add_intermediate_rank(
                 name, Rank(rank, image_filename, alpha_value))
 
-        self.draw_rank(final_rank, f'weighted_final_rank')
+        self.draw_rank(final_rank, dir, f'weighted_final_rank')
 
         # return result
         result.final_rank = final_rank
@@ -82,16 +84,16 @@ class WeightedResultAggregator(AbstractResultAggregator):
         explanation.write(
             f'First alternative {alternative_1} has the following results for alpha values:')
         alternative_1_sum: float = 0
-        for alpha_value, result in zip(self.alpha_values, alternative_1_weights):
-            explanation.write(f'Alpha {alpha_value.value}: {result}')
+        for alpha_value, result in zip(self.alpha_values.values, alternative_1_weights):
+            explanation.write(f'Alpha {alpha_value}: {result}')
             alternative_1_sum += result
         explanation.write(f'Sum is {alternative_1_sum}')
 
         explanation.write(
             f'Second alternative {alternative_2} has the following results for alpha values:')
         alternative_2_sum: float = 0
-        for alpha_value, result in zip(self.alpha_values, alternative_2_weights):
-            explanation.write(f'Alpha {alpha_value.value}: {result}')
+        for alpha_value, result in zip(self.alpha_values.values, alternative_2_weights):
+            explanation.write(f'Alpha {alpha_value}: {result}')
             alternative_2_sum += result
         explanation.write(f'Sum is {alternative_2_sum}')
 
