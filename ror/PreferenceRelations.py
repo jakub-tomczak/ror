@@ -61,6 +61,18 @@ class PreferenceRelation(Preference):
     def __repr__(self):
         return f"<Preference: {self._alternative_1} {self._relation} {self._alternative_2}>"
 
+    def __eq__(self, o: object) -> bool:
+        if not isinstance(o, PreferenceRelation):
+            return False
+        return o.alternative_1 == self.alternative_1 \
+            and o.alternative_2 == self.alternative_2 \
+            and o.relation == self.relation \
+            and o._criterion == self._criterion
+
+    def __hash__(self) -> int:
+        return 13 * self._alternative_1.__hash__() + 19 * self._alternative_2.__hash__() \
+            + 23 * self._criterion.__hash__() + 31 * self._relation.__hash__()
+
     def to_constraint(self, dataset: Dataset, alpha: float) -> Constraint:
         '''
         Creates Constraint object for this relation on a specific criterion.
@@ -163,6 +175,21 @@ class PreferenceIntensityRelation(Preference):
 
     def __repr__(self):
         return f"<Preference: {self._alternative_1} - {self._alternative_2} {self._relation} {self._alternative_3} - {self._alternative_4}>"
+
+    def __eq__(self, o: object) -> bool:
+        if not isinstance(o, PreferenceIntensityRelation):
+            return False
+        return o.alternative_1 == self.alternative_1 \
+            and o.alternative_2 == self.alternative_2 \
+            and o.alternative_3 == self.alternative_3 \
+            and o.alternative_4 == self.alternative_4 \
+            and o.relation == self.relation \
+            and o._preference_criterion == self._preference_criterion
+
+    def __hash__(self) -> int:
+        return 13 * self._alternative_1.__hash__() + 19 * self._alternative_2.__hash__() \
+            + 37 * self._alternative_3.__hash__() + 31 * self._alternative_4.__hash__() \
+            + 23 * self._criterion.__hash__() + 41 * self._relation.__hash__()
 
     def to_constraint(self, dataset: Dataset, alpha: float) -> Constraint:
         '''

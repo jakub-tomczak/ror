@@ -233,3 +233,13 @@ class TestPreferenceRelations(unittest.TestCase):
             # this is just 0, but write how it evaluates
             - alpha * len(data.criteria) + alpha * len(data.criteria)
         )
+
+    def test_preference_relation_equals(self):
+        preference_1 = PreferenceRelation('a1', 'a2', WEAK_PREFERENCE)
+        preference_2 = PreferenceRelation('a1', 'a2', WEAK_PREFERENCE)
+        preference_3 = PreferenceRelation('a1', 'a4', WEAK_PREFERENCE)
+
+        self.assertEqual(preference_1, preference_2)
+        self.assertNotEqual(preference_1, preference_3)
+        self.assertEqual(preference_1.__hash__(), preference_2.__hash__())
+        self.assertNotEqual(preference_1.__hash__(), preference_3.__hash__())
