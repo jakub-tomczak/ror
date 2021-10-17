@@ -1,8 +1,10 @@
 from functools import reduce
+from ror.RORParameters import RORParameters
+from ror.WeightedResultAggregator import WeightedResultAggregator
+from ror.loader_utils import RORParameter
 from ror.result_aggregator_utils import BIG_NUMBER, Rank, RankItem, get_position_in_rank, group_equal_alternatives_in_ranking
-from ror.ResultAggregator import weighted_results_aggregator
 import unittest
-from tests.helpers.test_ror_result_helpers import DEFAULT_MAPPING, create_ror_result
+from tests.helpers.test_ror_result_helpers import create_ror_result
 
 
 class TestResultAggregator(unittest.TestCase):
@@ -47,14 +49,15 @@ class TestResultAggregator(unittest.TestCase):
             'a3': [2.0, 1.0, 2.0]
         }
         ror_result = create_ror_result(data)
-        weights = {
-            'R': 1.0,
-            'Q': 2.0,
-            'S': 1.0
-        }
+        weights = [1.0, 2.0, 1.0]
 
-        result = weighted_results_aggregator(ror_result, DEFAULT_MAPPING, weights, eps=1e-9)
-        final_rank = result.final_rank
+        ror_paramters = RORParameters()
+        ror_paramters.add_parameter(RORParameter.ALPHA_WEIGHTS, weights)
+        ror_paramters.add_parameter(RORParameter.EPS, 1e-9)
+
+        weighted_aggregator = WeightedResultAggregator()
+        result = weighted_aggregator.aggregate_results(ror_result, ror_paramters)
+        final_rank = result.final_rank.rank
         # get all alternative names in the final rank
         alternatives_in_final_rank = list(map(lambda rank_item: rank_item.alternative, reduce(
             list.__add__, (list(items) for items in final_rank))))
@@ -78,15 +81,15 @@ class TestResultAggregator(unittest.TestCase):
             'a3': [2.0, 1.0, 2.0]
         }
         ror_result = create_ror_result(data)
-        weights = {
-            'R': 0.0,
-            'Q': 2.0,
-            'S': 0.0
-        }
+        weights = [0.0, 2.0, 0.0]
 
-        result = weighted_results_aggregator(
-            ror_result, DEFAULT_MAPPING, weights, eps=1e-9)
-        final_rank = result.final_rank
+        ror_paramters = RORParameters()
+        ror_paramters.add_parameter(RORParameter.ALPHA_WEIGHTS, weights)
+        ror_paramters.add_parameter(RORParameter.EPS, 1e-9)
+
+        weighted_aggregator = WeightedResultAggregator()
+        result = weighted_aggregator.aggregate_results(ror_result, ror_paramters)
+        final_rank = result.final_rank.rank
         # get all alternative names in the final rank
         alternatives_in_final_rank = list(map(lambda rank_item: rank_item.alternative, reduce(
             list.__add__, (list(items) for items in final_rank))))

@@ -38,7 +38,7 @@ class WeightedResultAggregator(AbstractResultAggregator):
         for alternative in data:
             alternative_data = data[alternative]
             self.weighted_data[alternative] = [
-                value / weight for value, weight in zip(alternative_data, weights.values())
+                value / weight if weight > 0 else BIG_NUMBER for value, weight in zip(alternative_data, weights.values())
             ]
         flat_ranks = create_flat_ranks(self.weighted_data)
 

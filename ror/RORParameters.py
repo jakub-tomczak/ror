@@ -72,7 +72,8 @@ class RORParameters:
         elif parameter == RORParameter.ALPHA_VALUES:
             exception_msg = 'Failed to parse ALPHA_VALUES value. ALPHA_VALUES value must be a list with float values in range <0.0, 1.0>'
             # validate one by one as or condition won't fail if the first condition is False
-            if not list_validator(value, float):
+            # don't add float type for items - they can be float or ints (i.e. 0)
+            if not list_validator(value):
                 raise DataValidationException(exception_msg)
             if not all([float_validator(item, min_value=0.0, max_value=1.0) for item in value]):
                 raise DataValidationException(exception_msg)
@@ -80,11 +81,12 @@ class RORParameters:
             if not int_validator(value, min_value=0, max_value=10):
                 raise DataValidationException('Failed to parse PRECISION value. PRECISION value must be an int value in range <0, 10>')
         elif parameter == RORParameter.ALPHA_WEIGHTS:
-            exception_msg = 'Failed to parse ALPHA_WEIGHTS value. ALPHA_WEIGHTS value must be a list with float values in greater or equal 0'
+            exception_msg = 'Failed to parse ALPHA_WEIGHTS value. ALPHA_WEIGHTS value must be a list with float values equal or greater 0'
             # validate one by one as or condition won't fail if the first condition is False
-            if not list_validator(value, float):
+            # don't add float type for items - they can be float or ints (i.e. 1)
+            if not list_validator(value):
                 raise DataValidationException(exception_msg)
-            if not all([float_validator(item, min_value=0.0) for item in value]):
+            if not all([float_validator(item, min_value=0) for item in value]):
                 raise DataValidationException(exception_msg)
         elif parameter == RORParameter.RESULTS_AGGREGATOR:
             pass
