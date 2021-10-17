@@ -181,10 +181,20 @@ class RORDataset(Dataset):
         return self._intensity_relations
 
     def add_preference_relation(self, relation: "PreferenceRelation"):
-        self._preference_relations.append(relation)
+        if relation not in self._preference_relations:
+            self._preference_relations.append(relation)
 
     def add_intensity_relation(self, relation: "PreferenceIntensityRelation"):
-        self._intensity_relations.append(relation)
+        if relation not in self._intensity_relations:
+            self._intensity_relations.append(relation)
+
+    def remove_preference_relation(self, relation: "PreferenceRelation"):
+        if relation in self._preference_relations:
+            self._preference_relations.remove(relation)
+
+    def remove_intensity_relation(self, relation: "PreferenceIntensityRelation"):
+        if relation in self._intensity_relations:
+            self._intensity_relations.remove(relation)
 
     def __prepare_preferences_data_for_saving(self) -> List[str]:
         relations = [PREFERENCES_SECTION]
