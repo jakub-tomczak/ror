@@ -36,7 +36,7 @@ def solve_model(
         progress_callback: Callable[[ProcessingCallbackData], None] = None,
         **aggregation_method_kwargs,
     ) -> RORResult:
-    assert aggregation_method in AVAILABLE_AGGREGATORS, f'Invalid aggregator method name, available: [{", ".join(AVAILABLE_AGGREGATORS.keys())}]'
+    assert aggregation_method in AVAILABLE_AGGREGATORS, f'Invalid aggregator method name {aggregation_method}, available: [{", ".join(AVAILABLE_AGGREGATORS.keys())}]'
     alpha_values = AlphaValues.from_list(parameters.get_parameter(RORParameter.ALPHA_VALUES))
     # models to solve is the number of all models that needs to be solved by the solver
     # used to calculate the total progress of calculations
