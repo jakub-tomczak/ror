@@ -2,6 +2,9 @@ from typing import Dict, List
 
 
 class AlphaValue:
+    def from_value(value: float) -> 'AlphaValue':
+        return AlphaValue(value, f'alpha_{value}')
+
     def __init__(self, value: float, name: str) -> None:
         self._value: float = value
         self._name: str = name

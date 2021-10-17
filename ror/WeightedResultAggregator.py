@@ -4,7 +4,7 @@ from typing import Dict, List
 from ror.RORParameters import RORParameters
 from ror.RORResult import RORResult
 from ror.ResultAggregator import AbstractResultAggregator
-from ror.alpha import AlphaValues
+from ror.alpha import AlphaValue, AlphaValues
 from ror.loader_utils import RORParameter
 from ror.result_aggregator_utils import BIG_NUMBER, Rank, RankItem, create_flat_ranks, get_position_in_rank, group_equal_alternatives_in_ranking, validate_aggregator_arguments, values_equal_with_epsilon
 
@@ -66,12 +66,16 @@ class WeightedResultAggregator(AbstractResultAggregator):
             name = f'alpha_{alpha_value}'
             image_filename = self.draw_rank(grouped_rank, dir, f'weighted_{name}')
             result.add_intermediate_rank(
-                name, Rank(rank, image_filename, alpha_value))
+                name, Rank(rank, image_filename, AlphaValue.from_value(alpha_value)))
 
-        self.draw_rank(final_rank, dir, f'weighted_final_rank')
-
+        final_rank_image_filename = self.draw_rank(final_rank, dir, 'weighted_final_rank')
+        final_rank_object = Rank(
+            final_rank,
+            final_rank_image_filename,
+            'final_rank'
+        )
         # return result
-        result.final_rank = final_rank
+        result.final_rank = final_rank_object
         return result
 
     def explain_result(self, alternative_1: str, alternative_2: str) -> str:
