@@ -1,5 +1,4 @@
 from typing import Dict, Set, Union
-from ror.alpha import AlphaValue, AlphaValues
 
 from ror.loader_utils import RORParameter
 from ror.Dataset import Dataset
@@ -18,6 +17,10 @@ class RORParameters:
             return [0.0, 0.5, 1.0]
         elif parameter == RORParameter.PRECISION:
             return 3
+        elif parameter == RORParameter.ALPHA_WEIGHTS:
+            return [1.0, 1.0, 1.0]
+        elif parameter == RORParameter.RESULTS_AGGREGATOR:
+            return 'DefaultResultAggregator'
         else:
             return None
 

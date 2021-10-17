@@ -109,7 +109,11 @@ results in
 '''
 
 
-def create_flat_ranks(data: Dict[str, List[float]]) -> Tuple[List[RankItem], List[RankItem], List[RankItem]]:
+def create_flat_r_q_s_ranks(data: Dict[str, List[float]]) -> Tuple[List[RankItem], List[RankItem], List[RankItem]]:
+    '''
+    Returns tuplce of flat ranks - ranks with one item per index for 3 ranks.
+    Each item will be a list of alternatives, one per index.
+    '''
     # columns - data per alpha value
     # rows - data per alternative
     values = np.array([data_values for data_values in data.values()])
@@ -135,3 +139,23 @@ def create_flat_ranks(data: Dict[str, List[float]]) -> Tuple[List[RankItem], Lis
     flat_s_rank = from_alternatives_and_values_to_rank(
         ranking_list_S, S_sorted)
     return flat_r_rank, flat_q_rank, flat_s_rank
+
+def create_flat_ranks(data: Dict[str, List[float]]) -> List[List[RankItem]]:
+    '''
+    Returns list of flat ranks - ranks with one item per index.
+    For 3 alpha values a list of 3 items will be returned.
+    Each item will be a list of alternatives, one per index.
+    '''
+    # columns - data per alpha value
+    # rows - data per alternative
+    values = np.array([data_values for data_values in data.values()]).T
+    alternatives = np.array(list(data.keys()))
+
+    # sort descending
+    flat_ranks = []
+    for value in values:
+        sorted_values = np.sort(value)
+        sorted_args = np.argsort(value)
+        ranking_list = alternatives[sorted_args]
+        flat_ranks.append(from_alternatives_and_values_to_rank(ranking_list, sorted_values))
+    return flat_ranks

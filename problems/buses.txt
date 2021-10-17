@@ -24,3 +24,4 @@ eps=1e-6
 initial_alpha=0.0
 alpha_values=[0.0, 0.5, 1.0]
 precision=4
+results_aggregator=WeightedResultAggregator

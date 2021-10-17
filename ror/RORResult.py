@@ -19,6 +19,7 @@ class RORResult:
         self.__intermediate_ranks: Dict[str, Rank] = dict()
         self.__alpha_values: AlphaValues = None
         self.model: RORModel = None
+        self.__aggregator: 'AbstractResultAggregator' = None
 
     def add_result(self, alternative: str, alpha_value: str, result: float):
         self.__optimization_results[alternative][str(alpha_value)] = result
@@ -47,6 +48,7 @@ class RORResult:
         # get the first key to get all alpha_values
         # we need to get all alpha values to have one order
         alpha_values_keys = list(map(str, alpha_values.values))
+        # print('optimization results', self.__optimization_results.items())
         for alternative, alternative_values in self.__optimization_results.items():
             result[alternative].extend([
                 alternative_values[alpha_key]
@@ -58,6 +60,14 @@ class RORResult:
         if name in self.__intermediate_ranks:
             return self.__intermediate_ranks[name]
         return None
+
+    @property
+    def results_aggregator(self) -> 'AbstractResultAggregator':
+        return self.__aggregator
+    
+    @results_aggregator.setter
+    def results_aggregator(self, value: 'AbstractResultAggregator'):
+        self.__aggregator = value
 
     @property
     def intermediate_ranks(self) -> List[Rank]:

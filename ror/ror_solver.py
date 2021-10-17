@@ -10,7 +10,9 @@ from ror.alpha import AlphaValue, AlphaValues
 from ror.data_loader import LoaderResult
 from ror.loader_utils import RORParameter
 from ror.d_function import d
-from ror.ResultAggregator import AbstractResultAggregator, DefaultResultAggregator
+from ror.ResultAggregator import AbstractResultAggregator
+from ror.DefaultResultAggregator import DefaultResultAggregator
+from ror.WeightedResultAggregator import WeightedResultAggregator
 
 
 class ProcessingCallbackData:
@@ -21,19 +23,20 @@ class ProcessingCallbackData:
 def solve_model(loaderResult: LoaderResult) -> RORResult:
     return solve_model(loaderResult.dataset, loaderResult.parameters)
 
-def get_available_aggregators() -> Dict[str, AbstractResultAggregator]:
-    return {
-        'Default aggregator': DefaultResultAggregator
-    }
+AVAILABLE_AGGREGATORS: Dict[str, AbstractResultAggregator] = {
+    DefaultResultAggregator.__name__: DefaultResultAggregator,
+    WeightedResultAggregator.__name__: WeightedResultAggregator
+}
 
 def solve_model(
         data: RORDataset,
         parameters: RORParameters,
-        aggregation_method: AbstractResultAggregator,
+        aggregation_method: str,
         *aggregation_method_args,
         progress_callback: Callable[[ProcessingCallbackData], None] = None,
         **aggregation_method_kwargs,
     ) -> RORResult:
+    assert aggregation_method in AVAILABLE_AGGREGATORS, f'Invalid aggregator method name, available: [{", ".join(AVAILABLE_AGGREGATORS.keys())}]'
     alpha_values = AlphaValues.from_list(parameters.get_parameter(RORParameter.ALPHA_VALUES))
     # models to solve is the number of all models that needs to be solved by the solver
     # used to calculate the total progress of calculations
@@ -82,7 +85,7 @@ def solve_model(
 
     models_solved = report_progress(models_solved, f'Aggregating results.')
     # create new instance of aggregator
-    aggregator = aggregation_method()
+    aggregator = AVAILABLE_AGGREGATORS[aggregation_method]()
     final_result = aggregator.aggregate_results(
         ror_result,
         parameters,

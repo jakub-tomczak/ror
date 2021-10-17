@@ -12,5 +12,7 @@ class RORParameter(Enum):
     EPS = 'eps'
     INITIAL_ALPHA = 'initial_alpha'
     ALPHA_VALUES = 'alpha_values'
+    RESULTS_AGGREGATOR="results_aggregator"
     # digit place precision in solutions
     PRECISION = 'precision'
+    ALPHA_WEIGHTS = 'alpha_weights'
