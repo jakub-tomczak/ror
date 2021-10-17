@@ -180,6 +180,12 @@ class RORDataset(Dataset):
     def intensityRelations(self) -> List["PreferenceIntensityRelation"]:
         return self._intensity_relations
 
+    def add_preference_relation(self, relation: "PreferenceRelation"):
+        self._preference_relations.append(relation)
+
+    def add_intensity_relation(self, relation: "PreferenceIntensityRelation"):
+        self._intensity_relations.append(relation)
+
     def __prepare_preferences_data_for_saving(self) -> List[str]:
         relations = [PREFERENCES_SECTION]
         sep = VALID_SEPARATORS[0]
