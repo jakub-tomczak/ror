@@ -203,8 +203,12 @@ def parse_parameters_section(sectioned_data: List[str]) -> RORParameters:
             except:
                 pass
             # try parsing a list
-            if value.startswith('[') and value.endswith(']'):
-                return 'list', eval(value)
+            try:
+                if value.startswith('[') and value.endswith(']'):
+                    return 'list', eval(value)
+            except:
+                raise ValueError(f'Failed to parse list from value: {value}')
+            # str can be only parsed if doesn't start with [ and doesn't end with ]
             return 'str', value
 
         parsed_type, parsed_value = get_value_type(value)
