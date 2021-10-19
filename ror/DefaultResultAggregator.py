@@ -30,6 +30,10 @@ class DefaultResultAggregator(AbstractResultAggregator):
     def explain_result(self, alternative_1: str, alternative_2: str) -> str:
         super().explain_result(alternative_1, alternative_2)
 
+        precision = 3
+        def rounded(number):
+            return round(number, precision)
+
         explanation = StringIO()
         # get numerical results
         result = self._ror_result.get_result_table()
@@ -45,48 +49,33 @@ class DefaultResultAggregator(AbstractResultAggregator):
         # final rank positions
         for alt in [alternative_1, alternative_2]:
             pos = get_position_in_rank(alt, final_rank)
-            value = result[alt, 'alpha_sum']
+            value = result.loc[alt, 'alpha_sum']
             explanation.write(
-                f'Alternative {alt} is at position {pos} in the final rank with total distance of {value}.')
+                f'Alternative {alt} is at position {pos} in the final rank with total distance of {rounded(value)}.\n')
 
         r_rank_alt_1_position = get_position_in_rank(alternative_1, r_rank)
         r_rank_alt_2_position = get_position_in_rank(alternative_2, r_rank)
         if r_rank_alt_1_position > r_rank_alt_2_position:
             explanation.write(
-                f'Alternative {alternative_1} is lower in rank R than alternative {alternative_2}')
+                f'Alternative {alternative_1} is lower in rank R than alternative {alternative_2}.\n')
         elif r_rank_alt_1_position < r_rank_alt_2_position:
             explanation.write(
-                f'Alternative {alternative_1} is higher in rank R than alternative {alternative_2}')
+                f'Alternative {alternative_1} is higher in rank R than alternative {alternative_2}.\n')
         else:
             explanation.write(
-                f'Alternatives {alternative_1} and {alternative_2} are at the same position in rank R')
+                f'Alternatives {alternative_1} and {alternative_2} are at the same position in rank R.\n')
 
         # better alternative is lower in rank = has position with lower value
         better_alternative = alternative_1 if r_rank_alt_1_position < r_rank_alt_2_position else alternative_2
         worst_alternative = alternative_1 if better_alternative == alternative_2 else alternative_2
         if self.alternatives_are_indifferent(better_alternative, worst_alternative, q_rank, s_rank):
             explanation.write(
-                'Set alternatives as indifferent in the final rank,')
+                'Set alternatives as indifferent in the final rank,\n')
             explanation.write(
-                f'because alternative {better_alternative} position in rank q and s are reversed in relation to alternative {worst_alternative}')
+                f'because alternative {better_alternative} position in rank q and s\nare reversed in relation to alternative {worst_alternative}.\n')
         else:
             explanation.write(
-                f'Position of alternative {better_alternative} is not reversed in both q and s rank in relation to alternative {worst_alternative}')
-        final_rank_alt_1_position = get_position_in_rank(
-            alternative_1, final_rank)
-        final_rank_alt_2_position = get_position_in_rank(
-            alternative_2, final_rank)
-
-        if better_alternative == alternative_1:
-            explanation.write(
-                f'Alternative {alternative_1} that was better in rank R is at position {final_rank_alt_1_position} in the final rank.')
-            explanation.write(
-                f'Alternative {alternative_2} that was worst in rank R is at position {final_rank_alt_2_position} in the final rank.')
-        else:
-            explanation.write(
-                f'Alternative {alternative_1} that was worst in rank R is at position {final_rank_alt_1_position} in the final rank.')
-            explanation.write(
-                f'Alternative {alternative_2} that was better in rank R is at position {final_rank_alt_2_position} in the final rank.')
+                f'Position of alternative {better_alternative} is not reversed\nin both q and s rank in relation to alternative {worst_alternative}.\n')
 
         return explanation.getvalue()
 
@@ -97,7 +86,6 @@ class DefaultResultAggregator(AbstractResultAggregator):
         eps = parameters.get_parameter(RORParameter.EPS)
 
         data: Dict[str, List[float]] = result.get_results_dict(alpha_values)
-        print('data', data)
         validate_aggregator_arguments(data, eps)
         flat_r_rank, flat_q_rank, flat_s_rank = create_flat_r_q_s_ranks(data)
 

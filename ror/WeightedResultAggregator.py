@@ -84,22 +84,26 @@ class WeightedResultAggregator(AbstractResultAggregator):
         alternative_1_weights = self.weighted_data[alternative_1]
         alternative_2_weights = self.weighted_data[alternative_2]
 
+        precision = 3
+        def rounded(number):
+            return round(number, precision)
+
         explanation = StringIO()
         explanation.write(
-            f'First alternative {alternative_1} has the following results for alpha values:')
+            f'First alternative {alternative_1} has the following results for alpha values:\n')
         alternative_1_sum: float = 0
         for alpha_value, result in zip(self.alpha_values.values, alternative_1_weights):
-            explanation.write(f'Alpha {alpha_value}: {result}')
+            explanation.write(f'Alpha {alpha_value}: {rounded(result)}\n')
             alternative_1_sum += result
-        explanation.write(f'Sum is {alternative_1_sum}')
+        explanation.write(f'Sum is {rounded(alternative_1_sum)}\n')
 
         explanation.write(
-            f'Second alternative {alternative_2} has the following results for alpha values:')
+            f'Second alternative {alternative_2} has the following results for alpha values:\n')
         alternative_2_sum: float = 0
         for alpha_value, result in zip(self.alpha_values.values, alternative_2_weights):
-            explanation.write(f'Alpha {alpha_value}: {result}')
+            explanation.write(f'Alpha {alpha_value}: {rounded(result)}\n')
             alternative_2_sum += result
-        explanation.write(f'Sum is {alternative_2_sum}')
+        explanation.write(f'Sum is {rounded(alternative_2_sum)}\n')
 
         final_rank = self._ror_result.final_rank
         final_rank_alt_1_position = get_position_in_rank(
@@ -109,25 +113,25 @@ class WeightedResultAggregator(AbstractResultAggregator):
 
         if alternative_1_sum > alternative_2_sum:
             explanation.write(
-                f'First alternative {alternative_1} has bigger distance (sum)')
+                f'First alternative {alternative_1} has bigger distance (sum)\n')
             explanation.write(
-                f'therefore it is on the lower position in the rank ({final_rank_alt_1_position})')
+                f'therefore it is on the lower position in the rank ({final_rank_alt_1_position})\n')
             explanation.write(
-                f'than the second alternative {alternative_2} (position {final_rank_alt_2_position}')
+                f'than the second alternative {alternative_2} (position {final_rank_alt_2_position}\n')
         elif alternative_1_sum > alternative_2_sum:
             explanation.write(
-                f'First alternative {alternative_1} has lower distance (sum)')
+                f'First alternative {alternative_1} has lower distance (sum)\n')
             explanation.write(
-                f'therefore it is on the higher position in the rank ({final_rank_alt_1_position})')
+                f'therefore it is on the higher position in the rank ({final_rank_alt_1_position})\n')
             explanation.write(
-                f'than the second alternative {alternative_2} (position {final_rank_alt_2_position}')
+                f'than the second alternative {alternative_2} (position {final_rank_alt_2_position}\n')
         else:
             explanation.write(
-                f'First {alternative_1} and second {alternative_2} alternative have same distance (sum)')
+                f'First {alternative_1} and second {alternative_2} alternative have same distance (sum)\n')
             explanation.write(
-                f'with the precision of eps value {self._ror_parameters.get_parameter(RORParameter.EPS)}')
+                f'with the precision of eps value {self._ror_parameters.get_parameter(RORParameter.EPS)}\n')
             explanation.write(
-                f'therefore they are on the same position {final_rank_alt_1_position} in the final rank')
+                f'therefore they are on the same position {final_rank_alt_1_position} in the final rank\n')
 
     def help(self) -> str:
         return '''
