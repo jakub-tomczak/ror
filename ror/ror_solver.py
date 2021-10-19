@@ -86,12 +86,13 @@ def solve_model(
     models_solved = report_progress(models_solved, f'Aggregating results.')
     # create new instance of aggregator
     aggregator = AVAILABLE_AGGREGATORS[aggregation_method]()
-    final_result = aggregator.aggregate_results(
+    final_result: RORResult = aggregator.aggregate_results(
         ror_result,
         parameters,
         *aggregation_method_args,
         **aggregation_method_kwargs
     )
     final_result.model = model
+    final_result.results_aggregator = aggregator
     models_solved = report_progress(models_solved, 'Calculations done.')
     return final_result
