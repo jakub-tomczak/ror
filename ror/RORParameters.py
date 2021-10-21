@@ -112,3 +112,7 @@ class RORParameters:
             return self.__parameters[parameter_name]
         else:
             return RORParameters.get_default_parameter_value(parameter_name)
+
+    def deep_copy(self) -> 'RORParameters':
+        import copy
+        return copy.deepcopy(self)
