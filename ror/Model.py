@@ -1,3 +1,4 @@
+from ror.CalculationsException import CalculationsException
 from ror.helpers import reduce_lists
 from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet
 from typing import Dict, List, Set
@@ -139,4 +140,4 @@ class Model:
             return OptimizationResult(self, model.objVal, variables_values)
         elif model.status == GRB.INFEASIBLE:
             logging.error('Model is infeasible.')
-            return None
+            raise CalculationsException(f'Model {self.notes} is infeasible.')
