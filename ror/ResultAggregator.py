@@ -14,9 +14,14 @@ class AbstractResultAggregator:
     Defines a common method for aggregating results.
     '''
 
-    def __init__(self) -> None:
+    def __init__(self, name: str) -> None:
         self._ror_result: RORResult = None
         self._ror_parameters: RORParameters = None
+        self._name: str = name
+
+    @property
+    def name(self) -> str:
+        return self._name
 
     @abstractmethod
     def aggregate_results(self, result: RORResult, parameters: RORParameters, *args, **kwargs) -> RORResult:
@@ -27,6 +32,7 @@ class AbstractResultAggregator:
         '''
         self._ror_result = result
         self._ror_parameters = parameters
+        self._ror_result.parameters = parameters
         pass
 
     @abstractmethod

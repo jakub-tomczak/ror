@@ -11,7 +11,7 @@ import logging
 
 class DefaultResultAggregator(AbstractResultAggregator):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__('DefaultResultAggregator')
 
     def alternatives_are_indifferent(self, better_alternative_in_rank_r: str, worst_alternative_in_rank_r: str, q_rank: Rank, s_rank: Rank) -> bool:
         better_alt_q_rank_position = get_position_in_rank(

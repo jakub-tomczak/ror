@@ -11,11 +11,13 @@ from ror.result_aggregator_utils import BIG_NUMBER, Rank, RankItem, create_flat_
 
 class WeightedResultAggregator(AbstractResultAggregator):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__('WeightedResultAggregator')
         self.weighted_data: Dict[str, List[float]] = dict()
         self.alpha_values: AlphaValues = None
 
     def aggregate_results(self, result: RORResult, parameters: RORParameters, *args, **kwargs) -> RORResult:
+        super().aggregate_results(result, parameters, *args, **kwargs)
+
         weights_parameter = parameters.get_parameter(
             RORParameter.ALPHA_WEIGHTS)
         assert type(
