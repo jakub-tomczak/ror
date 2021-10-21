@@ -2,6 +2,7 @@ from collections import defaultdict, namedtuple
 from typing import DefaultDict, Dict, List, Union
 import pandas as pd
 from ror.RORModel import RORModel
+from ror.RORParameters import RORParameters
 from ror.result_aggregator_utils import Rank
 from ror.alpha import AlphaValues
 
@@ -19,6 +20,7 @@ class RORResult:
         self.__intermediate_ranks: Dict[str, Rank] = dict()
         self.__alpha_values: AlphaValues = None
         self.model: RORModel = None
+        self.__parameters: RORParameters = None
         self.__aggregator: 'AbstractResultAggregator' = None
 
     def add_result(self, alternative: str, alpha_value: str, result: float):
@@ -88,3 +90,11 @@ class RORResult:
     @alpha_values.setter
     def alpha_values(self, alpha_values: AlphaValues):
         self.__alpha_values = alpha_values
+
+    @property
+    def parameters(self) -> RORParameters:
+        return self.__parameters
+
+    @parameters.setter
+    def parameters(self, parameters: RORParameters):
+        self.__parameters = parameters
