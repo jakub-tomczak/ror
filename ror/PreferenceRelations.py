@@ -189,7 +189,7 @@ class PreferenceIntensityRelation(Preference):
     def __hash__(self) -> int:
         return 13 * self._alternative_1.__hash__() + 19 * self._alternative_2.__hash__() \
             + 37 * self._alternative_3.__hash__() + 31 * self._alternative_4.__hash__() \
-            + 23 * self._criterion.__hash__() + 41 * self._relation.__hash__()
+            + 23 * self._preference_criterion.__hash__() + 41 * self._relation.__hash__()
 
     def to_constraint(self, dataset: Dataset, alpha: float) -> Constraint:
         '''
