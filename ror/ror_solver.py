@@ -24,8 +24,8 @@ def solve_model(loaderResult: LoaderResult) -> RORResult:
     return solve_model(loaderResult.dataset, loaderResult.parameters)
 
 AVAILABLE_AGGREGATORS: Dict[str, AbstractResultAggregator] = {
-    DefaultResultAggregator.__name__: DefaultResultAggregator,
-    WeightedResultAggregator.__name__: WeightedResultAggregator
+    result_aggregator.name: result_aggregator
+    for result_aggregator in [DefaultResultAggregator, WeightedResultAggregator]
 }
 
 def solve_model(
