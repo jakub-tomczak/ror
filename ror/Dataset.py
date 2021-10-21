@@ -104,7 +104,7 @@ class Dataset:
     def delta(self, delta):
         self._delta = delta
 
-    def _prepare_data_for_saving(self, parameters: Dict[RORParameter, float] = None) -> Tuple[List[str], List[str]]:
+    def _prepare_data_for_saving(self, parameters: 'RORParameters') -> Tuple[List[str], List[str]]:
         # data section
         data_section_lines = [DATA_SECTION]
         header = ['alternative id']
@@ -121,12 +121,10 @@ class Dataset:
 
         # parameters section
         parameters_section = [PARAMETERS_SECTION]
-        parameters_section.append(
-            f'{RORParameter.EPS.value}{PARAMETERS_VALUE_SEPARATOR}{self.eps}')
         if parameters is not None:
-            for parameter in parameters:
-                parameters_section.append(
-                    f'{parameter.value}{PARAMETERS_VALUE_SEPARATOR}{parameters[parameter]}')
+            for parameter in RORParameter:
+                parameter_value = parameters.get_parameter(parameter)
+                parameters_section.append(f'{parameter.value}{PARAMETERS_VALUE_SEPARATOR}{parameter_value}')
 
         return (data_section_lines, parameters_section)
 
@@ -144,7 +142,7 @@ class Dataset:
             logging.error(f'Failed to save file: {e}')
             raise e
     
-    def save_to_file(self, filename: str, parameters: Dict[RORParameter, float] = None):
+    def save_to_file(self, filename: str, parameters: 'RORParameters'):
         data_section, preferences_section = self._prepare_data_for_saving(parameters)
         data_section.extend(preferences_section)
         self._save_data(filename, data_section)
