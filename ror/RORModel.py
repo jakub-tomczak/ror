@@ -41,3 +41,7 @@ class RORModel(Model):
         # slope
         slope_constraints = create_slope_constraints(self._dataset)
         self.add_constraints(slope_constraints)
+
+    @property
+    def dataset(self) -> RORDataset:
+        return self._dataset
