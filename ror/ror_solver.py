@@ -25,7 +25,7 @@ def solve_model(loaderResult: LoaderResult) -> RORResult:
 
 AVAILABLE_AGGREGATORS: Dict[str, AbstractResultAggregator] = {
     result_aggregator.name: result_aggregator
-    for result_aggregator in [DefaultResultAggregator, WeightedResultAggregator]
+    for result_aggregator in [DefaultResultAggregator(), WeightedResultAggregator()]
 }
 
 def solve_model(
@@ -85,7 +85,7 @@ def solve_model(
 
     models_solved = report_progress(models_solved, f'Aggregating results.')
     # create new instance of aggregator
-    aggregator = AVAILABLE_AGGREGATORS[aggregation_method]()
+    aggregator = AVAILABLE_AGGREGATORS[aggregation_method]
     final_result: RORResult = aggregator.aggregate_results(
         ror_result,
         parameters,
