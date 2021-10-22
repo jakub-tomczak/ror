@@ -9,14 +9,14 @@ import logging
 
 
 class Model:
-    def __init__(self, constraints: List[Constraint] = None, notes: str = None):
+    def __init__(self, constraints: List[Constraint] = None, name: str = None):
         assert constraints is None or type(constraints) is list,\
             "constrains must be an array of Constraint class or None"
         self._constraints: List[Constraint] = constraints if constraints is not None else [
         ]
         # target (objective) is a set of variables
         self._target: ConstraintVariablesSet = None
-        self._notes: str = notes
+        self._name: str = name
         self.gurobi_model: gp.Model = None
 
     def add_constraints(self, constraints: List[Constraint]):
@@ -58,8 +58,8 @@ class Model:
         self._target = target
 
     @property
-    def notes(self) -> str:
-        return self._notes
+    def name(self) -> str:
+        return self._name
 
     def _validate_target(self, target: ConstraintVariablesSet):
         assert target is not None, "Model's target must not be None"
@@ -140,4 +140,4 @@ class Model:
             return OptimizationResult(self, model.objVal, variables_values)
         elif model.status == GRB.INFEASIBLE:
             logging.error('Model is infeasible.')
-            raise CalculationsException(f'Model {self.notes} is infeasible.')
+            raise CalculationsException(f'Model {self.name} is infeasible.')

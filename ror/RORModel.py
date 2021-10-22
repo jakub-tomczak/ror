@@ -7,8 +7,8 @@ from ror.Dataset import RORDataset
 
 
 class RORModel(Model):
-    def __init__(self, dataset: RORDataset, alpha: float, notes: str):
-        super().__init__([], notes)
+    def __init__(self, dataset: RORDataset, alpha: float, name: str):
+        super().__init__([], name)
         assert dataset is not None, "Dataset must not be None"
         self._dataset = dataset
         self._alpha = alpha
