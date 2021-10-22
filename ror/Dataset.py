@@ -213,7 +213,7 @@ class RORDataset(Dataset):
             ))
         return relations
 
-    def save_to_file(self, filename: str, parameters: Dict[RORParameter, float] = None):
+    def save_to_file(self, filename: str, parameters: 'RORParameters'):
         data, preferences = super()._prepare_data_for_saving(parameters)
         data.extend(self.__prepare_preferences_data_for_saving())
         data.extend(preferences)

@@ -30,45 +30,45 @@ class TestInnerMaximization(unittest.TestCase):
 
         # check first alternative, first criterion
         self.assertTrue(all([constraint.get_variable(
-            "u_{c1}_(a1)") is not None for constraint in first_alternative_constraints[:3]]))
+            "u_{c1}(a1)") is not None for constraint in first_alternative_constraints[:3]]))
         self.assertTrue(all([constraint.get_variable(
-            "lambda_{all}_(a1)") is not None for constraint in first_alternative_constraints[:3]]))
+            "lambda_{all}(a1)") is not None for constraint in first_alternative_constraints[:3]]))
         self.assertTrue(all([constraint.get_variable(
-            "c_{c1}_(a1)") is not None for constraint in first_alternative_constraints[1:3]]))
+            "c_{c1}(a1)") is not None for constraint in first_alternative_constraints[1:3]]))
 
         # check individual coefficients for the first alternative on first criterion
         self.assertSetEqual(set(first_alternative_constraints[0].variables_names), set(
-            ['lambda_{all}_(a1)', 'u_{c1}_(a1)']))
+            ['lambda_{all}(a1)', 'u_{c1}(a1)']))
         self.assertAlmostEqual(
-            first_alternative_constraints[0].get_variable('u_{c1}_(a1)').coefficient, -1.0)
+            first_alternative_constraints[0].get_variable('u_{c1}(a1)').coefficient, -1.0)
         self.assertAlmostEqual(first_alternative_constraints[0].get_variable(
-            'lambda_{all}_(a1)').coefficient, -1.0)
+            'lambda_{all}(a1)').coefficient, -1.0)
         self.assertAlmostEqual(
             first_alternative_constraints[0].free_variable.coefficient, -1.0)
         self.assertEqual(
             first_alternative_constraints[0].relation, Relation("<="))
 
         self.assertSetEqual(set(first_alternative_constraints[1].variables_names), set(
-            ['lambda_{all}_(a1)', 'u_{c1}_(a1)', 'c_{c1}_(a1)']))
+            ['lambda_{all}(a1)', 'u_{c1}(a1)', 'c_{c1}(a1)']))
         self.assertAlmostEqual(
-            first_alternative_constraints[1].get_variable('u_{c1}_(a1)').coefficient, -1.0)
+            first_alternative_constraints[1].get_variable('u_{c1}(a1)').coefficient, -1.0)
         self.assertAlmostEqual(first_alternative_constraints[1].get_variable(
-            'c_{c1}_(a1)').coefficient, -Dataset.DEFAULT_M)
+            'c_{c1}(a1)').coefficient, -Dataset.DEFAULT_M)
         self.assertAlmostEqual(first_alternative_constraints[1].get_variable(
-            'lambda_{all}_(a1)').coefficient, -1.0)
+            'lambda_{all}(a1)').coefficient, -1.0)
         self.assertAlmostEqual(
             first_alternative_constraints[1].free_variable.coefficient, -1.0)
         self.assertEqual(
             first_alternative_constraints[1].relation, Relation("<="))
 
         self.assertSetEqual(set(first_alternative_constraints[2].variables_names), set(
-            ['lambda_{all}_(a1)', 'u_{c1}_(a1)', 'c_{c1}_(a1)']))
+            ['lambda_{all}(a1)', 'u_{c1}(a1)', 'c_{c1}(a1)']))
         self.assertAlmostEqual(
-            first_alternative_constraints[2].get_variable('u_{c1}_(a1)').coefficient, 1.0)
+            first_alternative_constraints[2].get_variable('u_{c1}(a1)').coefficient, 1.0)
         self.assertAlmostEqual(first_alternative_constraints[2].get_variable(
-            'c_{c1}_(a1)').coefficient, -Dataset.DEFAULT_M)
+            'c_{c1}(a1)').coefficient, -Dataset.DEFAULT_M)
         self.assertAlmostEqual(first_alternative_constraints[2].get_variable(
-            'lambda_{all}_(a1)').coefficient, 1.0)
+            'lambda_{all}(a1)').coefficient, 1.0)
         self.assertAlmostEqual(
             first_alternative_constraints[2].free_variable.coefficient, 1.0)
         self.assertEqual(
@@ -76,55 +76,55 @@ class TestInnerMaximization(unittest.TestCase):
 
         # check first alternative, second criterion
         self.assertTrue(all([constraint.get_variable(
-            "u_{c2}_(a1)") is not None for constraint in first_alternative_constraints[3:6]]))
+            "u_{c2}(a1)") is not None for constraint in first_alternative_constraints[3:6]]))
         self.assertTrue(all([constraint.get_variable(
-            "lambda_{all}_(a1)") is not None for constraint in first_alternative_constraints[3:6]]))
+            "lambda_{all}(a1)") is not None for constraint in first_alternative_constraints[3:6]]))
         self.assertTrue(all([constraint.get_variable(
-            "c_{c2}_(a1)") is not None for constraint in first_alternative_constraints[4:6]]))
+            "c_{c2}(a1)") is not None for constraint in first_alternative_constraints[4:6]]))
 
         # check individual coefficients for the first alternative on second criterion
         self.assertSetEqual(set(first_alternative_constraints[3].variables_names), set(
-            ['lambda_{all}_(a1)', 'u_{c2}_(a1)']))
+            ['lambda_{all}(a1)', 'u_{c2}(a1)']))
         self.assertAlmostEqual(
-            first_alternative_constraints[3].get_variable('u_{c2}_(a1)').coefficient, -1.0)
+            first_alternative_constraints[3].get_variable('u_{c2}(a1)').coefficient, -1.0)
         self.assertAlmostEqual(first_alternative_constraints[3].get_variable(
-            'lambda_{all}_(a1)').coefficient, -1.0)
+            'lambda_{all}(a1)').coefficient, -1.0)
         self.assertAlmostEqual(
             first_alternative_constraints[3].free_variable.coefficient, -1.0)
         self.assertEqual(
             first_alternative_constraints[3].relation, Relation("<="))
 
         self.assertSetEqual(set(first_alternative_constraints[4].variables_names), set(
-            ['lambda_{all}_(a1)', 'u_{c2}_(a1)', 'c_{c2}_(a1)']))
+            ['lambda_{all}(a1)', 'u_{c2}(a1)', 'c_{c2}(a1)']))
         self.assertAlmostEqual(
-            first_alternative_constraints[4].get_variable('u_{c2}_(a1)').coefficient, -1.0)
+            first_alternative_constraints[4].get_variable('u_{c2}(a1)').coefficient, -1.0)
         self.assertAlmostEqual(first_alternative_constraints[4].get_variable(
-            'c_{c2}_(a1)').coefficient, -Dataset.DEFAULT_M)
+            'c_{c2}(a1)').coefficient, -Dataset.DEFAULT_M)
         self.assertAlmostEqual(first_alternative_constraints[4].get_variable(
-            'lambda_{all}_(a1)').coefficient, -1.0)
+            'lambda_{all}(a1)').coefficient, -1.0)
         self.assertAlmostEqual(
             first_alternative_constraints[4].free_variable.coefficient, -1.0)
         self.assertEqual(
             first_alternative_constraints[4].relation, Relation("<="))
 
         self.assertSetEqual(set(first_alternative_constraints[5].variables_names), set(
-            ['lambda_{all}_(a1)', 'u_{c2}_(a1)', 'c_{c2}_(a1)']))
+            ['lambda_{all}(a1)', 'u_{c2}(a1)', 'c_{c2}(a1)']))
         self.assertAlmostEqual(
-            first_alternative_constraints[5].get_variable('u_{c2}_(a1)').coefficient, 1.0)
+            first_alternative_constraints[5].get_variable('u_{c2}(a1)').coefficient, 1.0)
         self.assertAlmostEqual(first_alternative_constraints[5].get_variable(
-            'c_{c2}_(a1)').coefficient, -Dataset.DEFAULT_M)
+            'c_{c2}(a1)').coefficient, -Dataset.DEFAULT_M)
         self.assertAlmostEqual(first_alternative_constraints[5].get_variable(
-            'lambda_{all}_(a1)').coefficient, 1.0)
+            'lambda_{all}(a1)').coefficient, 1.0)
         self.assertAlmostEqual(
             first_alternative_constraints[5].free_variable.coefficient, 1.0)
         self.assertEqual(
             first_alternative_constraints[5].relation, Relation("<="))
 
-        # only c_{c1}_(a1), c_{c2}_(a1) variables in last, c function sum, constraint
+        # only c_{c1}(a1), c_{c2}(a1) variables in last, c function sum, constraint
         self.assertEqual(
             first_alternative_constraints[6].name, "sum_binary_var_c_(a1)")
         self.assertSetEqual(set(first_alternative_constraints[6].variables_names), set(
-            ["c_{c1}_(a1)", "c_{c2}_(a1)"]))
+            ["c_{c1}(a1)", "c_{c2}(a1)"]))
         # check free variable coeff in c function sum constraint
         self.assertEqual(
             first_alternative_constraints[6].free_variable.coefficient, len(data.criteria)-1)

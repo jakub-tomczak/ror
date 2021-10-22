@@ -7,13 +7,14 @@ from gurobipy import GRB
 from ror.OptimizationResult import OptimizationResult
 import logging
 
+from ror.latex_exporter import export_latex, export_latex_pdf
+
 
 class Model:
     def __init__(self, constraints: List[Constraint] = None, name: str = None):
         assert constraints is None or type(constraints) is list,\
             "constrains must be an array of Constraint class or None"
-        self._constraints: List[Constraint] = constraints if constraints is not None else [
-        ]
+        self._constraints: List[Constraint] = constraints if constraints is not None else []
         # target (objective) is a set of variables
         self._target: ConstraintVariablesSet = None
         self._name: str = name
@@ -119,6 +120,12 @@ class Model:
     def save_model(self):
         self.update_model()
         self.gurobi_model.write('model.lp')
+
+    def export_to_latex(self, filename: str):
+        export_latex(self, filename)
+    
+    def export_to_latex_pdf(self, filename: str):
+        export_latex_pdf(self, filename)
 
     def solve(self) -> OptimizationResult:
         model = self.to_gurobi_model()

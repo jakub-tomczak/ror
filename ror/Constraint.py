@@ -1,6 +1,7 @@
 from __future__ import annotations
 from ror.Relation import Relation
 from typing import Dict, List, Set
+from io import StringIO
 
 
 class ConstraintVariable:
@@ -146,7 +147,7 @@ class Constraint:
 
     # class members
     def create_variable_name(function_name: str, criterion_name: str, alternative_name: str):
-        return f'{function_name}_{{{criterion_name}}}_({alternative_name})'
+        return f'{function_name}_{{{criterion_name}}}({alternative_name})'
 
     # instance members
     def __init__(self, variables: ConstraintVariablesSet, relation: Relation, name: str = "constr"):
@@ -238,6 +239,24 @@ class Constraint:
         variables = '+'.join(
             [f'{variable.coefficient}*{variable.name}' for variable in self._variables_set.variables])
         return f'<Constraint:[name: {self._name}, variables: {variables}, relation: {self._relation.sign}, rhs: {self._rhs}]>'
+
+    def to_latex(self) -> str:
+        constraint_str = StringIO()
+        first_added = False
+        for var in self._variables_set.variables:
+            if var.coefficient == 0:
+                # don't add variable with coefficient equal to 0
+                continue
+            if var.coefficient > 0 and first_added:
+                # + coeff * variable, if coeff is positive and this is not the first variable
+                constraint_str.write(f'+{round(var.coefficient, 3)} * {var.name}')
+            else:
+                # coeff * variable, if coeff < 0 or we add first positive variable
+                constraint_str.write(f'{round(var.coefficient, 3)} * {var.name}')
+                first_added = True
+        constraint_str.write(self._relation.sign)
+        constraint_str.write(f'{round(self._rhs.coefficient, 3)}')
+        return constraint_str.getvalue()
 
 
 def merge_constraints(constraints: List[Constraint]) -> Constraint:
