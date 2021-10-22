@@ -34,7 +34,6 @@ class WeightedResultAggregator(AbstractResultAggregator):
                    ), 'All weights must be greater or equal 0.0'
         eps = parameters.get_parameter(RORParameter.EPS)
         data = result.get_results_dict(self.alpha_values)
-        validate_aggregator_arguments(data, eps)
         # divide values by weights - alternative value is the distance to the ideal alternative
         # so we need to divide instead of multiplying
         for alternative in data:
