@@ -134,6 +134,8 @@ class WeightedResultAggregator(AbstractResultAggregator):
             explanation.write(
                 f'therefore they are on the same position {final_rank_alt_1_position} in the final rank\n')
 
+        return explanation.getvalue()
+
     def help(self) -> str:
         return '''
 Function that aggregates results from ranks: R, Q and S by adding weights to ranks.
