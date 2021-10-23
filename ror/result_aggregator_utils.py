@@ -5,7 +5,6 @@ from ror.alpha import AlphaValue
 
 BIG_NUMBER = 10e10
 
-
 class ResultAlternative:
     def __init__(self, alternative_name: str, alternative_values: List[float], aggregated_value: float, rank_positon: int):
         self._alternative_name: str = alternative_name
@@ -37,9 +36,20 @@ class RankItem:
             return o._value == self._value and o._alternative == self._alternative
         return False
 
+SimpleRank = List[List[RankItem]]
 
 class Rank:
-    def __init__(self, rank: List[List[RankItem]], img_filename: str, alpha_value: AlphaValue) -> None:
+    '''
+    Stores information about rank.
+    rank is a list, that allows ties between alternatives. Therefore inner list with RankItems.
+    
+    img_filename is a full path to the image with rank, usually obtained by calling 
+        graphviz_helper::draw_rank method
+    
+    alpha_value is an optional parameter used for intermediate ranks - 
+        obtained for specific alpha value, final rank doesn't have any
+    '''
+    def __init__(self, rank: List[List[RankItem]], img_filename: str, alpha_value: AlphaValue = None) -> None:
         self.__rank: List[List[RankItem]] = rank
         self.__img_filename: str = img_filename
         self.__alpha_value: AlphaValue = alpha_value
@@ -61,6 +71,12 @@ def values_equal_with_epsilon(first_alternative_value, second_alternative_value,
 
 
 def group_equal_alternatives_in_ranking(rank: List[RankItem], eps: float) -> List[List[RankItem]]:
+    '''
+    From a list of RankItems creates a list, new rank, that supports ties.
+    New list contains list at each position, in case of a tie, list contains more than one
+    RankItem, when there is no tie at some position, then list contains only one RankItem.
+    RankItems are assumed to be equal if the difference in value between them is lower than eps.
+    '''
     if len(rank) < 1:
         return []
     new_rank: List[List[RankItem]] = [[rank[0]]]
@@ -82,6 +98,11 @@ def from_rank_to_alternatives(rank: List[List[RankItem]]) -> List[List[str]]:
     return [[item.alternative for item in items] for items in rank]
 
 def get_position_in_rank(alternative_name: str, rank: Union[Rank, List[List[RankItem]]]) -> int:
+    """
+    Calculates position in the rank.
+    Lowest (worst) position equal at most len(rank) - rank can have alternatives on the same position
+    best position is 1.
+    """
     position = 1
     iterable = rank if type(rank) is list else rank.rank
     for rank_item in iterable:
@@ -140,19 +161,21 @@ def create_flat_r_q_s_ranks(data: Dict[str, List[float]]) -> Tuple[List[RankItem
         ranking_list_S, S_sorted)
     return flat_r_rank, flat_q_rank, flat_s_rank
 
-def create_flat_ranks(data: Dict[str, List[float]]) -> List[List[RankItem]]:
+def create_flat_ranks(result_per_alternative: Dict[str, List[float]]) -> List[List[RankItem]]:
     '''
     Returns list of flat ranks - ranks with one item per index.
     For 3 alpha values a list of 3 items will be returned.
     Each item will be a list of alternatives, one per index.
+    Best alternative's value is at the index 0, worst is at the last index.
     '''
-    # columns - data per alpha value
-    # rows - data per alternative
-    values = np.array([data_values for data_values in data.values()]).T
-    alternatives = np.array(list(data.keys()))
+    # rows - alpha values
+    # columns - alternatives
+    values = np.array([data_values for data_values in result_per_alternative.values()]).T
+    alternatives = np.array(list(result_per_alternative.keys()))
 
     # sort descending
     flat_ranks = []
+    # iterate over rows = per alpha value
     for value in values:
         sorted_values = np.sort(value)
         sorted_args = np.argsort(value)

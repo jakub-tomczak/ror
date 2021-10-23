@@ -1,9 +1,12 @@
 from abc import abstractmethod
 from typing import List
+from ror.RORModel import RORModel
 from ror.RORParameters import RORParameters
 from ror.RORResult import RORResult
+from ror.alpha import AlphaValues
 from ror.datetime_utils import get_date_time
 from ror.graphviz_helper import draw_rank
+from ror.loader_utils import RORParameter
 from ror.result_aggregator_utils import RankItem, from_rank_to_alternatives
 import os
 
@@ -48,6 +51,15 @@ class AbstractResultAggregator:
     def help(self) -> str:
         '''
         Method that returns a string that explains how an aggregation method works.
+        '''
+        pass
+
+    @abstractmethod
+    def get_alpha_values(self, model: RORModel, parameters: RORParameters) -> AlphaValues:
+        '''
+        Method that returns alpha values for result aggregator.
+        Result aggregator should prepare here all alpha values for which
+        model should be solved.
         '''
         pass
 

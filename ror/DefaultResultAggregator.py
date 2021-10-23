@@ -1,5 +1,6 @@
 from io import StringIO
 from typing import Dict, List, Set
+from ror.RORModel import RORModel
 from ror.RORParameters import RORParameters
 from ror.RORResult import RORResult
 from ror.ResultAggregator import AbstractResultAggregator
@@ -180,6 +181,9 @@ class DefaultResultAggregator(AbstractResultAggregator):
 
         result.final_rank = Rank(final_rank, final_rank_img_path, 'final rank')
         return result
+    
+    def get_alpha_values(self, model: RORModel, parameters: RORParameters) -> AlphaValues:
+        return AlphaValues.from_list(parameters.get_parameter(RORParameter.ALPHA_VALUES))
 
     def help(self) -> str:
         return """

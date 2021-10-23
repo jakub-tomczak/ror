@@ -46,6 +46,12 @@ class RORResult:
         return pd.concat([all_data, sum_per_alternative_series], axis=1)
 
     def get_results_dict(self, alpha_values: AlphaValues) -> Dict[str, List[float]]:
+        '''
+        Returns a maping alternative -> results for alternative
+        the number of results corresponds to the number of alpha values
+        i.e. in case of 3 alpha values
+        'a1': [0.3, 4.5, 1.2]
+        '''
         result: Dict[str, List[float]] = defaultdict(lambda: [])
         # get the first key to get all alpha_values
         # we need to get all alpha values to have one order

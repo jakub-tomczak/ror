@@ -37,7 +37,7 @@ def list_validator(value: List[Any], expectedtype: type = None) -> bool:
     return True
 
 # alias for parameters value
-RORParameterValue = Union[list, str, float]
+RORParameterValue = Union[list, str, float, int]
 
 class RORParameters:
     def get_default_parameter_value(parameter: RORParameter) -> RORParameterValue:
@@ -53,6 +53,8 @@ class RORParameters:
             return [1.0, 1.0, 1.0]
         elif parameter == RORParameter.RESULTS_AGGREGATOR:
             return 'DefaultResultAggregator'
+        elif parameter == RORParameter.NUMBER_OF_ALPHA_VALUES:
+            return 3
         else:
             return None
 
@@ -65,12 +67,12 @@ class RORParameters:
     def __validate_parameter_value(self, parameter: RORParameter, value: Any):
         if parameter == RORParameter.EPS:
             if not float_validator(value, min_value=0.0):
-                raise DataValidationException('Failed to parse EPS value. EPS value must be a float value greater than 0.')
+                raise DataValidationException(f'Failed to parse {RORParameter.EPS} value. {RORParameter.EPS} value must be a float value greater than 0.')
         elif parameter == RORParameter.INITIAL_ALPHA:
             if not float_validator(value, min_value=0.0, max_value=1.0):
-                raise DataValidationException('Failed to parse INITIAL_ALPHA value. INITIAL_ALPHA value must be a float value in range <0.0, 1.0>')
+                raise DataValidationException(f'Failed to parse {RORParameter.INITIAL_ALPHA.value} value. {RORParameter.INITIAL_ALPHA.value} value must be a float value in range <0.0, 1.0>')
         elif parameter == RORParameter.ALPHA_VALUES:
-            exception_msg = 'Failed to parse ALPHA_VALUES value. ALPHA_VALUES value must be a list with float values in range <0.0, 1.0>'
+            exception_msg = f'Failed to parse {RORParameter.ALPHA_VALUES.value} value. {RORParameter.ALPHA_VALUES.value} value must be a list with float values in range <0.0, 1.0>'
             # validate one by one as or condition won't fail if the first condition is False
             # don't add float type for items - they can be float or ints (i.e. 0)
             if not list_validator(value):
@@ -79,9 +81,9 @@ class RORParameters:
                 raise DataValidationException(exception_msg)
         elif parameter == RORParameter.PRECISION:
             if not int_validator(value, min_value=0, max_value=10):
-                raise DataValidationException('Failed to parse PRECISION value. PRECISION value must be an int value in range <0, 10>')
+                raise DataValidationException(f'Failed to parse {RORParameter.PRECISION.value} value. {RORParameter.PRECISION.value} value must be an int value in range <0, 10>')
         elif parameter == RORParameter.ALPHA_WEIGHTS:
-            exception_msg = 'Failed to parse ALPHA_WEIGHTS value. ALPHA_WEIGHTS value must be a list with float values equal or greater 0'
+            exception_msg = f'Failed to parse {RORParameter.ALPHA_WEIGHTS.value} value. {RORParameter.ALPHA_WEIGHTS.value} value must be a list with float values equal or greater 0'
             # validate one by one as or condition won't fail if the first condition is False
             # don't add float type for items - they can be float or ints (i.e. 1)
             if not list_validator(value):
@@ -91,6 +93,9 @@ class RORParameters:
         elif parameter == RORParameter.RESULTS_AGGREGATOR:
             pass
             # checked in ror_solver.solve_model method
+        elif parameter == RORParameter.NUMBER_OF_ALPHA_VALUES:
+            if not int_validator(value, min_value=1, max_value=15):
+                raise DataValidationException(f'Failed to parse {RORParameter.NUMBER_OF_ALPHA_VALUES.value} value. {RORParameter.NUMBER_OF_ALPHA_VALUES.value} value must be an int value in <1, 15>')
 
     def add_parameter(self, parameter: RORParameter, value: RORParameterValue):
         self.__validate_parameter_name(parameter)

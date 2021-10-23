@@ -1,6 +1,7 @@
 from io import StringIO
 from collections import defaultdict
 from typing import Dict, List
+from ror.RORModel import RORModel
 from ror.RORParameters import RORParameters
 from ror.RORResult import RORResult
 from ror.ResultAggregator import AbstractResultAggregator
@@ -72,8 +73,7 @@ class WeightedResultAggregator(AbstractResultAggregator):
         final_rank_image_filename = self.draw_rank(final_rank, dir, 'weighted_final_rank')
         final_rank_object = Rank(
             final_rank,
-            final_rank_image_filename,
-            'final_rank'
+            final_rank_image_filename
         )
         # return result
         result.final_rank = final_rank_object
@@ -135,6 +135,9 @@ class WeightedResultAggregator(AbstractResultAggregator):
                 f'therefore they are on the same position {final_rank_alt_1_position} in the final rank\n')
 
         return explanation.getvalue()
+
+    def get_alpha_values(self, model: RORModel, parameters: RORParameters) -> AlphaValues:
+        return AlphaValues.from_list(parameters.get_parameter(RORParameter.ALPHA_VALUES))
 
     def help(self) -> str:
         return '''

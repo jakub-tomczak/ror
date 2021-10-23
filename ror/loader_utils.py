@@ -16,3 +16,4 @@ class RORParameter(Enum):
     # digit place precision in solutions
     PRECISION = 'precision'
     ALPHA_WEIGHTS = 'alpha_weights'
+    NUMBER_OF_ALPHA_VALUES = 'alpha_values_number'
