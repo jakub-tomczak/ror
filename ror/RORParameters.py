@@ -55,6 +55,8 @@ class RORParameters:
             return 'DefaultResultAggregator'
         elif parameter == RORParameter.NUMBER_OF_ALPHA_VALUES:
             return 3
+        elif parameter == RORParameter.TIE_RESOLVER:
+            return 'NoTieResolver'
         else:
             return None
 
@@ -92,10 +94,13 @@ class RORParameters:
                 raise DataValidationException(exception_msg)
         elif parameter == RORParameter.RESULTS_AGGREGATOR:
             pass
-            # checked in ror_solver.solve_model method
+            # validated in ror_solver.solve_model method
         elif parameter == RORParameter.NUMBER_OF_ALPHA_VALUES:
             if not int_validator(value, min_value=1, max_value=15):
                 raise DataValidationException(f'Failed to parse {RORParameter.NUMBER_OF_ALPHA_VALUES.value} value. {RORParameter.NUMBER_OF_ALPHA_VALUES.value} value must be an int value in <1, 15>')
+        elif parameter == RORParameter.TIE_RESOLVER:
+            # validated in ror_solver.solve_model method
+            pass
 
     def add_parameter(self, parameter: RORParameter, value: RORParameterValue):
         self.__validate_parameter_name(parameter)

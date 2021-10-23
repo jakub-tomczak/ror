@@ -17,3 +17,4 @@ class RORParameter(Enum):
     PRECISION = 'precision'
     ALPHA_WEIGHTS = 'alpha_weights'
     NUMBER_OF_ALPHA_VALUES = 'alpha_values_number'
+    TIE_RESOLVER = 'tie_resolver'
