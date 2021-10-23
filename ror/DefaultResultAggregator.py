@@ -6,7 +6,7 @@ from ror.RORResult import RORResult
 from ror.ResultAggregator import AbstractResultAggregator
 from ror.alpha import AlphaValues
 from ror.loader_utils import RORParameter
-from ror.result_aggregator_utils import Rank, RankItem, create_flat_r_q_s_ranks, get_position_in_rank, group_equal_alternatives_in_ranking, validate_aggregator_arguments
+from ror.result_aggregator_utils import Rank, RankItem, SimpleRank, create_flat_r_q_s_ranks, get_position_in_rank, group_equal_alternatives_in_ranking, validate_aggregator_arguments
 import logging
 
 
@@ -111,7 +111,7 @@ class DefaultResultAggregator(AbstractResultAggregator):
         logging.debug('flat r rank')
         logging.debug(flat_r_rank)
 
-        final_rank: List[List[RankItem]] = []
+        final_rank: SimpleRank = []
         alternatives_checked: Set[str] = set()
 
         logging.debug('*'*100)
@@ -165,6 +165,8 @@ class DefaultResultAggregator(AbstractResultAggregator):
                     logging.debug('-'*30)
                 # else: next alternative is not added to the final rank yet - it will be added
                 # in the next iteration of the outer for loop
+        
+        resolved_final_rank = self._tie_resolver.resolve_rank(final_rank, result, parameters)
 
         rank_names = ['alpha_0.5', 'alpha_0.0', 'alpha_1.0']
         ranks = [r_rank, q_rank, s_rank]
@@ -177,9 +179,9 @@ class DefaultResultAggregator(AbstractResultAggregator):
             image_filename = self.draw_rank(rank, dir, filename)
             result.add_intermediate_rank(
                 name, Rank(rank, image_filename, alpha_value))
-        final_rank_img_path = self.draw_rank(final_rank, dir, f'default_final_rank')
+        final_rank_img_path = self.draw_rank(resolved_final_rank, dir, f'default_final_rank')
 
-        result.final_rank = Rank(final_rank, final_rank_img_path, 'final rank')
+        result.final_rank = Rank(resolved_final_rank, final_rank_img_path, 'final rank')
         return result
     
     def get_alpha_values(self, model: RORModel, parameters: RORParameters) -> AlphaValues:

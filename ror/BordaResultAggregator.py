@@ -18,6 +18,7 @@ class BordaResultAggregator(AbstractResultAggregator):
         super().__init__('BordaResultAggregator')
 
     def aggregate_results(self, result: RORResult, parameters: RORParameters, *args, **kwargs) -> RORResult:
+        super().aggregate_results(result, parameters, *args, **kwargs)
         # get sum of results
         # calculate mean position (across all ranks)
         # create final rank - if positions are equal then the one with 
@@ -46,41 +47,18 @@ class BordaResultAggregator(AbstractResultAggregator):
         for alternative in alternative_to_mean_position:
             alternative_to_mean_position[alternative] /= number_of_ranks
         
-        sorted_alpha_sum = np.sort(data['alpha_sum'])
-        sorted_alpha_sum_args = np.argsort(data['alpha_sum'])
-        sorted_alpha_sum_alternatives = numpy_alternatives[sorted_alpha_sum_args]
-        initial_final_rank = [
+        # transform alternative to the list of rank items
+        final_rank: List[RankItem] = [
             RankItem(alternative, value)
-            for value, alternative in zip(sorted_alpha_sum, sorted_alpha_sum_alternatives)
+            for alternative, value in alternative_to_mean_position.items()
         ]
-        final_rank_with_ties = group_equal_alternatives_in_ranking(initial_final_rank, eps)
-        logging.info(f'Final rank with ties {final_rank_with_ties}')
-        final_rank_with_borda: List[RankItem] = []
+        # sort final rank by the mean position, in case of a tie any alternative is takes as the better one
+        # reverse sorting as the better alternative should have bigger value
+        sorted_final_rank = sorted(final_rank, lambda item: item.value, reverse=True)
+        logging.info(f'Final rank {sorted_final_rank}')
 
-        for items_at_same_position in final_rank_with_ties:
-            if len(items_at_same_position) > 1:
-                # gets borda's value for all alternatives from this position
-                items_borda_value = [
-                    (r_item.alternative, alternative_to_mean_position[r_item.alternative])
-                    for r_item in items_at_same_position
-                ]
-                # sort all items from the same position by mean position from all ranks using borda voting
-                sorted_by_mean_position = sorted(items_borda_value, key=lambda item: item[1])
-                logging.info(f'items at the same position: {items_at_same_position}')
-                for alternative, mean_position in sorted_by_mean_position:
-                    logging.info(f'Alternative: {alternative}, mean position: {mean_position}')
-                    final_rank_with_borda.append(RankItem(alternative, items_at_same_position[0].value))
-            else:
-                # only one item at this position, add it to the new final rank
-                final_rank_with_borda.append(items_at_same_position[0])
-        logging.info(f'Final rank without ties {final_rank_with_borda}')
-        
-        for rank in result.intermediate_ranks:
-            logging.info(rank.rank)
         results_per_alternative = result.get_results_dict(alpha_values)
-        logging.info('results per alternative', results_per_alternative)
         ranks = create_flat_ranks(results_per_alternative)
-        
         # generate rank images
         dir = self.get_dir_for_rank_image()
         for alpha_value, intermediate_flat_rank in zip(alpha_values.values, ranks):
@@ -96,11 +74,9 @@ class BordaResultAggregator(AbstractResultAggregator):
         
         # use wrapped final rank - to have consistent constructor for Rank object that assumes rank with ties
         # therefore list of lists of RankItem is required
-        wrapped_borda_final_rank: List[List[RankItem]] = [[rank_item] for rank_item in final_rank_with_borda]
+        wrapped_borda_final_rank: List[List[RankItem]] = [[rank_item] for rank_item in sorted_final_rank]
         final_rank_image_filename = self.draw_rank(wrapped_borda_final_rank, dir, 'borda_final_rank')
-        
-        # replace old final rank with some alternatives at the same position with a new rank
-        # with alternatives from the same position ranked using borda voting
+
         result.final_rank = Rank(
             wrapped_borda_final_rank,
             img_filename=final_rank_image_filename,
@@ -122,5 +98,14 @@ class BordaResultAggregator(AbstractResultAggregator):
 Borda aggregator uses Borda voting to decide what should be the better alternative
 in case of draw.
 It starts from calculating a sum of distances from all alpha values for each alternative.
-Then, a final rank is produced. If any alternatives are 
-        """
+Then, each rank votes for each alternative. The best alternative in the rank
+gets n points.
+Then we calculate mean score per alternative over all ranks.
+The best score is n and the worst is 1.
+An alternative with the best score wins.
+If there is more than one alternative in the the rank with the same score then there they are indifferent
+and the order in which they are placed in the final rank is not specified,
+i.e. alternatives with same scores (a1, a2, a3) can be placed in the final rank
+in one of the 6 permutations:
+(a1, a2, a3), (a1, a3, a2), (a2, a1, a3), (a3, a1, a2), (a2, a3, a1), (a3, a2, a1)
+"""
