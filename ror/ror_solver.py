@@ -14,10 +14,10 @@ from ror.d_function import d
 from ror.ResultAggregator import AbstractResultAggregator
 from ror.DefaultResultAggregator import DefaultResultAggregator
 from ror.WeightedResultAggregator import WeightedResultAggregator
-from ror.rank.AbstractTieResolver import AbstractTieResolver
-from ror.rank.BordaTieResolver import BordaTieResolver
-from ror.rank.CopelandTieResolver import CopelandTieResolver
-from ror.rank.NoTieResolver import NoTieResolver
+from ror.AbstractTieResolver import AbstractTieResolver
+from ror.BordaTieResolver import BordaTieResolver
+from ror.CopelandTieResolver import CopelandTieResolver
+from ror.NoTieResolver import NoTieResolver
 
 
 class ProcessingCallbackData:

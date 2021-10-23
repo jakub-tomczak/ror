@@ -6,7 +6,7 @@ from ror.RORResult import RORResult
 from ror.alpha import AlphaValues
 from ror.datetime_utils import get_date_time
 from ror.graphviz_helper import draw_rank
-from ror.rank.AbstractTieResolver import AbstractTieResolver
+from ror.AbstractTieResolver import AbstractTieResolver
 from ror.result_aggregator_utils import RankItem, from_rank_to_alternatives
 import os
 

@@ -1,7 +1,7 @@
 from typing import DefaultDict, Dict, List
 from ror.RORParameters import RORParameter, RORParameters
 from ror.RORResult import RORResult
-from ror.rank.AbstractTieResolver import AbstractTieResolver
+from ror.AbstractTieResolver import AbstractTieResolver
 from ror.result_aggregator_utils import Rank, RankItem, SimpleRank, group_equal_alternatives_in_ranking
 import logging
 import numpy as np

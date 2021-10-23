@@ -56,7 +56,7 @@ class RORParameters:
         elif parameter == RORParameter.NUMBER_OF_ALPHA_VALUES:
             return 3
         elif parameter == RORParameter.TIE_RESOLVER:
-            return 'NoTieResolver'
+            return 'NoResolver'
         else:
             return None
 
