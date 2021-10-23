@@ -58,6 +58,8 @@ class WeightedResultAggregator(AbstractResultAggregator):
         # place same results into same positions
         final_rank = group_equal_alternatives_in_ranking(final_rank, eps)
 
+        resolved_final_rank = self._tie_resolver.resolve_rank(final_rank, result, parameters)
+
         # draw positions
         # get dir for all ranks because dir contains datetime so must be one for all
         dir = self.get_dir_for_rank_image()
@@ -70,9 +72,9 @@ class WeightedResultAggregator(AbstractResultAggregator):
             result.add_intermediate_rank(
                 name, Rank(rank, image_filename, AlphaValue.from_value(alpha_value)))
 
-        final_rank_image_filename = self.draw_rank(final_rank, dir, 'weighted_final_rank')
+        final_rank_image_filename = self.draw_rank(resolved_final_rank, dir, 'weighted_final_rank')
         final_rank_object = Rank(
-            final_rank,
+            resolved_final_rank,
             final_rank_image_filename
         )
         # return result

@@ -14,6 +14,10 @@ from ror.d_function import d
 from ror.ResultAggregator import AbstractResultAggregator
 from ror.DefaultResultAggregator import DefaultResultAggregator
 from ror.WeightedResultAggregator import WeightedResultAggregator
+from ror.rank.AbstractTieResolver import AbstractTieResolver
+from ror.rank.BordaTieResolver import BordaTieResolver
+from ror.rank.CopelandTieResolver import CopelandTieResolver
+from ror.rank.NoTieResolver import NoTieResolver
 
 
 class ProcessingCallbackData:
@@ -34,15 +38,34 @@ AVAILABLE_AGGREGATORS: Dict[str, AbstractResultAggregator] = {
     ]
 }
 
+TIE_RESOLVERS: Dict[str, AbstractTieResolver] = {
+    resolver.name: resolver
+    for resolver
+    in [
+        NoTieResolver(),
+        BordaTieResolver(),
+        CopelandTieResolver()
+    ]
+}
+
 def solve_model(
         data: RORDataset,
         parameters: RORParameters,
         aggregation_method: str,
         *aggregation_method_args,
         progress_callback: Callable[[ProcessingCallbackData], None] = None,
+        tie_resolver_name: str = None,
         **aggregation_method_kwargs,
     ) -> RORResult:
     assert aggregation_method in AVAILABLE_AGGREGATORS, f'Invalid aggregator method name {aggregation_method}, available: [{", ".join(AVAILABLE_AGGREGATORS.keys())}]'
+    tie_resolver: AbstractTieResolver = None
+    if tie_resolver_name is not None:
+        assert tie_resolver_name in TIE_RESOLVERS,\
+            f'Invalid tie resolver name {tie_resolver_name}, available: [{", ".join(TIE_RESOLVERS.keys())}]'
+        tie_resolver = TIE_RESOLVERS[tie_resolver_name]
+    else:
+        tie_resolver = CopelandTieResolver()
+    logging.info(f'Using rank resolver: {tie_resolver.name}')
 
     initial_model = RORModel(
         data,
@@ -54,6 +77,7 @@ def solve_model(
         ConstraintVariable("delta", 1.0)
     ])
     aggregator = AVAILABLE_AGGREGATORS[aggregation_method]
+    aggregator.set_tie_resolver(tie_resolver)
     # get alpha values depending on the result aggregator
     alpha_values = aggregator.get_alpha_values(initial_model, parameters)
 

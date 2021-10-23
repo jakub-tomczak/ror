@@ -6,7 +6,7 @@ from ror.RORResult import RORResult
 from ror.alpha import AlphaValues
 from ror.datetime_utils import get_date_time
 from ror.graphviz_helper import draw_rank
-from ror.loader_utils import RORParameter
+from ror.rank.AbstractTieResolver import AbstractTieResolver
 from ror.result_aggregator_utils import RankItem, from_rank_to_alternatives
 import os
 
@@ -21,6 +21,7 @@ class AbstractResultAggregator:
         self._ror_result: RORResult = None
         self._ror_parameters: RORParameters = None
         self._name: str = name
+        self._tie_resolver: AbstractTieResolver = None
 
     @property
     def name(self) -> str:
@@ -65,6 +66,9 @@ class AbstractResultAggregator:
 
     def draw_rank(self, rank: List[List[RankItem]], dir: str, rank_name: str) -> str:
         return draw_rank(from_rank_to_alternatives(rank), dir, rank_name)
+
+    def set_tie_resolver(self, tie_resolver: AbstractTieResolver):
+        self._tie_resolver = tie_resolver
 
     def get_dir_for_rank_image(self) -> str:
         current_dir = os.path.abspath(os.path.curdir)
