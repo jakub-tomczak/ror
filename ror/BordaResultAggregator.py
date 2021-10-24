@@ -65,7 +65,7 @@ class BordaResultAggregator(AbstractResultAggregator):
             # create intermediate ranks for drawing
             grouped_rank = group_equal_alternatives_in_ranking(
                 intermediate_flat_rank, eps)
-            name = f'alpha_{alpha_value}'
+            name = f'alpha_{round(alpha_value, 4)}'
             image_filename = self.draw_rank(grouped_rank, dir, f'borda_{name}')
             result.add_intermediate_rank(
                 name,

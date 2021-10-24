@@ -110,6 +110,7 @@ def solve_model(
     data.delta = result.objective_value
 
     ror_result = RORResult()
+    precision = parameters.get_parameter(RORParameter.PRECISION)
     # assign model here - this can be used later in result aggregator
     ror_result.model = initial_model
     ror_result.alpha_values = alpha_values
@@ -121,7 +122,7 @@ def solve_model(
             result = tmp_model.solve()
             assert result is not None, 'Failed to optimize the problem. Model is infeasible'
 
-            steps_solved = report_progress(steps_solved, f'Step 2, alternative: {alternative}, alpha {alpha}.')
+            steps_solved = report_progress(steps_solved, f'Step 2, alternative: {alternative}, alpha {round(alpha, precision)}.')
             
             ror_result.add_result(alternative, alpha, result.objective_value)
             logging.info(

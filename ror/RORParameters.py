@@ -10,8 +10,12 @@ class DataValidationException(Exception):
 
 def float_validator(value: float, min_value: float = None, max_value: float = None) -> bool:
     # float can be int if fits range
-    if type(value) not in [float, int]:
-        return False
+    try:
+        float(value)
+    except:
+        # ints are convertable to float, accept them as well
+        if not int_validator(value):
+            return False
     if min_value is not None and value < min_value:
         return False
     if max_value is not None and value > max_value:
@@ -19,7 +23,9 @@ def float_validator(value: float, min_value: float = None, max_value: float = No
     return True
 
 def int_validator(value: int, min_value: int = None, max_value: int = None) -> bool:
-    if type(value) is not int:
+    try:
+        int(value)
+    except:
         return False
     if min_value is not None and value < min_value:
         return False
