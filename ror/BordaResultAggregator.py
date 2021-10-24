@@ -54,7 +54,7 @@ class BordaResultAggregator(AbstractResultAggregator):
         ]
         # sort final rank by the mean position, in case of a tie any alternative is takes as the better one
         # reverse sorting as the better alternative should have bigger value
-        sorted_final_rank = sorted(final_rank, lambda item: item.value, reverse=True)
+        sorted_final_rank = sorted(final_rank, key=lambda item: item.value, reverse=True)
         logging.info(f'Final rank {sorted_final_rank}')
 
         results_per_alternative = result.get_results_dict(alpha_values)
