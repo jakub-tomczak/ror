@@ -3,6 +3,7 @@ import logging
 from typing import Callable, Dict
 from ror.BordaResultAggregator import BordaResultAggregator
 from ror.Constraint import ConstraintVariable, ConstraintVariablesSet
+from ror.CopelandResultAggregator import CopelandResultAggregator
 from ror.Dataset import RORDataset
 from ror.RORModel import RORModel
 from ror.RORParameters import RORParameters
@@ -34,7 +35,8 @@ AVAILABLE_AGGREGATORS: Dict[str, AbstractResultAggregator] = {
     in [
         DefaultResultAggregator(),
         WeightedResultAggregator(),
-        BordaResultAggregator()
+        BordaResultAggregator(),
+        CopelandResultAggregator()
     ]
 }
 
