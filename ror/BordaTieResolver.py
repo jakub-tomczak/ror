@@ -23,7 +23,7 @@ class BordaTieResolver(AbstractTieResolver):
         data = result.get_result_table()
         numpy_alternatives: np.ndarray = np.array(list(data.index))
         number_of_alternatives = len(numpy_alternatives)
-        logging.info(f'Borda resolver, results {result.get_result_table()}')
+        logging.debug(f'Borda resolver, results {result.get_result_table()}')
         # get name of all columns with ranks, beside last one - with sum
         columns_with_ranks: List[str] = list(
             set(data.columns) - set(['alpha_sum']))
@@ -35,7 +35,7 @@ class BordaTieResolver(AbstractTieResolver):
         for column_name in columns_with_ranks:
             sorted_indices = np.argsort(data[column_name])
             sorted_alternatives = numpy_alternatives[sorted_indices]
-            logging.info(
+            logging.debug(
                 f'Sorted alternatives for rank {column_name} is {sorted_alternatives}')
             # go through all alternatives, sorted by value for a specific alpha value
             for index, alternative in enumerate(sorted_alternatives):
@@ -53,7 +53,7 @@ class BordaTieResolver(AbstractTieResolver):
         ]
         final_rank_with_ties = group_equal_alternatives_in_ranking(
             initial_final_rank, eps)
-        logging.info(f'Final rank with ties {final_rank_with_ties}')
+        logging.debug(f'Final rank with ties {final_rank_with_ties}')
         final_rank_with_borda: List[RankItem] = []
 
         for items_at_same_position in final_rank_with_ties:
@@ -67,17 +67,17 @@ class BordaTieResolver(AbstractTieResolver):
                 # sort all items from the same position by mean position from all ranks using borda voting
                 sorted_by_mean_position = sorted(
                     items_borda_value, key=lambda item: item[1])
-                logging.info(
+                logging.debug(
                     f'items at the same position: {items_at_same_position}')
                 for alternative, mean_position in sorted_by_mean_position:
-                    logging.info(
+                    logging.debug(
                         f'Alternative: {alternative}, mean position: {mean_position}')
                     final_rank_with_borda.append(
                         RankItem(alternative, items_at_same_position[0].value))
             else:
                 # only one item at this position, add it to the new final rank
                 final_rank_with_borda.append(items_at_same_position[0])
-        logging.info(f'Final rank without ties {final_rank_with_borda}')
+        logging.debug(f'Final rank without ties {final_rank_with_borda}')
         
         # use wrapped final rank - to have consistent constructor for Rank object that assumes rank with ties
         # therefore list of lists of RankItem is required

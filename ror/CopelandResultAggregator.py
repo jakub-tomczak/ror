@@ -25,7 +25,7 @@ class CopelandResultAggregator(AbstractResultAggregator):
         data = result.get_result_table()
         numpy_alternatives: np.ndarray = np.array(list(data.index))
         number_of_alternatives = len(numpy_alternatives)
-        logging.info(f'Borda resolver, results {result.get_result_table()}')
+        logging.debug(f'Borda resolver, results {result.get_result_table()}')
         # get name of all columns with ranks, beside last one - with sum
         columns_with_ranks: List[str] = list(
             set(data.columns) - set(['alpha_sum']))

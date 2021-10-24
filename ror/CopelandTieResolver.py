@@ -23,7 +23,7 @@ class CopelandTieResolver(AbstractTieResolver):
         data = result.get_result_table()
         numpy_alternatives: np.ndarray = np.array(list(data.index))
         number_of_alternatives = len(numpy_alternatives)
-        logging.info(f'Copeland tie resolver, results {result.get_result_table()}')
+        logging.debug(f'Copeland tie resolver, results {result.get_result_table()}')
         # get name of all columns with ranks, beside last one - with sum
         columns_with_ranks: List[str] = list(
             set(data.columns) - set(['alpha_sum']))
@@ -93,9 +93,9 @@ class CopelandTieResolver(AbstractTieResolver):
                 # sort all items from the same position using value obtained in copeland voting earlier
                 # reverse sorting order because the best alternative has the biggest value
                 sorted_by_copeland_sum = sorted(items_copeland_value, key=lambda item: item[1], reverse=True)
-                logging.info(f'items at the same position: {items_at_same_position}')
+                logging.debug(f'items at the same position: {items_at_same_position}')
                 for alternative, copeland_sum in sorted_by_copeland_sum:
-                    logging.info(f'Alternative: {alternative}, obtained sum: {copeland_sum}')
+                    logging.debug(f'Alternative: {alternative}, obtained sum: {copeland_sum}')
                     # items_at_same_position[0].value == give ayny value - all items at this position had same value
                     final_rank_with_copeland.append(RankItem(alternative, items_at_same_position[0].value))
             else:

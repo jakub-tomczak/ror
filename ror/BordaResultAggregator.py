@@ -29,7 +29,7 @@ class BordaResultAggregator(AbstractResultAggregator):
         numpy_alternatives: np.ndarray = np.array(list(data.index))
         number_of_alternatives = len(numpy_alternatives)
         alpha_values = self.get_alpha_values(result.model, parameters)
-        logging.info(f'Borda aggregator, results {result.get_result_table()}')
+        logging.debug(f'Borda aggregator, results {result.get_result_table()}')
         # get name of all columns with ranks, beside last one - with sum
         columns_with_ranks: List[str] = list(set(data.columns) - set(['alpha_sum']))
         assert len(columns_with_ranks) == number_of_ranks,\
@@ -40,7 +40,7 @@ class BordaResultAggregator(AbstractResultAggregator):
         for column_name in columns_with_ranks:
             sorted_indices = np.argsort(data[column_name])
             sorted_alternatives = numpy_alternatives[sorted_indices]
-            logging.info(f'Sorted alternatives for rank {column_name} is {sorted_alternatives}')
+            logging.debug(f'Sorted alternatives for rank {column_name} is {sorted_alternatives}')
             # go through all alternatives, sorted by value for a specific alpha value
             for index, alternative in enumerate(sorted_alternatives):
                 alternative_to_mean_position[alternative] += (number_of_alternatives - index)
@@ -55,7 +55,7 @@ class BordaResultAggregator(AbstractResultAggregator):
         # sort final rank by the mean position, in case of a tie any alternative is takes as the better one
         # reverse sorting as the better alternative should have bigger value
         sorted_final_rank = sorted(final_rank, key=lambda item: item.value, reverse=True)
-        logging.info(f'Final rank {sorted_final_rank}')
+        logging.debug(f'Final rank {sorted_final_rank}')
 
         results_per_alternative = result.get_results_dict(alpha_values)
         ranks = create_flat_ranks(results_per_alternative)
