@@ -56,18 +56,15 @@ def solve_model(
         aggregation_method: str,
         *aggregation_method_args,
         progress_callback: Callable[[ProcessingCallbackData], None] = None,
-        tie_resolver_name: str = None,
         **aggregation_method_kwargs,
     ) -> RORResult:
     assert aggregation_method in AVAILABLE_AGGREGATORS, f'Invalid aggregator method name {aggregation_method}, available: [{", ".join(AVAILABLE_AGGREGATORS.keys())}]'
     tie_resolver: AbstractTieResolver = None
-    if tie_resolver_name is not None:
-        assert tie_resolver_name in TIE_RESOLVERS,\
-            f'Invalid tie resolver name {tie_resolver_name}, available: [{", ".join(TIE_RESOLVERS.keys())}]'
-        tie_resolver = TIE_RESOLVERS[tie_resolver_name]
-    else:
-        tie_resolver = CopelandTieResolver()
-    logging.info(f'Using rank resolver: {tie_resolver.name}')
+    tie_resolver_name = parameters.get_parameter(RORParameter.TIE_RESOLVER)
+    assert tie_resolver_name in TIE_RESOLVERS,\
+        f'Invalid tie resolver name {tie_resolver_name}, available: [{", ".join(TIE_RESOLVERS.keys())}]'
+    logging.info(f'Using rank resolver: {tie_resolver_name}')
+    tie_resolver = TIE_RESOLVERS[tie_resolver_name]
 
     initial_model = RORModel(
         data,
@@ -79,6 +76,7 @@ def solve_model(
         ConstraintVariable("delta", 1.0)
     ])
     aggregator = AVAILABLE_AGGREGATORS[aggregation_method]
+    logging.info(f'setting resolver {tie_resolver.name}')
     aggregator.set_tie_resolver(tie_resolver)
     # get alpha values depending on the result aggregator
     alpha_values = aggregator.get_alpha_values(initial_model, parameters)

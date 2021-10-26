@@ -17,8 +17,6 @@ class CopelandTieResolver(AbstractTieResolver):
         # calculate mean position (across all ranks)
         # create final rank - if positions are equal then the one with
         # we assume that the last alternative gets 1, the best gets len(alternatives)
-        number_of_ranks = parameters.get_parameter(
-            RORParameter.NUMBER_OF_ALPHA_VALUES)
         eps = parameters.get_parameter(RORParameter.EPS)
         data = result.get_result_table()
         numpy_alternatives: np.ndarray = np.array(list(data.index))
@@ -27,8 +25,6 @@ class CopelandTieResolver(AbstractTieResolver):
         # get name of all columns with ranks, beside last one - with sum
         columns_with_ranks: List[str] = list(
             set(data.columns) - set(['alpha_sum']))
-        assert len(columns_with_ranks) == number_of_ranks,\
-            'Invalid number of columns in the result or number of ranks'
         # each rank is one voter
         # votes for each alterantive are in the row
         # if alternative from row i has value 1 in the column j

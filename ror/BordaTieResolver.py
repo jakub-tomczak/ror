@@ -17,8 +17,6 @@ class BordaTieResolver(AbstractTieResolver):
         # calculate mean position (across all ranks)
         # create final rank - if positions are equal then the one with
         # we assume that the last alternative gets 1, the best gets len(alternatives)
-        number_of_ranks = parameters.get_parameter(
-            RORParameter.NUMBER_OF_ALPHA_VALUES)
         eps = parameters.get_parameter(RORParameter.EPS)
         data = result.get_result_table()
         numpy_alternatives: np.ndarray = np.array(list(data.index))
@@ -27,8 +25,6 @@ class BordaTieResolver(AbstractTieResolver):
         # get name of all columns with ranks, beside last one - with sum
         columns_with_ranks: List[str] = list(
             set(data.columns) - set(['alpha_sum']))
-        assert len(columns_with_ranks) == number_of_ranks,\
-            'Invalid number of columns in the result or number of ranks'
         # go through each rank (per each alpha value)
         # sort values to get positions for borda voting
         alternative_to_mean_position: Dict[str, float] = DefaultDict(lambda: 0.0)
@@ -42,7 +38,7 @@ class BordaTieResolver(AbstractTieResolver):
                 alternative_to_mean_position[alternative] += (
                     number_of_alternatives - index)
         for alternative in alternative_to_mean_position:
-            alternative_to_mean_position[alternative] /= number_of_ranks
+            alternative_to_mean_position[alternative] /= len(columns_with_ranks)
 
         sorted_alpha_sum = np.sort(data['alpha_sum'])
         sorted_alpha_sum_args = np.argsort(data['alpha_sum'])
