@@ -6,33 +6,45 @@ import gurobipy as gp
 from gurobipy import GRB
 from ror.OptimizationResult import OptimizationResult
 import logging
+from functools import reduce
 
 from ror.latex_exporter import export_latex, export_latex_pdf
 
 
 class Model:
+    DEFAULT_CONSTRAINTS_KEY = 'default'
     def __init__(self, constraints: List[Constraint] = None, name: str = None):
         assert constraints is None or type(constraints) is list,\
             "constrains must be an array of Constraint class or None"
-        self._constraints: List[Constraint] = constraints if constraints is not None else []
+        new_constraints = dict()
+        if constraints is not None and len(constraints) > 0:
+            new_constraints[Model.DEFAULT_CONSTRAINTS_KEY] = constraints
+        self._constraints: Dict[str, List[Constraint]] = new_constraints
         # target (objective) is a set of variables
         self._target: ConstraintVariablesSet = None
         self._name: str = name
         self.gurobi_model: gp.Model = None
 
-    def add_constraints(self, constraints: List[Constraint]):
+    def add_constraints(self, constraints: List[Constraint], name:str = None):
         for constraint in constraints:
-            self.add_constraint(constraint)
+            self.add_constraint(constraint, name=name)
 
-    def add_constraint(self, constraint: Constraint):
+    def add_constraint(self, constraint: Constraint, name: str = None):
         assert type(constraint) is Constraint,\
             f"constraint must be of Constraint type, provided: {type(constraint)}"
-        self._constraints.append(constraint)
+        key = Model.DEFAULT_CONSTRAINTS_KEY
+        if name is not None:
+            key = name
+        if key not in self._constraints:
+            self._constraints[key] = [constraint]
+        else:
+            self._constraints[key].append(constraint)
         return self
 
     def __repr__(self):
+        constraints_str = [c.__repr__() for c in self.__get_constraints_list()]
         data = ['Model', f"target: {self._target}",
-                ""] + [c.__repr__() for c in self._constraints]
+                ""] + constraints_str
         return '\n'.join(data)
 
     @property
@@ -41,12 +53,19 @@ class Model:
         Returns all variables in model.
         '''
         variables = set()
-        for constraint in self._constraints:
+        for constraint in self.__get_constraints_list():
             variables.update(constraint.variables)
         return variables
 
+    def __get_constraints_list(self) -> List[Constraint]:
+        return list(reduce(lambda a, b: a+b, self._constraints.values(), []))
+
     @property
     def constraints(self) -> List[Constraint]:
+        return self.__get_constraints_list()
+
+    @property
+    def constraints_dict(self) -> Dict[str, List[Constraint]]:
         return self._constraints
 
     @property
@@ -64,7 +83,7 @@ class Model:
 
     def _validate_target(self, target: ConstraintVariablesSet):
         assert target is not None, "Model's target must not be None"
-        all_variables = set(reduce_lists([constr.variables_names for constr in self._constraints]))
+        all_variables = set(reduce_lists([constr.variables_names for constr in self.__get_constraints_list()]))
         # free variable should be always available in target
         all_variables.add("free")
         variables = set(target.variables_names)
@@ -87,7 +106,7 @@ class Model:
             "==": GRB.EQUAL
         }
 
-        for constraint in self._constraints:
+        for constraint in self.__get_constraints_list():
             variables = constraint.variables
             expr = gp.LinExpr(
                 [variable.coefficient for variable in variables],

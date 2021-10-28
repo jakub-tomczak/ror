@@ -25,9 +25,11 @@ def _generate_latex_model(model: 'RORModel') -> tex.Document:
                 doc.append(NoEscape(f'${variable.coefficient} * {variable.name}$ \\\\'))
                 first_constraint_positive_added = True
         doc.append(tex.Subsection('Constraints'))
-        for constraint in model.constraints:
-            var = constraint.to_latex()
-            doc.append(NoEscape(f'${var}$ \\\\'))
+        for name in model.constraints_dict:
+            doc.append(tex.Subsubsection(f'{name} constraints'))
+            for constraint in model.constraints_dict[name]:
+                var = constraint.to_latex()
+                doc.append(NoEscape(f'${var}$ \\\\'))
     return doc
 
 def export_latex(model: 'RORModel', filename: str) -> str:
