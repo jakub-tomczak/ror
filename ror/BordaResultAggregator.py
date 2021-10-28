@@ -72,13 +72,11 @@ class BordaResultAggregator(AbstractResultAggregator):
                 Rank(intermediate_flat_rank, image_filename, AlphaValue.from_value(alpha_value))
             )
         
-        # use wrapped final rank - to have consistent constructor for Rank object that assumes rank with ties
-        # therefore list of lists of RankItem is required
-        wrapped_borda_final_rank: List[List[RankItem]] = [[rank_item] for rank_item in sorted_final_rank]
-        final_rank_image_filename = self.draw_rank(wrapped_borda_final_rank, dir, 'borda_final_rank')
+        borda_final_rank = group_equal_alternatives_in_ranking(sorted_final_rank, eps)
+        final_rank_image_filename = self.draw_rank(borda_final_rank, dir, 'borda_final_rank')
 
         result.final_rank = Rank(
-            wrapped_borda_final_rank,
+            borda_final_rank,
             img_filename=final_rank_image_filename,
         )
         return result

@@ -45,16 +45,16 @@ class CopelandResultAggregator(AbstractResultAggregator):
                     # then alternative from column gets one point.
                     # Otherwise (alternatives' values are equal, with eps precision)
                     # both alternatives get 0.5
-                    if row_idx == col_idx:
-                        # leave 0 value for same alternative
-                        continue
-                    elif abs(row_alternative_value - column_alternative_value) <= eps:
+                    if row_alternative_value + eps > column_alternative_value:
+                        logging.debug(f'Alternative in row {row_alternative_name} has greater value than alternative in column {column_alternative_name}')
+                        votes[row_idx, col_idx] += 1
+                    elif row_alternative_value < column_alternative_value + eps:
+                        logging.debug(f'Alternative in row {row_alternative_name} has lower value than alternative in column {column_alternative_name}')
+                        votes[col_idx, row_idx] += 1
+                    else:
+                        logging.debug(f'Alternative in row {row_alternative_name} has same value as alternative in column {column_alternative_name}')
                         votes[row_idx, col_idx] += 0.5
                         votes[col_idx, row_idx] += 0.5
-                    elif row_alternative_value > column_alternative_value:
-                        votes[row_idx, col_idx] += 1
-                    elif row_alternative_value < column_alternative_value:
-                        votes[col_idx, row_idx] += 1
 
         # aggregate votes - calculate
         per_alternative_votes_sum = np.zeros(shape=(number_of_alternatives))
@@ -70,7 +70,7 @@ class CopelandResultAggregator(AbstractResultAggregator):
             RankItem(alternative, value)
             for alternative, value in zip(final_rank_alternatives, final_rank)
         ]
-        wrapped_copeland_final_rank: List[List[RankItem]] = [[rank_item] for rank_item in final_rank_items]
+        aggregated_copeland_final_rank = group_equal_alternatives_in_ranking(final_rank_items, eps)
 
         # produce rank images
         alpha_values = self.get_alpha_values(result.model, parameters)
@@ -90,10 +90,10 @@ class CopelandResultAggregator(AbstractResultAggregator):
                 Rank(intermediate_flat_rank, image_filename, AlphaValue.from_value(alpha_value))
             )
         
-        final_rank_image_filename = self.draw_rank(wrapped_copeland_final_rank, dir, 'copeland_final_rank')
+        final_rank_image_filename = self.draw_rank(aggregated_copeland_final_rank, dir, 'copeland_final_rank')
 
         result.final_rank = Rank(
-            wrapped_copeland_final_rank,
+            aggregated_copeland_final_rank,
             img_filename=final_rank_image_filename,
         )
         return result
