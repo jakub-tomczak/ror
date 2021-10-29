@@ -78,6 +78,21 @@ class DefaultResultAggregator(AbstractResultAggregator):
             explanation.write(
                 f'Position of alternative {better_alternative} is not reversed\nin both q and s rank in relation to alternative {worst_alternative}.\n')
 
+        explanation.write('Positions in the rank:\n')
+        # list of tuples: rank name, rank list
+        ranks = [
+            ('R (alpha = 0.5)', r_rank),
+            ('Q (alpha = 0.0)', q_rank),
+            ('S (alpha = 1.0)', s_rank)
+        ]
+        alternatives = [better_alternative, worst_alternative]
+        for alternative in alternatives:
+            explanation.write(f'Alternative: {alternative}\n')
+            for rank_name, rank in ranks:
+                pos = get_position_in_rank(alternative, rank)
+                explanation.write(f'\t{rank_name}:{pos}\n')
+            
+                
         return explanation.getvalue()
 
     def aggregate_results(self, result: RORResult, parameters: RORParameters, *args, **kwargs) -> RORResult:
