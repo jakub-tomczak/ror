@@ -1,8 +1,9 @@
-from ror.Relation import Relation
+from ror.Relation import PREFERENCE, Relation
 from ror.dataset_constants import DEFAULT_M
 from ror.inner_maximization_constraints import create_inner_maximization_constraints
 import unittest
-from ror.Dataset import Dataset
+from ror.Dataset import RORDataset
+from ror.PreferenceRelations import PreferenceRelation
 import numpy as np
 
 
@@ -11,8 +12,8 @@ class TestInnerMaximization(unittest.TestCase):
         with self.assertRaises(AssertionError):
             create_inner_maximization_constraints(None)
 
-    def test_creating_inner_maximization_constraints_for_small_dataset(self):
-        data = Dataset(
+    def test_creating_inner_maximization_constraints_for_small_dataset_with_no_relations(self):
+        data = RORDataset(
             ['a1', 'a2'],
             np.array([
                 [10, 11],
@@ -22,8 +23,26 @@ class TestInnerMaximization(unittest.TestCase):
         )
         inner_max_constraints = create_inner_maximization_constraints(data)
 
-        self.assertEqual(len(inner_max_constraints), len(
-            data.alternatives) * len(data.criteria) * 3 + len(data.alternatives))
+        # no relations, no inner maximization constraints in the first step
+        self.assertEqual(len(inner_max_constraints), 0)
+
+    def test_creating_inner_maximization_constraints_for_small_dataset(self):
+        
+        data = RORDataset(
+            ['a1', 'a2'],
+            np.array([
+                [10, 11],
+                [9, 12]
+            ]),
+            [("c1", "g"), ("c2", "c")],
+            [
+                PreferenceRelation('a1', 'a2', PREFERENCE)
+            ]
+        )
+        inner_max_constraints = create_inner_maximization_constraints(data)
+
+        constraints_count = (3*len(data.criteria) + 1) * len(data.alternatives)
+        self.assertEqual(len(inner_max_constraints), constraints_count)
 
         first_alternative_constraints_length = len(data.criteria) * 3 + 1
         first_alternative_constraints = inner_max_constraints[:

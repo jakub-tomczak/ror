@@ -9,7 +9,9 @@ from ror.RORModel import RORModel
 from ror.RORParameters import RORParameters
 from ror.RORResult import RORResult
 from ror.alpha import AlphaValue, AlphaValues
+from ror.constraints_constants import ConstraintsName
 from ror.data_loader import LoaderResult
+from ror.inner_maximization_constraints import create_inner_maximization_constraint_for_alternative
 from ror.loader_utils import RORParameter
 from ror.d_function import d
 from ror.ResultAggregator import AbstractResultAggregator
@@ -114,10 +116,16 @@ def solve_model(
     # assign model here - this can be used later in result aggregator
     ror_result.model = initial_model
     ror_result.alpha_values = alpha_values
+    # calculate minimum distance from alternative a_{j}
     for alternative in data.alternatives:
         for alpha in alpha_values.values:
             tmp_model = RORModel(
                 data, alpha, f"ROR Model, step 2, with alpha {alpha}, alternative {alternative}")
+            # In addition, the constraints (j) to (m) are defined on extended set A^{R} + a_{j}.
+            tmp_model.add_constraints(
+                create_inner_maximization_constraint_for_alternative(data, alternative),
+                ConstraintsName.INNER_MAXIMIZATION.value
+            )
             tmp_model.target = d(alternative, alpha, data)
             result = tmp_model.solve()
             assert result is not None, 'Failed to optimize the problem. Model is infeasible'
