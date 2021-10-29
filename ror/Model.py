@@ -38,7 +38,8 @@ class Model:
         if key not in self._constraints:
             self._constraints[key] = [constraint]
         else:
-            self._constraints[key].append(constraint)
+            if constraint not in self._constraints[key]:
+                self._constraints[key].append(constraint)
         return self
 
     def __repr__(self):

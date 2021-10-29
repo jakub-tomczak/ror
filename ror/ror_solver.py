@@ -1,4 +1,3 @@
-from collections import namedtuple
 import logging
 from typing import Callable, Dict
 from ror.BordaResultAggregator import BordaResultAggregator
@@ -8,7 +7,6 @@ from ror.Dataset import RORDataset
 from ror.RORModel import RORModel
 from ror.RORParameters import RORParameters
 from ror.RORResult import RORResult
-from ror.alpha import AlphaValue, AlphaValues
 from ror.constraints_constants import ConstraintsName
 from ror.data_loader import LoaderResult
 from ror.inner_maximization_constraints import create_inner_maximization_constraint_for_alternative
@@ -127,6 +125,9 @@ def solve_model(
                 ConstraintsName.INNER_MAXIMIZATION.value
             )
             tmp_model.target = d(alternative, alpha, data)
+            # uncomment 2 lines below to export pdf for each model
+            # from ror.latex_exporter import export_latex, export_latex_pdf
+            # export_latex_pdf(result.model, f'model, alternative {alternative}, alpha {alpha}')
             result = tmp_model.solve()
             assert result is not None, 'Failed to optimize the problem. Model is infeasible'
 

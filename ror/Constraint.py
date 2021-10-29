@@ -121,6 +121,14 @@ class ConstraintVariablesSet:
     def __repr__(self):
         return 'no variables' if len(self._variables) < 1 else ",".join([v for v in self._variables])
 
+    def __eq__(self, o: object) -> bool:
+        if type(o) is not ConstraintVariablesSet:
+            return False
+        return o._name == self._name and self._variables == o._variables
+
+    def __hash__(self) -> int:
+        return self._name.__hash__ + 13 * self._variables.__hash__
+
     def multiply_by_scalar(self, scalar: float) -> ConstraintVariablesSet:
         for variable in self._variables.values():
             variable.multiply(scalar)
@@ -239,6 +247,17 @@ class Constraint:
         variables = '+'.join(
             [f'{variable.coefficient}*{variable.name}' for variable in self._variables_set.variables])
         return f'<Constraint:[name: {self._name}, variables: {variables}, relation: {self._relation.sign}, rhs: {self._rhs}]>'
+
+    def __eq__(self, o: object) -> bool:
+        if type(o) is not Constraint:
+            return False
+        return o._relation == self._relation and o._name == self._name and o._rhs == self._rhs and o._variables_set == self._variables_set
+
+    def __hash__(self) -> int:
+        return self._name.__hash__ \
+            + 13 * self._relation.__hash__ \
+            + 19 * self._rhs.__hash__ \
+            + 23 * self._variables_set.__hash__
 
     def to_latex(self) -> str:
         constraint_str = StringIO()
