@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List
+from typing import Dict, List
 from ror.RORModel import RORModel
 from ror.RORParameters import RORParameters
 from ror.RORResult import RORResult
@@ -10,6 +10,7 @@ from ror.AbstractTieResolver import AbstractTieResolver
 from ror.result_aggregator_utils import RankItem, from_rank_to_alternatives
 import os
 
+VotesPerRank = Dict[str, Dict[str, int]]
 
 class AbstractResultAggregator:
     '''
@@ -26,6 +27,10 @@ class AbstractResultAggregator:
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def tie_resolver(self) -> AbstractTieResolver:
+        return self._tie_resolver
 
     @abstractmethod
     def aggregate_results(self, result: RORResult, parameters: RORParameters, *args, **kwargs) -> RORResult:

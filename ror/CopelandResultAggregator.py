@@ -1,17 +1,27 @@
-from typing import List
+from typing import List, Tuple
 from ror import RORModel
 from ror.RORParameters import RORParameter, RORParameters
 from ror.RORResult import RORResult
 from ror.ResultAggregator import AbstractResultAggregator
 from ror.alpha import AlphaValue, AlphaValues
-from ror.result_aggregator_utils import Rank, RankItem, SimpleRank, create_flat_ranks, group_equal_alternatives_in_ranking
+from ror.result_aggregator_utils import Rank, RankItem, create_flat_ranks, group_equal_alternatives_in_ranking
 import logging
 import numpy as np
 
 
 class CopelandResultAggregator(AbstractResultAggregator):
     def __init__(self) -> None:
+        self.__voting_matrix: np.ndarray = None
+        self.__voting_sum: List[Tuple[str, float]] = []
         super().__init__("CopelandResultAggregator")
+    
+    @property
+    def voting_matrix(self) -> np.ndarray:
+        return self.__voting_matrix
+
+    @property
+    def voting_sum(self) -> List[Tuple[str, float]]:
+        return self.__voting_sum
 
     def aggregate_results(self, result: RORResult, parameters: RORParameters, *args, **kwargs) -> RORResult:
         super().aggregate_results(result, parameters, *args, **kwargs)
@@ -36,7 +46,7 @@ class CopelandResultAggregator(AbstractResultAggregator):
         for column_name in columns_with_ranks:
             for row_idx, row_alternative_name in enumerate(numpy_alternatives):
                 # run only over columns that index is greater than row index - less calculations
-                for col_idx, column_alternative_name in enumerate(numpy_alternatives[row_idx:]):
+                for col_idx, column_alternative_name in zip(range(row_idx+1,number_of_alternatives), numpy_alternatives[row_idx+1:]):
                     row_alternative_value = data.loc[row_alternative_name, column_name]
                     column_alternative_value = data.loc[column_alternative_name, column_name]
                     # if in this rank alternative from row is preferred than the alternative from col
@@ -45,10 +55,10 @@ class CopelandResultAggregator(AbstractResultAggregator):
                     # then alternative from column gets one point.
                     # Otherwise (alternatives' values are equal, with eps precision)
                     # both alternatives get 0.5
-                    if row_alternative_value + eps > column_alternative_value:
+                    if row_alternative_value > column_alternative_value + eps:
                         logging.debug(f'Alternative in row {row_alternative_name} has greater value than alternative in column {column_alternative_name}')
                         votes[row_idx, col_idx] += 1
-                    elif row_alternative_value < column_alternative_value + eps:
+                    elif row_alternative_value + eps < column_alternative_value:
                         logging.debug(f'Alternative in row {row_alternative_name} has lower value than alternative in column {column_alternative_name}')
                         votes[col_idx, row_idx] += 1
                     else:
@@ -56,13 +66,16 @@ class CopelandResultAggregator(AbstractResultAggregator):
                         votes[row_idx, col_idx] += 0.5
                         votes[col_idx, row_idx] += 0.5
 
+        self.__voting_matrix = votes
         # aggregate votes - calculate
-        per_alternative_votes_sum = np.zeros(shape=(number_of_alternatives))
+        per_alternative_votes_mean = np.zeros(shape=(number_of_alternatives))
         for alternative_idx in range(len(numpy_alternatives)):
-            per_alternative_votes_sum[alternative_idx] = np.sum(votes[alternative_idx, :])
-        
-        final_rank = np.sort(per_alternative_votes_sum)
-        final_rank_alternatives_indices = np.argsort(per_alternative_votes_sum)
+            per_alternative_votes_mean[alternative_idx] = np.sum(votes[alternative_idx, :]) / (len(columns_with_ranks) * (number_of_alternatives-1))
+        for alternative, mean_votes in zip(numpy_alternatives, per_alternative_votes_mean):
+            self.__voting_sum.append((alternative, mean_votes))
+
+        final_rank = np.sort(per_alternative_votes_mean)
+        final_rank_alternatives_indices = np.argsort(per_alternative_votes_mean)
         final_rank_alternatives = numpy_alternatives[final_rank_alternatives_indices]
 
         # produce List[RankItem]

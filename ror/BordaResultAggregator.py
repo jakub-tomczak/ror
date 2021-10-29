@@ -1,7 +1,7 @@
 from collections import defaultdict
 import logging
 from typing import Dict, List
-from ror.ResultAggregator import AbstractResultAggregator
+from ror.ResultAggregator import AbstractResultAggregator, VotesPerRank
 from ror.RORModel import RORModel
 from ror.RORResult import RORResult
 from ror.RORParameters import RORParameters
@@ -9,13 +9,25 @@ from ror.alpha import AlphaValue, AlphaValues
 from ror.loader_utils import RORParameter
 from ror.result_aggregator_utils import Rank, RankItem, create_flat_ranks, group_equal_alternatives_in_ranking
 import numpy as np
+import pandas as pd
 
 
 class BordaResultAggregator(AbstractResultAggregator):
     def __init__(self) -> None:
         self.__number_of_ranks: int = 3
+        # alpha_0.0 -> { alternative_1: votes }
+        self.__votes_per_rank: VotesPerRank = defaultdict(lambda: dict())
+        # alternative_1 -> mean_votes
         self.__alternative_to_mean_position: Dict[str, float] = None
         super().__init__('BordaResultAggregator')
+
+    @property
+    def votes_per_rank(self) -> pd.DataFrame:
+        return pd.DataFrame(self.__votes_per_rank)
+
+    @property
+    def alternative_to_mean_position(self) -> Dict[str, float]:
+        return self.__alternative_to_mean_position
 
     def aggregate_results(self, result: RORResult, parameters: RORParameters, *args, **kwargs) -> RORResult:
         super().aggregate_results(result, parameters, *args, **kwargs)
@@ -23,7 +35,6 @@ class BordaResultAggregator(AbstractResultAggregator):
         # calculate mean position (across all ranks)
         # create final rank - if positions are equal then the one with 
         # we assume that the last alternative gets 1, the best gets len(alternatives)
-        number_of_ranks = parameters.get_parameter(RORParameter.NUMBER_OF_ALPHA_VALUES)
         eps = parameters.get_parameter(RORParameter.EPS)
         data = result.get_result_table()
         numpy_alternatives: np.ndarray = np.array(list(data.index))
@@ -32,8 +43,6 @@ class BordaResultAggregator(AbstractResultAggregator):
         logging.debug(f'Borda aggregator, results {result.get_result_table()}')
         # get name of all columns with ranks, beside last one - with sum
         columns_with_ranks: List[str] = list(set(data.columns) - set(['alpha_sum']))
-        assert len(columns_with_ranks) == number_of_ranks,\
-            'Invalid number of columns in the result or number of ranks'
         # go through each rank (per each alpha value)
         # sort values to get positions for borda voting
         alternative_to_mean_position: Dict[str, float] = defaultdict(lambda: 0.0)
@@ -43,10 +52,14 @@ class BordaResultAggregator(AbstractResultAggregator):
             logging.debug(f'Sorted alternatives for rank {column_name} is {sorted_alternatives}')
             # go through all alternatives, sorted by value for a specific alpha value
             for index, alternative in enumerate(sorted_alternatives):
+                if alternative not in self.__votes_per_rank[column_name]:
+                    self.__votes_per_rank[column_name][alternative] = (number_of_alternatives - index)
+                else:
+                    raise Exception(f'Invalid operation: rank {column_name} already voted for alternative {alternative}')
                 alternative_to_mean_position[alternative] += (number_of_alternatives - index)
         for alternative in alternative_to_mean_position:
-            alternative_to_mean_position[alternative] /= number_of_ranks
-        
+            alternative_to_mean_position[alternative] /= len(columns_with_ranks)
+        self.__alternative_to_mean_position = alternative_to_mean_position
         # transform alternative to the list of rank items
         final_rank: List[RankItem] = [
             RankItem(alternative, value)

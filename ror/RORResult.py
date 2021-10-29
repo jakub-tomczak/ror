@@ -24,6 +24,11 @@ class RORResult:
         self.model: RORModel = None
         self.__parameters: RORParameters = None
         self.__aggregator: 'AbstractResultAggregator' = None
+        # depending on the tie resolver, different data will be assigned here
+        # i.e.
+        # BordaTieResolver -> Dict with voting per rank
+        # CopelandTieResolver -> Tuple(Matrix with voting result, final votes)
+        self.__tie_resolver_data: any = None
 
     def add_result(self, alternative: str, alpha_value: str, result: float):
         self.__optimization_results[alternative][str(alpha_value)] = result

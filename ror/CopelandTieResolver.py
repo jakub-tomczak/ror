@@ -1,4 +1,4 @@
-from typing import DefaultDict, Dict, List
+from typing import Dict, List, Tuple
 from ror.RORParameters import RORParameter, RORParameters
 from ror.RORResult import RORResult
 from ror.AbstractTieResolver import AbstractTieResolver
@@ -9,7 +9,17 @@ import numpy as np
 
 class CopelandTieResolver(AbstractTieResolver):
     def __init__(self) -> None:
+        self.__voting_matrix: np.ndarray = None
+        self.__voting_sum: List[Tuple[str, float]] = []
         super().__init__("CopelandTieResolver")
+        
+    @property
+    def voting_matrix(self) -> np.ndarray:
+        return self.__voting_matrix
+
+    @property
+    def voting_sum(self) -> List[Tuple[str, float]]:
+        return self.__voting_sum
 
     def resolve_rank(self, rank: SimpleRank, result: RORResult, parameters: RORParameters) -> SimpleRank:
         super().resolve_rank(rank, result, parameters)
@@ -35,7 +45,7 @@ class CopelandTieResolver(AbstractTieResolver):
             logging.debug(f'Checking column {column_name}')
             for row_idx, row_alternative_name in enumerate(numpy_alternatives):
                 # run only over columns that index is greater than row index - less calculations
-                for col_idx, column_alternative_name in enumerate(numpy_alternatives[row_idx:]):
+                for col_idx, column_alternative_name in zip(range(row_idx+1,number_of_alternatives), numpy_alternatives[row_idx+1:]):
                     row_alternative_value = data.loc[row_alternative_name, column_name]
                     column_alternative_value = data.loc[column_alternative_name, column_name]
                     # if in this rank alternative from row is preferred than the alternative from col
@@ -44,10 +54,10 @@ class CopelandTieResolver(AbstractTieResolver):
                     # then alternative from column gets one point.
                     # Otherwise (alternatives' values are equal, with eps precision)
                     # both alternatives get 0.5
-                    if row_alternative_value + eps > column_alternative_value:
+                    if row_alternative_value > column_alternative_value + eps:
                         logging.debug(f'Alternative in row {row_alternative_name} has greater value than alternative in column {column_alternative_name}')
                         votes[row_idx, col_idx] += 1
-                    elif row_alternative_value < column_alternative_value + eps:
+                    elif row_alternative_value + eps < column_alternative_value:
                         logging.debug(f'Alternative in row {row_alternative_name} has lower value than alternative in column {column_alternative_name}')
                         votes[col_idx, row_idx] += 1
                     else:
@@ -55,13 +65,17 @@ class CopelandTieResolver(AbstractTieResolver):
                         votes[row_idx, col_idx] += 0.5
                         votes[col_idx, row_idx] += 0.5
 
+        self.__voting_matrix = votes
         # aggregate votes - calculate
-        per_alternative_votes_sum = np.zeros(shape=(number_of_alternatives))
+        per_alternative_votes_mean = np.zeros(shape=(number_of_alternatives))
         for alternative_idx in range(len(numpy_alternatives)):
-            per_alternative_votes_sum[alternative_idx] = np.sum(votes[alternative_idx, :])
+            per_alternative_votes_mean[alternative_idx] = np.sum(votes[alternative_idx, :]) / (len(columns_with_ranks) * (number_of_alternatives-1))
+        for alternative, mean_votes in zip(numpy_alternatives, per_alternative_votes_mean):
+            self.__voting_sum.append((alternative, mean_votes))
+
         
-        final_rank = np.sort(per_alternative_votes_sum)
-        final_rank_alternatives_indices = np.argsort(per_alternative_votes_sum)
+        final_rank = np.sort(per_alternative_votes_mean)
+        final_rank_alternatives_indices = np.argsort(per_alternative_votes_mean)
         final_rank_alternatives = numpy_alternatives[final_rank_alternatives_indices]
 
         # produce List[RankItem]
@@ -88,7 +102,7 @@ class CopelandTieResolver(AbstractTieResolver):
                 sorted_by_copeland_sum = sorted(items_copeland_value, key=lambda item: item[1], reverse=True)
                 logging.debug(f'items at the same position: {items_at_same_position}')
                 for alternative, copeland_sum in sorted_by_copeland_sum:
-                    logging.debug(f'Alternative: {alternative}, obtained sum: {copeland_sum}')
+                    logging.debug(f'Alternative: {alternative}, obtained voting mean: {copeland_sum}')
                     # items_at_same_position[0].value == give ayny value - all items at this position had same value
                     final_rank_with_copeland.append(RankItem(alternative, items_at_same_position[0].value))
             else:
