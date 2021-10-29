@@ -111,8 +111,13 @@ class PreferenceRelation(Preference):
             for criterion_name, _
             in dataset.criteria
         ]))
-        constraint.add_variable(get_lambda_variable(
-            self._alternative_1, 1 - self._alpha))
+        constraint.add_variables(
+            ConstraintVariablesSet([
+                get_lambda_variable(self._alternative_1, criterion_name, 1 - self._alpha)
+                for criterion_name, _
+                in dataset.criteria
+            ])
+        )
 
         constraint.add_variable(
             ValueConstraintVariable(-1 * self._alpha * len(dataset.criteria))
@@ -129,8 +134,13 @@ class PreferenceRelation(Preference):
             for criterion_name, _
             in dataset.criteria
         ]))
-        constraint.add_variable(get_lambda_variable(
-            self._alternative_2, -1 * (1 - self._alpha)))
+        constraint.add_variables(
+            ConstraintVariablesSet([
+                get_lambda_variable(self._alternative_2, criterion_name, -1 * (1 - self._alpha))
+                for criterion_name, _
+                in dataset.criteria
+            ])
+        )
 
         constraint.add_variable(
             ValueConstraintVariable(self._alpha * len(dataset.criteria))
@@ -232,8 +242,13 @@ class PreferenceIntensityRelation(Preference):
             for criterion_name, _
             in dataset.criteria
         ]))
-        constraint.add_variable(get_lambda_variable(
-            self._alternative_1, -1 * (1 - self._alpha)))
+        constraint.add_variables(
+            ConstraintVariablesSet([
+                get_lambda_variable(self._alternative_1, criterion_name, -1 * (1 - self._alpha))
+                for criterion_name, _
+                in dataset.criteria
+            ])
+        )
 
         constraint.add_variable(
             ValueConstraintVariable(self._alpha * len(dataset.criteria))
@@ -250,8 +265,13 @@ class PreferenceIntensityRelation(Preference):
             for criterion_name, _
             in dataset.criteria
         ]))
-        constraint.add_variable(get_lambda_variable(
-            self._alternative_2, (1 - self._alpha)))
+        constraint.add_variables(
+            ConstraintVariablesSet([
+                get_lambda_variable(self._alternative_2, criterion_name, (1 - self._alpha))
+                for criterion_name, _
+                in dataset.criteria
+            ])
+        )
         constraint.add_variable(
             ValueConstraintVariable(-1 * self._alpha * len(dataset.criteria))
         )
@@ -269,8 +289,13 @@ class PreferenceIntensityRelation(Preference):
                 in dataset.criteria
             ])
         )
-        constraint.add_variable(get_lambda_variable(
-            self._alternative_3, (1 - self._alpha)))
+        constraint.add_variables(
+            ConstraintVariablesSet([
+                get_lambda_variable(self._alternative_3, criterion_name, (1 - self._alpha))
+                for criterion_name, _
+                in dataset.criteria
+            ])
+        )
         constraint.add_variable(
             ValueConstraintVariable(-1 * self._alpha * len(dataset.criteria))
         )
@@ -288,8 +313,13 @@ class PreferenceIntensityRelation(Preference):
                 in dataset.criteria
             ]
         ))
-        constraint.add_variable(get_lambda_variable(
-            self._alternative_4, -1 * (1 - self._alpha)))
+        constraint.add_variables(
+            ConstraintVariablesSet([
+                get_lambda_variable(self._alternative_4, criterion_name , -1 * (1 - self._alpha))
+                for criterion_name, _
+                in dataset.criteria
+            ])
+        )
         constraint.add_variable(
             ValueConstraintVariable(self._alpha * len(dataset.criteria))
         )

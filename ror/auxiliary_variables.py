@@ -22,9 +22,11 @@ def get_vector(
     ]
 
 
-def get_lambda_variable(alternative: str, coefficient: float = 1.0) -> ConstraintVariable:
+def get_lambda_variable(alternative: str, criterion: str, coefficient: float = 1.0) -> ConstraintVariable:
+    assert type(criterion) is str
+    assert type(coefficient) in [float, int]
     return ConstraintVariable(
-        Constraint.create_variable_name('lambda', 'all', alternative),
+        Constraint.create_variable_name('lambda', criterion, alternative),
         coefficient,
         alternative
     )
