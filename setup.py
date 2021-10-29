@@ -20,7 +20,8 @@ setup(
     'gurobipy',
     'pandas',
     'numpy',
-    'graphviz'
+    'graphviz',
+    'pylatex'
   ],
   dependency_links = ['https://pypi.gurobi.com'],
   classifiers = [
