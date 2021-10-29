@@ -1,8 +1,10 @@
-from collections import defaultdict, namedtuple
+from collections import defaultdict
+import logging
 from typing import DefaultDict, Dict, List, Union
 import pandas as pd
 from ror.RORModel import RORModel
 from ror.RORParameters import RORParameters
+from ror.loader_utils import RORParameter
 from ror.result_aggregator_utils import Rank
 from ror.alpha import AlphaValues
 
@@ -68,6 +70,25 @@ class RORResult:
         if name in self.__intermediate_ranks:
             return self.__intermediate_ranks[name]
         return None
+
+    def save_result_to_csv(self, filename: str) -> str:
+        try:
+            result = self.get_result_table()
+            result.to_csv(filename, sep=';')
+        except Exception as e:
+            logging.info(f'Failed to save to csv file, cause: {e}')
+            raise e
+        return filename
+    
+    def save_result_to_latex(self, filename: str) -> str:
+        try:
+            result = self.get_result_table()
+            precision = self.__parameters.get_parameter(RORParameter.PRECISION)
+            result.to_latex(filename, float_format=f"%.{precision}f")
+        except Exception as e:
+            logging.info(f'Failed to save to latex file, cause: {e}')
+            raise e
+        return filename
 
     @property
     def results_aggregator(self) -> 'AbstractResultAggregator':
