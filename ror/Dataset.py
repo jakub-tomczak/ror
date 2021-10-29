@@ -2,25 +2,18 @@ from __future__ import annotations
 import logging
 from ror.Constraint import ConstraintVariable
 import numpy as np
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 from ror.loader_utils import DATA_SECTION, PARAMETERS_SECTION, PARAMETERS_VALUE_SEPARATOR, PREFERENCES_SECTION, VALID_SEPARATORS, RORParameter
+from ror.dataset_constants import DEFAULT_EPS, DEFAULT_M, CRITERION_TYPES
 import os
 
 
 class Dataset:
-    DEFAULT_EPS = 1e-6
-    DEFAULT_M = 1e10
-    ALL_CRITERIA = 'all'
-    CRITERION_TYPES = {
-        "gain": "g",
-        "cost": "c"
-    }
-
     def reverse_cost_type_criteria(data: any, criteria: List[Tuple[str, str]]):
         assert type(data) is np.ndarray, "Data must be a numpy array"
         # reverse values in the cost type criteria - assume that all criteria are of a gain type
         for index, (criterion_name, criterion_type) in enumerate(criteria):
-            if criterion_type == Dataset.CRITERION_TYPES["cost"]:
+            if criterion_type == CRITERION_TYPES["cost"]:
                 logging.info(f'Flipping values in criterion {criterion_name}')
                 data[:, index] *= -1
         return data
@@ -37,8 +30,8 @@ class Dataset:
         # matrix with data for each alternative on each criterion
         self._data = Dataset.reverse_cost_type_criteria(data, criteria)
         self._criteria = criteria
-        self._eps = eps if eps is not None else Dataset.DEFAULT_EPS
-        self._M = Dataset.DEFAULT_M
+        self._eps = eps if eps is not None else DEFAULT_EPS
+        self._M = DEFAULT_M
         self._alternative_to_variable = dict()
         self._criterion_to_index = {
             criterion_name: index for index, (criterion_name, _) in enumerate(criteria)

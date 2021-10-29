@@ -1,8 +1,9 @@
 from ror.Relation import Relation
 from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet, ValueConstraintVariable
 from ror.auxiliary_variables import get_lambda_variable, get_vector
-from ror.Dataset import Dataset
+from ror.Dataset import Dataset, RORDataset
 from typing import List
+from ror.dataset_constants import DEFAULT_M
 
 
 def _create_inner_maximization_constraint_for_alternative(data: Dataset, alternative: str) -> List[Constraint]:
@@ -39,7 +40,7 @@ def _create_inner_maximization_constraint_for_alternative(data: Dataset, alterna
                     -1.0,
                     alternative
                 ),
-                c_vector[criterion_index].with_coefficient(-data.DEFAULT_M),
+                c_vector[criterion_index].with_coefficient(-DEFAULT_M),
                 ValueConstraintVariable(-1.0)
             ]),
             Relation("<="),
@@ -56,7 +57,7 @@ def _create_inner_maximization_constraint_for_alternative(data: Dataset, alterna
                     1.0,
                     alternative
                 ),
-                c_vector[criterion_index].with_coefficient(-data.DEFAULT_M),
+                c_vector[criterion_index].with_coefficient(-DEFAULT_M),
                 ValueConstraintVariable(1.0)
             ]),
             Relation("<="),
@@ -78,7 +79,7 @@ def _create_inner_maximization_constraint_for_alternative(data: Dataset, alterna
     return constraints
 
 
-def create_inner_maximization_constraints(data: Dataset) -> List[Constraint]:
+def create_inner_maximization_constraints(data: RORDataset) -> List[Constraint]:
     assert data is not None, "dataset must not be none"
 
     constraints = []

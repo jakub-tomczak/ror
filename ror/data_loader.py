@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Tuple, DefaultDict
 from ror.Dataset import Dataset, RORDataset
 from collections import defaultdict
 import numpy as np
+from ror.dataset_constants import CRITERION_TYPES
 from ror.loader_utils import RORParameter, DATA_SECTION, PREFERENCES_SECTION, PARAMETERS_SECTION, PARAMETERS_VALUE_SEPARATOR, VALID_SEPARATORS
 
 
@@ -61,7 +62,7 @@ def parse_criterion(criterion: str) -> Tuple[str, str]:
     if len(data) != 2 or len(data[0]) < 1 or len(data[1]) < 1:
         raise DatasetReaderException(f"Failed to parse criterion {criterion}")
     criterion_type = data[1][0]
-    if criterion_type not in Dataset.CRITERION_TYPES.values():
+    if criterion_type not in CRITERION_TYPES.values():
         raise DatasetReaderException(
             f"Invalid criterion type: {criterion_type}, expected values: {criterion_type.values()}")
     return (data[0], criterion_type)

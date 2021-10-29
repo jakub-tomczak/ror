@@ -5,6 +5,7 @@ from ror.loader_utils import RORParameter
 from ror.result_aggregator_utils import BIG_NUMBER, Rank, RankItem, get_position_in_rank, group_equal_alternatives_in_ranking
 import unittest
 from tests.helpers.test_ror_result_helpers import create_ror_result
+from ror.NoTieResolver import NoTieResolver
 
 
 class TestResultAggregator(unittest.TestCase):
@@ -56,6 +57,7 @@ class TestResultAggregator(unittest.TestCase):
         ror_paramters.add_parameter(RORParameter.EPS, 1e-9)
 
         weighted_aggregator = WeightedResultAggregator()
+        weighted_aggregator.set_tie_resolver(NoTieResolver())
         result = weighted_aggregator.aggregate_results(ror_result, ror_paramters)
         final_rank = result.final_rank.rank
         # get all alternative names in the final rank
@@ -88,6 +90,7 @@ class TestResultAggregator(unittest.TestCase):
         ror_paramters.add_parameter(RORParameter.EPS, 1e-9)
 
         weighted_aggregator = WeightedResultAggregator()
+        weighted_aggregator.set_tie_resolver(NoTieResolver())
         result = weighted_aggregator.aggregate_results(ror_result, ror_paramters)
         final_rank = result.final_rank.rank
         # get all alternative names in the final rank

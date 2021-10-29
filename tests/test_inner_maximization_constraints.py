@@ -1,4 +1,5 @@
 from ror.Relation import Relation
+from ror.dataset_constants import DEFAULT_M
 from ror.inner_maximization_constraints import create_inner_maximization_constraints
 import unittest
 from ror.Dataset import Dataset
@@ -53,7 +54,7 @@ class TestInnerMaximization(unittest.TestCase):
         self.assertAlmostEqual(
             first_alternative_constraints[1].get_variable('u_{c1}(a1)').coefficient, -1.0)
         self.assertAlmostEqual(first_alternative_constraints[1].get_variable(
-            'c_{c1}(a1)').coefficient, -Dataset.DEFAULT_M)
+            'c_{c1}(a1)').coefficient, -DEFAULT_M)
         self.assertAlmostEqual(first_alternative_constraints[1].get_variable(
             'lambda_{all}(a1)').coefficient, -1.0)
         self.assertAlmostEqual(
@@ -66,7 +67,7 @@ class TestInnerMaximization(unittest.TestCase):
         self.assertAlmostEqual(
             first_alternative_constraints[2].get_variable('u_{c1}(a1)').coefficient, 1.0)
         self.assertAlmostEqual(first_alternative_constraints[2].get_variable(
-            'c_{c1}(a1)').coefficient, -Dataset.DEFAULT_M)
+            'c_{c1}(a1)').coefficient, -DEFAULT_M)
         self.assertAlmostEqual(first_alternative_constraints[2].get_variable(
             'lambda_{all}(a1)').coefficient, 1.0)
         self.assertAlmostEqual(
@@ -99,7 +100,7 @@ class TestInnerMaximization(unittest.TestCase):
         self.assertAlmostEqual(
             first_alternative_constraints[4].get_variable('u_{c2}(a1)').coefficient, -1.0)
         self.assertAlmostEqual(first_alternative_constraints[4].get_variable(
-            'c_{c2}(a1)').coefficient, -Dataset.DEFAULT_M)
+            'c_{c2}(a1)').coefficient, -DEFAULT_M)
         self.assertAlmostEqual(first_alternative_constraints[4].get_variable(
             'lambda_{all}(a1)').coefficient, -1.0)
         self.assertAlmostEqual(
@@ -112,7 +113,7 @@ class TestInnerMaximization(unittest.TestCase):
         self.assertAlmostEqual(
             first_alternative_constraints[5].get_variable('u_{c2}(a1)').coefficient, 1.0)
         self.assertAlmostEqual(first_alternative_constraints[5].get_variable(
-            'c_{c2}(a1)').coefficient, -Dataset.DEFAULT_M)
+            'c_{c2}(a1)').coefficient, -DEFAULT_M)
         self.assertAlmostEqual(first_alternative_constraints[5].get_variable(
             'lambda_{all}(a1)').coefficient, 1.0)
         self.assertAlmostEqual(

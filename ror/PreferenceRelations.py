@@ -1,9 +1,7 @@
 from ror.auxiliary_variables import get_lambda_variable
-from ror.helpers import reduce_lists
-from typing import List
+from ror.dataset_constants import ALL_CRITERIA
 from ror.Relation import INDIFFERENCE, PREFERENCE, Relation, WEAK_PREFERENCE
 from ror.Constraint import Constraint, ConstraintVariable, ValueConstraintVariable, ConstraintVariablesSet
-from ror.Dataset import Dataset
 
 
 class PreferenceCriterion:
@@ -73,7 +71,7 @@ class PreferenceRelation(Preference):
         return 13 * self._alternative_1.__hash__() + 19 * self._alternative_2.__hash__() \
             + 23 * self._criterion.__hash__() + 31 * self._relation.__hash__()
 
-    def to_constraint(self, dataset: Dataset, alpha: float) -> Constraint:
+    def to_constraint(self, dataset: 'Dataset', alpha: float) -> Constraint:
         '''
         Creates Constraint object for this relation on a specific criterion.
         '''
@@ -85,13 +83,13 @@ class PreferenceRelation(Preference):
             '{} {} {}'.format(
                 Constraint.create_variable_name(
                     self._function_name,
-                    Dataset.ALL_CRITERIA,
+                    ALL_CRITERIA,
                     self._alternative_2
                 ),
                 self._relation.sign,
                 Constraint.create_variable_name(
                     self._function_name,
-                    Dataset.ALL_CRITERIA,
+                    ALL_CRITERIA,
                     self._alternative_1
                 )
             )
@@ -191,7 +189,7 @@ class PreferenceIntensityRelation(Preference):
             + 37 * self._alternative_3.__hash__() + 31 * self._alternative_4.__hash__() \
             + 23 * self._preference_criterion.__hash__() + 41 * self._relation.__hash__()
 
-    def to_constraint(self, dataset: Dataset, alpha: float) -> Constraint:
+    def to_constraint(self, dataset: 'Dataset', alpha: float) -> Constraint:
         '''
         Creates Constraint object for this relation on a specific criterion.
         PREFERENCE relation creates a relation
@@ -204,7 +202,7 @@ class PreferenceIntensityRelation(Preference):
             ConstraintVariablesSet(),
             self._relation,
             Constraint.create_variable_name(
-                self._function_name, Dataset.ALL_CRITERIA,
+                self._function_name, ALL_CRITERIA,
                 f'{self._alternative_2}_{self._alternative_1}'
             )
         )

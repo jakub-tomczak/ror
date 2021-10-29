@@ -1,4 +1,5 @@
 from typing import Any, Dict, List, Set, Union
+from ror.dataset_constants import DEFAULT_EPS
 
 from ror.loader_utils import RORParameter
 from ror.Dataset import Dataset
@@ -48,7 +49,7 @@ RORParameterValue = Union[list, str, float, int]
 class RORParameters:
     def get_default_parameter_value(parameter: RORParameter) -> RORParameterValue:
         if parameter == RORParameter.EPS:
-            return Dataset.DEFAULT_EPS
+            return DEFAULT_EPS
         elif parameter == RORParameter.INITIAL_ALPHA:
             return 0.0
         elif parameter == RORParameter.ALPHA_VALUES:
