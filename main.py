@@ -13,9 +13,9 @@ result = solve_model(data, parameters, chosen_aggregation_method)
 
 try:
     filename = export_latex_pdf(result.model, 'first model')
-    logging.info(f'Exported model\'s constraints to PDF latex file, path to exported file {filename}')
+    logging.info(f'Exported initial model\'s constraints to PDF latex file, path to exported file {filename}')
 except:
-    logging.info('Failed to export model\'s constraints to PDF latex file. Check if have pdflatex installed on your system.')
+    logging.info('Failed to export initial model\'s constraints to PDF latex file. Check if have pdflatex installed on your system.')
     filename = export_latex(result.model, 'first model')
     logging.info(f'Exported file to tex format, path to exported file {filename}')
 
