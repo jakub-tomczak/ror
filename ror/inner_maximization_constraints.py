@@ -12,19 +12,12 @@ def create_inner_maximization_constraint_for_alternative(data: Dataset, alternat
 
     constraints: List[Constraint] = []
 
-    def lambda_constraint_variables(coefficient) -> List[ConstraintVariable]:
-        return [
-            get_lambda_variable(alternative, criterion_name, coefficient)
-            for criterion_name, _
-            in data.criteria
-        ]
-
     for criterion_index in range(len(data.criteria)):
         criterion_name, _ = data.criteria[criterion_index]
 
         first_constraint = Constraint(
             ConstraintVariablesSet([
-                *lambda_constraint_variables(-1.0),
+                get_lambda_variable(alternative, coefficient=-1.0),
                 ConstraintVariable(
                     Constraint.create_variable_name(
                         "u", criterion_name, alternative),
@@ -40,7 +33,7 @@ def create_inner_maximization_constraint_for_alternative(data: Dataset, alternat
 
         second_constraint = Constraint(
             ConstraintVariablesSet([
-                *lambda_constraint_variables(-1.0),
+                get_lambda_variable(alternative, coefficient=-1.0),
                 ConstraintVariable(
                     Constraint.create_variable_name(
                         "u", criterion_name, alternative),
@@ -57,7 +50,7 @@ def create_inner_maximization_constraint_for_alternative(data: Dataset, alternat
 
         third_constraint = Constraint(
             ConstraintVariablesSet([
-                *lambda_constraint_variables(1.0),
+                get_lambda_variable(alternative, coefficient=1.0),
                 ConstraintVariable(
                     Constraint.create_variable_name(
                         "u", criterion_name, alternative),

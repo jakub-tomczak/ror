@@ -25,13 +25,10 @@ def d(alternative: str, alpha: float, dataset: Dataset) -> ConstraintVariablesSe
         f'provided alternative "{alternative}" doesn\'t exist in provided dataset'
 
     sum_constraint_variables = d_sum(alternative, alpha, dataset)
-    lambda_constraint_variables: List[ConstraintVariable] = [
-        get_lambda_variable(alternative, criterion_name, coefficient=1-alpha)
-        for criterion_name, _
-        in dataset.criteria
-    ]
+    lambda_constraint_variables = get_lambda_variable(
+        alternative).multiply(1-alpha)
     variables = ConstraintVariablesSet(
-        [*sum_constraint_variables, *lambda_constraint_variables],
+        [*sum_constraint_variables, lambda_constraint_variables],
         f'd*({alternative})'
     )
     free_variable = ValueConstraintVariable(alpha * len(dataset.criteria))
