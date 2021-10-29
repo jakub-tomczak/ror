@@ -141,8 +141,8 @@ def create_flat_r_q_s_ranks(data: Dict[str, List[float]]) -> Tuple[List[RankItem
     alternatives = np.array(list(data.keys()))
 
     # sort in R
-    R_values = values[:, 0]
-    Q_values = values[:, 1]
+    Q_values = values[:, 0]
+    R_values = values[:, 1]
     S_values = values[:, 2]
     # sort descending
     R_sorted = np.sort(R_values)
