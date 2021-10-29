@@ -1,3 +1,4 @@
+from ror.constraints_constants import ConstraintsName
 from ror.slope_constraints import create_slope_constraints
 from ror.min_max_value_constraints import create_max_value_constraint, create_min_value_constraints
 from ror.monotonicity_constraints import create_monotonicity_constraints
@@ -16,31 +17,31 @@ class RORModel(Model):
         # preferences
         prefernce_constraints = [preference.to_constraint(
             self._dataset, self._alpha) for preference in dataset.preferenceRelations]
-        self.add_constraints(prefernce_constraints, 'preference')
+        self.add_constraints(prefernce_constraints, ConstraintsName.PREFERENCE_INFORMATION.value)
         prefernce_intensity_constraints = [preference.to_constraint(
             self._dataset, self._alpha) for preference in dataset.intensityRelations]
-        self.add_constraints(prefernce_intensity_constraints, 'preference intensity')
+        self.add_constraints(prefernce_intensity_constraints, ConstraintsName.PREFERENCE_INTENSITY_INFORMATION.value)
 
         # monotonicity
         monotonicity_constraints = create_monotonicity_constraints(
             self._dataset)
         for criterion in monotonicity_constraints:
-            self.add_constraints(monotonicity_constraints[criterion], f'monotonicity, criterion {criterion}')
+            self.add_constraints(monotonicity_constraints[criterion], ConstraintsName.monotonicity(criterion))
 
         # min-max
         min_constraints = create_min_value_constraints(self._dataset)
-        self.add_constraints(min_constraints, 'min')
+        self.add_constraints(min_constraints, ConstraintsName.MIN_CONSTRAINTS.value)
         max_constraint = create_max_value_constraint(self._dataset)
-        self.add_constraint(max_constraint, 'max')
+        self.add_constraint(max_constraint, ConstraintsName.MAX_CONSTRAINTS.value)
 
         # inner maximization
         inner_maximization_constraints = create_inner_maximization_constraints(
             self._dataset)
-        self.add_constraints(inner_maximization_constraints, 'inner maximization')
+        self.add_constraints(inner_maximization_constraints, ConstraintsName.INNER_MAXIMIZATION.value)
 
         # slope
         slope_constraints = create_slope_constraints(self._dataset)
-        self.add_constraints(slope_constraints, 'slope constraints')
+        self.add_constraints(slope_constraints, ConstraintsName.SLOPE.value)
 
     @property
     def dataset(self) -> RORDataset:
