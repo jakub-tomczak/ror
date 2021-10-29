@@ -1,7 +1,7 @@
-from collections import defaultdict
 import logging
-from typing import Dict, List
-from ror.ResultAggregator import AbstractResultAggregator, VotesPerRank
+from typing import List
+from ror.BordaVoter import BordaVoter
+from ror.ResultAggregator import AbstractResultAggregator
 from ror.RORModel import RORModel
 from ror.RORResult import RORResult
 from ror.RORParameters import RORParameters
@@ -15,19 +15,12 @@ import pandas as pd
 class BordaResultAggregator(AbstractResultAggregator):
     def __init__(self) -> None:
         self.__number_of_ranks: int = 3
-        # alpha_0.0 -> { alternative_1: votes }
-        self.__votes_per_rank: VotesPerRank = defaultdict(lambda: dict())
-        # alternative_1 -> mean_votes
-        self.__alternative_to_mean_position: Dict[str, float] = None
+        self.__voter: BordaVoter = BordaVoter()
         super().__init__('BordaResultAggregator')
 
     @property
-    def votes_per_rank(self) -> pd.DataFrame:
-        return pd.DataFrame(self.__votes_per_rank)
-
-    @property
-    def alternative_to_mean_position(self) -> Dict[str, float]:
-        return self.__alternative_to_mean_position
+    def voter(self) -> BordaVoter:
+        return self.__voter
 
     def aggregate_results(self, result: RORResult, parameters: RORParameters, *args, **kwargs) -> RORResult:
         super().aggregate_results(result, parameters, *args, **kwargs)
@@ -43,23 +36,9 @@ class BordaResultAggregator(AbstractResultAggregator):
         logging.debug(f'Borda aggregator, results {result.get_result_table()}')
         # get name of all columns with ranks, beside last one - with sum
         columns_with_ranks: List[str] = list(set(data.columns) - set(['alpha_sum']))
-        # go through each rank (per each alpha value)
-        # sort values to get positions for borda voting
-        alternative_to_mean_position: Dict[str, float] = defaultdict(lambda: 0.0)
-        for column_name in columns_with_ranks:
-            sorted_indices = np.argsort(data[column_name])
-            sorted_alternatives = numpy_alternatives[sorted_indices]
-            logging.debug(f'Sorted alternatives for rank {column_name} is {sorted_alternatives}')
-            # go through all alternatives, sorted by value for a specific alpha value
-            for index, alternative in enumerate(sorted_alternatives):
-                if alternative not in self.__votes_per_rank[column_name]:
-                    self.__votes_per_rank[column_name][alternative] = (number_of_alternatives - index)
-                else:
-                    raise Exception(f'Invalid operation: rank {column_name} already voted for alternative {alternative}')
-                alternative_to_mean_position[alternative] += (number_of_alternatives - index)
-        for alternative in alternative_to_mean_position:
-            alternative_to_mean_position[alternative] /= len(columns_with_ranks)
-        self.__alternative_to_mean_position = alternative_to_mean_position
+        
+        alternative_to_mean_position = self.__voter.vote(data, number_of_alternatives, columns_with_ranks, numpy_alternatives)
+
         # transform alternative to the list of rank items
         final_rank: List[RankItem] = [
             RankItem(alternative, value)

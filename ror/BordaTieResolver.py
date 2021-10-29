@@ -1,9 +1,9 @@
-from collections import defaultdict
-from typing import DefaultDict, Dict, List
+from typing import List
+from ror.BordaVoter import BordaVoter
 from ror.RORParameters import RORParameter, RORParameters
 from ror.RORResult import RORResult
 from ror.AbstractTieResolver import AbstractTieResolver
-from ror.ResultAggregator import VotesPerRank
+
 from ror.result_aggregator_utils import RankItem, SimpleRank, group_equal_alternatives_in_ranking
 import logging
 import numpy as np
@@ -12,19 +12,12 @@ import pandas as pd
 
 class BordaTieResolver(AbstractTieResolver):
     def __init__(self) -> None:
-        # alpha_0.0 -> { alternative_1: votes }
-        self.__votes_per_rank: VotesPerRank = defaultdict(lambda: dict())
-        # alternative_1 -> mean_votes
-        self.__alternative_to_mean_position: Dict[str, float] = None
+        self.__voter: BordaVoter = BordaVoter()
         super().__init__("BordaTieResolver")
 
     @property
-    def votes_per_rank(self) -> pd.DataFrame:
-        return pd.DataFrame(self.__votes_per_rank)
-
-    @property
-    def alternative_to_mean_position(self) -> Dict[str, float]:
-        return self.__alternative_to_mean_position
+    def voter(self) -> BordaVoter:
+        return self.__voter
 
     def resolve_rank(self, rank: SimpleRank, result: RORResult, parameters: RORParameters) -> SimpleRank:
         super().resolve_rank(rank, result, parameters)
@@ -40,25 +33,8 @@ class BordaTieResolver(AbstractTieResolver):
         # get name of all columns with ranks, beside last one - with sum
         columns_with_ranks: List[str] = list(
             set(data.columns) - set(['alpha_sum']))
-        # go through each rank (per each alpha value)
-        # sort values to get positions for borda voting
-        alternative_to_mean_position: Dict[str, float] = DefaultDict(lambda: 0.0)
-        for column_name in columns_with_ranks:
-            sorted_indices = np.argsort(data[column_name])
-            sorted_alternatives = numpy_alternatives[sorted_indices]
-            logging.debug(
-                f'Sorted alternatives for rank {column_name} is {sorted_alternatives}')
-            # go through all alternatives, sorted by value for a specific alpha value
-            for index, alternative in enumerate(sorted_alternatives):
-                if alternative not in self.__votes_per_rank[column_name]:
-                    self.__votes_per_rank[column_name][alternative] = (number_of_alternatives - index)
-                else:
-                    raise Exception(f'Invalid operation: rank {column_name} already voted for alternative {alternative}')
-                alternative_to_mean_position[alternative] += (
-                    number_of_alternatives - index)
-        for alternative in alternative_to_mean_position:
-            alternative_to_mean_position[alternative] /= len(columns_with_ranks)
-        self.__alternative_to_mean_position = alternative_to_mean_position
+        
+        alternative_to_mean_position = self.__voter.vote(data, number_of_alternatives, columns_with_ranks, numpy_alternatives)
 
         sorted_alpha_sum = np.sort(data['alpha_sum'])
         sorted_alpha_sum_args = np.argsort(data['alpha_sum'])
