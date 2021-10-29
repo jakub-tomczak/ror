@@ -2,7 +2,6 @@ from typing import Any, Dict, List, Set, Union
 from ror.dataset_constants import DEFAULT_EPS
 
 from ror.loader_utils import RORParameter
-from ror.Dataset import Dataset
 
 class DataValidationException(Exception):
     def __init__(self, *args: object) -> None:

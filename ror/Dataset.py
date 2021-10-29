@@ -5,6 +5,7 @@ import numpy as np
 from typing import List, Tuple
 from ror.loader_utils import DATA_SECTION, PARAMETERS_SECTION, PARAMETERS_VALUE_SEPARATOR, PREFERENCES_SECTION, VALID_SEPARATORS, RORParameter
 from ror.dataset_constants import DEFAULT_EPS, DEFAULT_M, CRITERION_TYPES
+from ror.RORParameters import RORParameters
 import os
 
 
@@ -97,7 +98,7 @@ class Dataset:
     def delta(self, delta):
         self._delta = delta
 
-    def _prepare_data_for_saving(self, parameters: 'RORParameters') -> Tuple[List[str], List[str]]:
+    def _prepare_data_for_saving(self, parameters: RORParameters) -> Tuple[List[str], List[str]]:
         # data section
         data_section_lines = [DATA_SECTION]
         header = ['alternative id']
@@ -135,7 +136,7 @@ class Dataset:
             logging.error(f'Failed to save file: {e}')
             raise e
     
-    def save_to_file(self, filename: str, parameters: 'RORParameters'):
+    def save_to_file(self, filename: str, parameters: RORParameters):
         data_section, preferences_section = self._prepare_data_for_saving(parameters)
         data_section.extend(preferences_section)
         self._save_data(filename, data_section)
@@ -206,7 +207,7 @@ class RORDataset(Dataset):
             ))
         return relations
 
-    def save_to_file(self, filename: str, parameters: 'RORParameters'):
+    def save_to_file(self, filename: str, parameters: RORParameters):
         data, preferences = super()._prepare_data_for_saving(parameters)
         data.extend(self.__prepare_preferences_data_for_saving())
         data.extend(preferences)
