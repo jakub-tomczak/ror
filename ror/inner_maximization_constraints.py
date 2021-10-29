@@ -97,7 +97,6 @@ def create_inner_maximization_constraints(data: RORDataset) -> List[Constraint]:
         reference_alternatives.update(relation.alternatives)
     for intensity_relation in data.intensityRelations:
         reference_alternatives.update(intensity_relation.alternatives)
-    print('reference alternatives are', reference_alternatives)
     for alternative_name in reference_alternatives:
         for constraint in create_inner_maximization_constraint_for_alternative(data, alternative_name):
             constraints.append(constraint)
