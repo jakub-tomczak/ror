@@ -19,6 +19,7 @@ from ror.AbstractTieResolver import AbstractTieResolver
 from ror.BordaTieResolver import BordaTieResolver
 from ror.CopelandTieResolver import CopelandTieResolver
 from ror.NoTieResolver import NoTieResolver
+from copy import deepcopy
 
 
 class ProcessingCallbackData:
@@ -64,7 +65,7 @@ def solve_model(
     assert tie_resolver_name in TIE_RESOLVERS,\
         f'Invalid tie resolver name {tie_resolver_name}, available: [{", ".join(TIE_RESOLVERS.keys())}]'
     logging.info(f'Using rank resolver: {tie_resolver_name}')
-    tie_resolver = TIE_RESOLVERS[tie_resolver_name]
+    tie_resolver = deepcopy(TIE_RESOLVERS[tie_resolver_name])
 
     initial_model = RORModel(
         data,
@@ -75,7 +76,7 @@ def solve_model(
     initial_model.target = ConstraintVariablesSet([
         ConstraintVariable("delta", 1.0)
     ])
-    aggregator = AVAILABLE_AGGREGATORS[aggregation_method]
+    aggregator = deepcopy(AVAILABLE_AGGREGATORS[aggregation_method])
     logging.info(f'setting resolver {tie_resolver.name}')
     aggregator.set_tie_resolver(tie_resolver)
     # get alpha values depending on the result aggregator
