@@ -113,8 +113,8 @@ def create_slope_constraints(data: Dataset) -> List[Constraint]:
     Returns slope constraints for all alternatives except the ones that have duplicated
     values in the criterion space.
     So the number of constraints will be
-    2 x criteria + (n-2)*2
-    where 'n' is the number of alternatives without duplicated data on each criterion
+    2 x criteria + (m-2)*2
+    where 'm' is the number of alternatives without duplicated data on each criterion
     and 'criteria' is the number of criteria in the data.
     '''
     if not check_preconditions(data):
