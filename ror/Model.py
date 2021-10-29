@@ -33,13 +33,16 @@ class Model:
         assert type(constraint) is Constraint,\
             f"constraint must be of Constraint type, provided: {type(constraint)}"
         key = Model.DEFAULT_CONSTRAINTS_KEY
+        for constraints in self._constraints.values():
+            if constraint in constraints:
+                logging.debug(f'Constraint {constraint.name} already in model, skipping.')
+                return
         if name is not None:
             key = name
         if key not in self._constraints:
             self._constraints[key] = [constraint]
         else:
-            if constraint not in self._constraints[key]:
-                self._constraints[key].append(constraint)
+            self._constraints[key].append(constraint)
         return self
 
     def __repr__(self):
