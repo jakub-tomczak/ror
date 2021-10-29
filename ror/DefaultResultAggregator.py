@@ -6,7 +6,7 @@ from ror.RORResult import RORResult
 from ror.ResultAggregator import AbstractResultAggregator
 from ror.alpha import AlphaValues
 from ror.loader_utils import RORParameter
-from ror.result_aggregator_utils import Rank, RankItem, SimpleRank, create_flat_r_q_s_ranks, get_position_in_rank, group_equal_alternatives_in_ranking, validate_aggregator_arguments
+from ror.result_aggregator_utils import Rank, RankItem, SimpleRank, create_flat_r_q_s_ranks, get_position_in_rank, group_equal_alternatives_in_ranking, validate_aggregator_arguments, values_equal_with_epsilon
 import logging
 
 
@@ -138,6 +138,12 @@ class DefaultResultAggregator(AbstractResultAggregator):
                 f'q rank: {q_rank_current_alternative_position}, s rank {s_rank_current_alternative_position}')
             for next_alternative_index in range(alternative_index+1, len(flat_r_rank)):
                 next_alternative = flat_r_rank[next_alternative_index]
+                if values_equal_with_epsilon(current_alternative.value, next_alternative.value, eps):
+                    logging.debug(
+                        f'next alternative {next_alternative.alternative} is equal to the current alternative {current_alternative.alternative}')
+                    final_rank[len(final_rank)-1].append(next_alternative)
+                    alternatives_checked.add(next_alternative.alternative)
+                    continue
                 if next_alternative.alternative in alternatives_checked:
                     logging.debug(
                         f'skipping next alternative {next_alternative.alternative} - already in final rank')
