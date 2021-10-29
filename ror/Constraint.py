@@ -244,18 +244,19 @@ class Constraint:
         constraint_str = StringIO()
         first_added = False
         for var in self._variables_set.variables:
+            coeff = round(var.coefficient, 3)
             if var.coefficient == 0:
                 # don't add variable with coefficient equal to 0
                 continue
             if var.coefficient > 0 and first_added:
                 # + coeff * variable, if coeff is positive and this is not the first variable
-                constraint_str.write(f'+{round(var.coefficient, 3)} * {var.name}')
+                constraint_str.write(f'+{coeff} * {var.name}')
             else:
                 # coeff * variable, if coeff < 0 or we add first positive variable
-                constraint_str.write(f'{round(var.coefficient, 3)} * {var.name}')
+                constraint_str.write(f'{coeff} * {var.name}')
                 first_added = True
         constraint_str.write(self._relation.sign)
-        constraint_str.write(f'{round(self._rhs.coefficient, 3)}')
+        constraint_str.write(f'{self._rhs.coefficient}')
         return constraint_str.getvalue()
 
 
