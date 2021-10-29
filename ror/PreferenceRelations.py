@@ -1,3 +1,4 @@
+from typing import Set
 from ror.auxiliary_variables import get_lambda_variable
 from ror.dataset_constants import ALL_CRITERIA
 from ror.Relation import INDIFFERENCE, PREFERENCE, Relation, WEAK_PREFERENCE
@@ -55,6 +56,10 @@ class PreferenceRelation(Preference):
     @property
     def alternative_2(self) -> str:
         return self._alternative_2
+
+    @property
+    def alternatives(self) -> Set[str]:
+        return set([self._alternative_1, self._alternative_2])
 
     def __repr__(self):
         return f"<Preference: {self._alternative_1} {self._relation} {self._alternative_2}>"
@@ -170,6 +175,15 @@ class PreferenceIntensityRelation(Preference):
     @property
     def alternative_4(self) -> str:
         return self._alternative_4
+    
+    @property
+    def alternatives(self) -> Set[str]:
+        return set([
+            self._alternative_1,
+            self._alternative_2,
+            self._alternative_3,
+            self._alternative_4
+        ])
 
     def __repr__(self):
         return f"<Preference: {self._alternative_1} - {self._alternative_2} {self._relation} {self._alternative_3} - {self._alternative_4}>"

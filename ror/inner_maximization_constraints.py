@@ -2,11 +2,11 @@ from ror.Relation import Relation
 from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet, ValueConstraintVariable
 from ror.auxiliary_variables import get_lambda_variable, get_vector
 from ror.Dataset import Dataset, RORDataset
-from typing import List
+from typing import List, Set
 from ror.dataset_constants import DEFAULT_M
 
 
-def _create_inner_maximization_constraint_for_alternative(data: Dataset, alternative: str) -> List[Constraint]:
+def create_inner_maximization_constraint_for_alternative(data: Dataset, alternative: str) -> List[Constraint]:
     # c vector is a vector of binary value variables
     c_vector = get_vector("c", alternative, 1.0, data, True)
 
@@ -82,8 +82,15 @@ def _create_inner_maximization_constraint_for_alternative(data: Dataset, alterna
 def create_inner_maximization_constraints(data: RORDataset) -> List[Constraint]:
     assert data is not None, "dataset must not be none"
 
-    constraints = []
-    for alternative_name in data.alternatives:
-        for constraint in _create_inner_maximization_constraint_for_alternative(data, alternative_name):
+    constraints: List[Constraint] = []
+    # for inner maximization take only alternatives a_k such that
+    # a_k \in A^{R}
+    reference_alternatives: Set[str] = set()
+    for relation in data.preferenceRelations:
+        reference_alternatives.update(relation.alternatives)
+    for intensity_relation in data.intensityRelations:
+        reference_alternatives.update(intensity_relation.alternatives)
+    for alternative_name in reference_alternatives:
+        for constraint in create_inner_maximization_constraint_for_alternative(data, alternative_name):
             constraints.append(constraint)
     return constraints
