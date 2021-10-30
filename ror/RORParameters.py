@@ -1,5 +1,8 @@
 from typing import Any, Dict, List, Set, Union
 from ror.dataset_constants import DEFAULT_EPS
+import json
+import logging
+import os
 
 from ror.loader_utils import RORParameter
 
@@ -132,3 +135,24 @@ class RORParameters:
     def deep_copy(self) -> 'RORParameters':
         import copy
         return copy.deepcopy(self)
+
+    def save_to_json(self, filename: str, directory: str = None) -> str:
+        if directory is not None:
+            filename = os.path.join(directory, filename)
+        # change keys from RORParameter to str (required by json module)
+        data = {key.value: value for key, value in self.__parameters.items()}
+        with open(filename, "w") as json_out:
+            json.dump(data, json_out)
+        logging.info(f'Saved parameters to {filename}')
+    
+    def __repr__(self) -> str:
+        return f'''<RORParameters:
+eps: {self.get_parameter(RORParameter.EPS)},
+initial alpha: {self.get_parameter(RORParameter.INITIAL_ALPHA)}
+display precision: {self.get_parameter(RORParameter.PRECISION)}
+alpha values: {self.get_parameter(RORParameter.ALPHA_VALUES)}
+result aggregator: {self.get_parameter(RORParameter.RESULTS_AGGREGATOR)}
+tie resolver: {self.get_parameter(RORParameter.TIE_RESOLVER)}
+alpha weights: {self.get_parameter(RORParameter.ALPHA_WEIGHTS)}
+number of alpha values: {self.get_parameter(RORParameter.NUMBER_OF_ALPHA_VALUES)}
+>'''

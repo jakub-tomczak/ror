@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Set, Tuple, Union
 from ror.OptimizationResult import AlternativeOptimizedValue
 import numpy as np
 from ror.alpha import AlphaValue
@@ -65,6 +65,15 @@ class Rank:
     @property
     def rank(self) -> List[List[RankItem]]:
         return self.__rank
+
+    def rank_to_string(self) -> str:
+        rank_str: List[Set[str]] = []
+        for rank_items in self.rank:
+            if len(rank_items) > 1:
+                rank_str.append(set([item.alternative for item in rank_items]))
+            else:
+                rank_str.append(set([rank_items[0].alternative]))
+        return " -> ".join([str(item) for item in rank_str])
 
 def values_equal_with_epsilon(first_alternative_value, second_alternative_value, epsilon: float) -> bool:
     return abs(first_alternative_value - second_alternative_value) < epsilon
