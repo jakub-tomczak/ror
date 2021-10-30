@@ -77,33 +77,40 @@ class RORResult:
             return self.__intermediate_ranks[name]
         return None
 
-    def save_result_to_csv(self, filename: str) -> str:
+    def save_result_to_csv(self, filename: str, directory: str = None) -> str:
         try:
             result = self.get_result_table()
+            if directory is not None:
+                filename = os.path.join(directory, filename)
             result.to_csv(filename, sep=';')
+            logging.info(f'Saved calculated distances to {filename}')
         except Exception as e:
-            logging.info(f'Failed to save to csv file, cause: {e}')
+            logging.error(f'Failed to save to csv file, cause: {e}')
             raise e
         return filename
     
-    def save_result_to_latex(self, filename: str) -> str:
+    def save_result_to_latex(self, filename: str, directory: str = None) -> str:
         try:
             result = self.get_result_table()
             precision = self.__parameters.get_parameter(RORParameter.PRECISION)
+            if directory is not None:
+                filename = os.path.join(directory, filename)
             result.to_latex(filename, float_format=f"%.{precision}f")
+            logging.info(f'Saved calculated distances to {filename}')
         except Exception as e:
-            logging.info(f'Failed to save to latex file, cause: {e}')
+            logging.error(f'Failed to save to latex file, cause: {e}')
             raise e
         return filename
 
-    def save_tie_resolvers_data(self) -> List[str]:
+    def save_tie_resolvers_data(self, directory: str = None) -> List[str]:
         tie_resolver = self.results_aggregator.tie_resolver
+        dir = directory if directory is not None else self.output_dir
         if isinstance(tie_resolver, BordaTieResolver):
             borda_voter = tie_resolver.voter
-            return borda_voter.save_voting_data(self.output_dir)
+            return borda_voter.save_voting_data(dir)
         elif isinstance(tie_resolver, CopelandTieResolver):
             copeland_voter = tie_resolver.voter
-            return copeland_voter.save_voting_data(self.output_dir)
+            return copeland_voter.save_voting_data(dir)
         else:
             logging.info('No tie resolver data available.')
             return None
