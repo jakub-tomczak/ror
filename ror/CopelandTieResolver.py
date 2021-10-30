@@ -1,7 +1,6 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List
 from ror.CopelandVoter import CopelandVoter
 from ror.RORParameters import RORParameter, RORParameters
-from ror.RORResult import RORResult
 from ror.AbstractTieResolver import AbstractTieResolver
 from ror.result_aggregator_utils import RankItem, SimpleRank
 import logging
@@ -17,7 +16,7 @@ class CopelandTieResolver(AbstractTieResolver):
     def voter(self) -> CopelandVoter:
         return self.__copeland_voter
 
-    def resolve_rank(self, rank: SimpleRank, result: RORResult, parameters: RORParameters) -> SimpleRank:
+    def resolve_rank(self, rank: SimpleRank, result: 'RORResult', parameters: RORParameters) -> SimpleRank:
         super().resolve_rank(rank, result, parameters)
         # get sum of results
         # calculate mean position (across all ranks)

@@ -1,13 +1,11 @@
 from typing import List
 from ror.BordaVoter import BordaVoter
 from ror.RORParameters import RORParameter, RORParameters
-from ror.RORResult import RORResult
 from ror.AbstractTieResolver import AbstractTieResolver
 
 from ror.result_aggregator_utils import RankItem, SimpleRank, group_equal_alternatives_in_ranking
 import logging
 import numpy as np
-import pandas as pd
 
 
 class BordaTieResolver(AbstractTieResolver):
@@ -19,7 +17,7 @@ class BordaTieResolver(AbstractTieResolver):
     def voter(self) -> BordaVoter:
         return self.__voter
 
-    def resolve_rank(self, rank: SimpleRank, result: RORResult, parameters: RORParameters) -> SimpleRank:
+    def resolve_rank(self, rank: SimpleRank, result: 'RORResult', parameters: RORParameters) -> SimpleRank:
         super().resolve_rank(rank, result, parameters)
         # get sum of results
         # calculate mean position (across all ranks)

@@ -62,17 +62,16 @@ class WeightedResultAggregator(AbstractResultAggregator):
 
         # draw positions
         # get dir for all ranks because dir contains datetime so must be one for all
-        dir = self.get_dir_for_rank_image()
         for alpha_value, intermediate_flat_rank in zip(self.alpha_values.values, flat_ranks):
             # create intermediate ranks for drawing
             grouped_rank = group_equal_alternatives_in_ranking(
                 intermediate_flat_rank, eps)
             name = f'alpha_{round(alpha_value, 4)}'
-            image_filename = self.draw_rank(grouped_rank, dir, f'weighted_{name}')
+            image_filename = self.draw_rank(grouped_rank, result.output_dir, f'weighted_{name}')
             result.add_intermediate_rank(
                 name, Rank(rank, image_filename, AlphaValue.from_value(alpha_value)))
 
-        final_rank_image_filename = self.draw_rank(resolved_final_rank, dir, 'weighted_final_rank')
+        final_rank_image_filename = self.draw_rank(resolved_final_rank, result.output_dir, 'weighted_final_rank')
         final_rank_object = Rank(
             resolved_final_rank,
             final_rank_image_filename

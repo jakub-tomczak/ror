@@ -4,13 +4,10 @@ from ror.RORModel import RORModel
 from ror.RORParameters import RORParameters
 from ror.RORResult import RORResult
 from ror.alpha import AlphaValues
-from ror.datetime_utils import get_date_time
 from ror.graphviz_helper import draw_rank
 from ror.AbstractTieResolver import AbstractTieResolver
 from ror.result_aggregator_utils import RankItem, from_rank_to_alternatives
-import os
 
-VotesPerRank = Dict[str, Dict[str, int]]
 
 class AbstractResultAggregator:
     '''
@@ -74,7 +71,3 @@ class AbstractResultAggregator:
 
     def set_tie_resolver(self, tie_resolver: AbstractTieResolver):
         self._tie_resolver = tie_resolver
-
-    def get_dir_for_rank_image(self) -> str:
-        current_dir = os.path.abspath(os.path.curdir)
-        return os.path.join(current_dir, 'output', get_date_time())

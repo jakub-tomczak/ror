@@ -2,3 +2,4 @@ env
 __pycache__
 gurobi
 output
+ror_distance_output

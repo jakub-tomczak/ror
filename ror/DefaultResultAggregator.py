@@ -188,19 +188,17 @@ class DefaultResultAggregator(AbstractResultAggregator):
                 # in the next iteration of the outer for loop
         
         resolved_final_rank = self._tie_resolver.resolve_rank(final_rank, result, parameters)
-
         rank_names = ['alpha_0.5', 'alpha_0.0', 'alpha_1.0']
         ranks = [r_rank, q_rank, s_rank]
         filename = [f'default_rank_R', f'default_rank_Q', f'default_rank_S']
         # get dir for all ranks because dir contains datetime so must be one for all
-        dir = self.get_dir_for_rank_image()
         for name, rank, filename in zip(rank_names, ranks, filename):
             alpha_value = alpha_values[name]
             assert alpha_value is not None, f'Rank name {name} is not present in alpha_values provided'
-            image_filename = self.draw_rank(rank, dir, filename)
+            image_filename = self.draw_rank(rank, result.output_dir, filename)
             result.add_intermediate_rank(
                 name, Rank(rank, image_filename, alpha_value))
-        final_rank_img_path = self.draw_rank(resolved_final_rank, dir, f'default_final_rank')
+        final_rank_img_path = self.draw_rank(resolved_final_rank, result.output_dir, f'default_final_rank')
 
         result.final_rank = Rank(resolved_final_rank, final_rank_img_path, 'final rank')
         return result

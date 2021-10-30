@@ -2,11 +2,16 @@ from collections import defaultdict
 import logging
 from typing import DefaultDict, Dict, List, Union
 import pandas as pd
+from ror.BordaTieResolver import BordaTieResolver
+from ror.CopelandTieResolver import CopelandTieResolver
 from ror.RORModel import RORModel
 from ror.RORParameters import RORParameters
 from ror.loader_utils import RORParameter
 from ror.result_aggregator_utils import Rank
 from ror.alpha import AlphaValues
+from ror.CalculationsException import CalculationsException
+from ror.datetime_utils import get_date_time
+import os
 
 
 class RORResult:
@@ -24,11 +29,7 @@ class RORResult:
         self.model: RORModel = None
         self.__parameters: RORParameters = None
         self.__aggregator: 'AbstractResultAggregator' = None
-        # depending on the tie resolver, different data will be assigned here
-        # i.e.
-        # BordaTieResolver -> Dict with voting per rank
-        # CopelandTieResolver -> Tuple(Matrix with voting result, final votes)
-        self.__tie_resolver_data: any = None
+        self.__output_dir: str = self.get_dir_for_rank_image()
 
     def add_result(self, alternative: str, alpha_value: str, result: float):
         self.__optimization_results[alternative][str(alpha_value)] = result
@@ -95,6 +96,32 @@ class RORResult:
             raise e
         return filename
 
+    def save_tie_resolvers_data(self) -> List[str]:
+        tie_resolver = self.results_aggregator.tie_resolver
+        if isinstance(tie_resolver, BordaTieResolver):
+            borda_voter = tie_resolver.voter
+            return borda_voter.save_voting_data(self.output_dir)
+        elif isinstance(tie_resolver, CopelandTieResolver):
+            copeland_voter = tie_resolver.voter
+            return copeland_voter.save_voting_data(self.output_dir)
+        else:
+            logging.info('No tie resolver data available.')
+            return None
+            
+
+    def get_dir_for_rank_image(self) -> str:
+        current_dir = os.path.abspath(os.path.curdir)
+        output_dir = os.path.join(current_dir, 'ror_distance_output', get_date_time())
+        if not os.path.exists(output_dir):
+            # try to create output dir
+            try:
+                os.makedirs(output_dir)
+            except Exception as e:
+                msg = f'Failed to create output dir: {output_dir}, cause: {e}'
+                logging.error(msg)
+                raise CalculationsException(e)
+        return output_dir
+
     @property
     def results_aggregator(self) -> 'AbstractResultAggregator':
         return self.__aggregator
@@ -130,3 +157,7 @@ class RORResult:
     @parameters.setter
     def parameters(self, parameters: RORParameters):
         self.__parameters = parameters
+
+    @property
+    def output_dir(self) -> str:
+        return self.__output_dir

@@ -1,6 +1,7 @@
 from typing import List, Tuple
 import numpy as np
 import pandas as pd
+import os
 import logging
 
 class CopelandVoter():
@@ -15,6 +16,25 @@ class CopelandVoter():
     @property
     def voting_sum(self) -> List[Tuple[str, float]]:
         return self.__voting_sum
+
+    def save_voting_data(self, directory: str) -> List[str]:
+        indices = [alternative_name for alternative_name, _ in self.voting_sum]
+        voting_matrix_file = os.path.join(directory, 'voting_matrix.csv')
+        matrix = pd.DataFrame(data=self.voting_matrix, index=indices, headers=indices)
+        matrix.to_csv(voting_matrix_file, sep=';')
+        voting_sum_file = os.path.join(directory, 'voting_sum.csv')
+        data = [value for _, value in self.voting_sum]
+        headers = ['voting sum']
+        data = pd.DataFrame(
+            data=data,
+            index=indices,
+            columns=headers)
+        data.to_csv(voting_sum_file, sep=';')
+        return [
+            voting_matrix_file,
+            voting_sum_file
+        ]
+
 
     def vote(self, data: pd.DataFrame, columns_with_ranks: List[str], eps: float) -> np.array:
         numpy_alternatives: np.ndarray = np.array(list(data.index))

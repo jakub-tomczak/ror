@@ -55,7 +55,7 @@ class CopelandResultAggregator(AbstractResultAggregator):
         ranks = create_flat_ranks(results_per_alternative)
         
         # generate rank images
-        dir = self.get_dir_for_rank_image()
+        dir = result.output_dir
         for alpha_value, intermediate_flat_rank in zip(alpha_values.values, ranks):
             # create intermediate ranks for drawing
             grouped_rank = group_equal_alternatives_in_ranking(
