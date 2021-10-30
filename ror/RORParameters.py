@@ -50,7 +50,7 @@ class RORParameters:
         if parameter == RORParameter.EPS:
             return DEFAULT_EPS
         elif parameter == RORParameter.INITIAL_ALPHA:
-            return 0.0
+            return 0.5
         elif parameter == RORParameter.ALPHA_VALUES:
             return [0.0, 0.5, 1.0]
         elif parameter == RORParameter.PRECISION:
