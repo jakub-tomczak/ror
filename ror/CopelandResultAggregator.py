@@ -19,8 +19,8 @@ class CopelandResultAggregator(AbstractResultAggregator):
     def voter(self) -> CopelandVoter:
         return self.__copeland_voter
 
-    def aggregate_results(self, result: RORResult, parameters: RORParameters, *args, **kwargs) -> RORResult:
-        super().aggregate_results(result, parameters, *args, **kwargs)
+    def aggregate_results(self, result: RORResult, parameters: RORParameters) -> RORResult:
+        super().aggregate_results(result, parameters)
         # get sum of results
         # calculate mean position (across all ranks)
         # create final rank - if positions are equal then the one with

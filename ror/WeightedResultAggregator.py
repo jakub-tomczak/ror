@@ -16,8 +16,8 @@ class WeightedResultAggregator(AbstractResultAggregator):
         self.weighted_data: Dict[str, List[float]] = dict()
         self.alpha_values: AlphaValues = None
 
-    def aggregate_results(self, result: RORResult, parameters: RORParameters, *args, **kwargs) -> RORResult:
-        super().aggregate_results(result, parameters, *args, **kwargs)
+    def aggregate_results(self, result: RORResult, parameters: RORParameters) -> RORResult:
+        super().aggregate_results(result, parameters)
 
         weights_parameter = parameters.get_parameter(
             RORParameter.ALPHA_WEIGHTS)

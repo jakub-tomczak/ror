@@ -95,8 +95,8 @@ class DefaultResultAggregator(AbstractResultAggregator):
                 
         return explanation.getvalue()
 
-    def aggregate_results(self, result: RORResult, parameters: RORParameters, *args, **kwargs) -> RORResult:
-        super().aggregate_results(result, parameters, *args, **kwargs)
+    def aggregate_results(self, result: RORResult, parameters: RORParameters) -> RORResult:
+        super().aggregate_results(result, parameters)
         alpha_values = AlphaValues.from_list(
             parameters.get_parameter(RORParameter.ALPHA_VALUES))
         eps = parameters.get_parameter(RORParameter.EPS)

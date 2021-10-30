@@ -55,9 +55,7 @@ def solve_model(
         data: RORDataset,
         parameters: RORParameters,
         aggregation_method: str,
-        *aggregation_method_args,
         progress_callback: Callable[[ProcessingCallbackData], None] = None,
-        **aggregation_method_kwargs,
     ) -> RORResult:
     assert aggregation_method in AVAILABLE_AGGREGATORS, f'Invalid aggregator method name {aggregation_method}, available: [{", ".join(AVAILABLE_AGGREGATORS.keys())}]'
     tie_resolver: AbstractTieResolver = None
@@ -141,9 +139,7 @@ def solve_model(
     steps_solved = report_progress(steps_solved, f'Aggregating results.')
     final_result: RORResult = aggregator.aggregate_results(
         ror_result,
-        parameters,
-        *aggregation_method_args,
-        **aggregation_method_kwargs
+        parameters
     )
     final_result.results_aggregator = aggregator
     steps_solved = report_progress(steps_solved, 'Calculations done.')

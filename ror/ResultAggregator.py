@@ -33,7 +33,7 @@ class AbstractResultAggregator:
         return self._tie_resolver
 
     @abstractmethod
-    def aggregate_results(self, result: RORResult, parameters: RORParameters, *args, **kwargs) -> RORResult:
+    def aggregate_results(self, result: RORResult, parameters: RORParameters) -> RORResult:
         '''
         Common method for aggregating results from calculations.
         It should aggregate different values obtained from solving model with different target
