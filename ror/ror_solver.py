@@ -62,7 +62,10 @@ def solve_model(
         # user can provide either his TieResolver or provide a name of the existing one
         # tie_resolver object has precedence over tie_resolver name
         tie_resolver: AbstractTieResolver = None,
-        tie_resolver_name: str = None
+        tie_resolver_name: str = None,
+        # if False then only images with ranks are saved,
+        # otherwise all data (images, distances and voting data) is saved
+        save_all_data: bool = False
     ) -> RORResult:
     _aggregator: AbstractResultAggregator = None
     def validate_aggregator_name(name: str):
@@ -183,5 +186,8 @@ def solve_model(
         parameters
     )
     final_result.results_aggregator = _aggregator
+    if save_all_data:
+        final_result.save_result_to_csv('distances.csv', directory = final_result.output_dir)
+        final_result.save_tie_resolvers_data()
     steps_solved = report_progress(steps_solved, 'Calculations done.')
     return final_result

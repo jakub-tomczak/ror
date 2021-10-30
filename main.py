@@ -9,7 +9,12 @@ data = loading_result.dataset
 parameters = loading_result.parameters
 chosen_aggregation_method = parameters.get_parameter(RORParameter.RESULTS_AGGREGATOR)
 
-result = solve_model(data, parameters, result_aggregator_name=chosen_aggregation_method)
+result = solve_model(
+    data,
+    parameters,
+    result_aggregator_name=chosen_aggregation_method,
+    save_all_data=True
+)
 
 try:
     filename = export_latex_pdf(result.model, 'first model')
