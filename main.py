@@ -4,12 +4,12 @@ from ror.latex_exporter import export_latex, export_latex_pdf
 from ror.loader_utils import RORParameter
 from ror.ror_solver import solve_model
 
-loading_result = read_dataset_from_txt("problems/buses.txt")
+loading_result = read_dataset_from_txt("problems/buses_small.txt")
 data = loading_result.dataset
 parameters = loading_result.parameters
 chosen_aggregation_method = parameters.get_parameter(RORParameter.RESULTS_AGGREGATOR)
 
-result = solve_model(data, parameters, chosen_aggregation_method)
+result = solve_model(data, parameters, result_aggregator_name=chosen_aggregation_method)
 
 try:
     filename = export_latex_pdf(result.model, 'first model')

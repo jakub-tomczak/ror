@@ -54,16 +54,59 @@ TIE_RESOLVERS: Dict[str, AbstractTieResolver] = {
 def solve_model(
         data: RORDataset,
         parameters: RORParameters,
-        aggregation_method: str,
         progress_callback: Callable[[ProcessingCallbackData], None] = None,
+        # user can provide either his ResultAggregator or provide a name of the existing one
+        # aggregator object has precedence over aggregator name
+        result_aggregator: AbstractResultAggregator = None,
+        result_aggregator_name: str = None,
+        # user can provide either his TieResolver or provide a name of the existing one
+        # tie_resolver object has precedence over tie_resolver name
+        tie_resolver: AbstractTieResolver = None,
+        tie_resolver_name: str = None
     ) -> RORResult:
-    assert aggregation_method in AVAILABLE_AGGREGATORS, f'Invalid aggregator method name {aggregation_method}, available: [{", ".join(AVAILABLE_AGGREGATORS.keys())}]'
-    tie_resolver: AbstractTieResolver = None
-    tie_resolver_name = parameters.get_parameter(RORParameter.TIE_RESOLVER)
-    assert tie_resolver_name in TIE_RESOLVERS,\
-        f'Invalid tie resolver name {tie_resolver_name}, available: [{", ".join(TIE_RESOLVERS.keys())}]'
-    logging.info(f'Using rank resolver: {tie_resolver_name}')
-    tie_resolver = deepcopy(TIE_RESOLVERS[tie_resolver_name])
+    _aggregator: AbstractResultAggregator = None
+    def validate_aggregator_name(name: str):
+        assert name in AVAILABLE_AGGREGATORS,\
+            f'Invalid aggregator method name {name}, available: [{", ".join(AVAILABLE_AGGREGATORS.keys())}]'
+    if result_aggregator is not None:
+        # try result aggregator based on object
+        logging.info('Trying to get result aggregator from provided object')
+        assert isinstance(result_aggregator, AbstractResultAggregator), 'Provided result aggregator must inherit from AbstractResultAggregator'
+        _aggregator = result_aggregator
+    elif result_aggregator_name is not None and result_aggregator_name != '':
+        # try result aggregator based on provided name
+        logging.info('Trying to get result aggregator from provided result aggregator name')
+        validate_aggregator_name(result_aggregator_name)
+        _aggregator = deepcopy(AVAILABLE_AGGREGATORS[result_aggregator_name])
+    else:
+        logging.info('Trying to get result aggregator from parameters')
+        # as the last resort try to get ResultAggregator from parameters
+        _name = parameters.get_parameter(RORParameter.RESULTS_AGGREGATOR)
+        validate_aggregator_name(_name)
+        _aggregator = deepcopy(AVAILABLE_AGGREGATORS[_name])
+    assert _aggregator is not None, 'Aggregator must not be None'
+    logging.info(f'Using result aggregator: {_aggregator.name}')
+
+    _tie_resolver: AbstractTieResolver = None
+    def validate_tie_resolver_name(name: str):
+        assert name in TIE_RESOLVERS,\
+            f'Invalid tie resolver name {name}, available: [{", ".join(TIE_RESOLVERS.keys())}]'
+    if tie_resolver is not None:
+        # try to get tie resolver from provided object
+        logging.info('Trying to get tie resolver from provided object')
+        assert isinstance(tie_resolver, AbstractTieResolver), 'PProvided tie resolver must inherit from AbstractTieResolver'
+        _tie_resolver = tie_resolver
+    elif tie_resolver_name is not None and tie_resolver_name != '':
+        logging.info('Trying to get tie resolver from provided tie resolver name')
+        validate_tie_resolver_name(tie_resolver_name)
+        _tie_resolver = deepcopy(TIE_RESOLVERS[tie_resolver_name])
+    else:
+        # try to get tie resovler from parameters
+        logging.info('Trying to get tie resolver from provided parameters')
+        _tie_resolver_name = parameters.get_parameter(RORParameter.TIE_RESOLVER)
+        validate_tie_resolver_name(_tie_resolver_name)
+        _tie_resolver = deepcopy(TIE_RESOLVERS[_tie_resolver_name])
+    logging.info(f'Using rank resolver: {_tie_resolver.name}')
 
     initial_model = RORModel(
         data,
@@ -74,11 +117,9 @@ def solve_model(
     initial_model.target = ConstraintVariablesSet([
         ConstraintVariable("delta", 1.0)
     ])
-    aggregator = deepcopy(AVAILABLE_AGGREGATORS[aggregation_method])
-    logging.info(f'setting resolver {tie_resolver.name}')
-    aggregator.set_tie_resolver(tie_resolver)
+    _aggregator.set_tie_resolver(_tie_resolver)
     # get alpha values depending on the result aggregator
-    alpha_values = aggregator.get_alpha_values(initial_model, parameters)
+    alpha_values = _aggregator.get_alpha_values(initial_model, parameters)
 
     # for raporting progress:
     # Calculate number of steps to be solved.
@@ -137,10 +178,10 @@ def solve_model(
                 f"alternative {alternative}, objective value {result.objective_value}")
 
     steps_solved = report_progress(steps_solved, f'Aggregating results.')
-    final_result: RORResult = aggregator.aggregate_results(
+    final_result: RORResult = _aggregator.aggregate_results(
         ror_result,
         parameters
     )
-    final_result.results_aggregator = aggregator
+    final_result.results_aggregator = _aggregator
     steps_solved = report_progress(steps_solved, 'Calculations done.')
     return final_result
