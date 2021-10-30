@@ -24,4 +24,4 @@ except:
     filename = export_latex(result.model, 'first model')
     logging.info(f'Exported file to tex format, path to exported file {filename}')
 
-logging.info(f'Final rank is {result.final_rank}')
+logging.info(f'Final rank is {result.final_rank.rank_to_string()}')
