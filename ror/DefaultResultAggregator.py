@@ -97,8 +97,7 @@ class DefaultResultAggregator(AbstractResultAggregator):
 
     def aggregate_results(self, result: RORResult, parameters: RORParameters) -> RORResult:
         super().aggregate_results(result, parameters)
-        alpha_values = AlphaValues.from_list(
-            parameters.get_parameter(RORParameter.ALPHA_VALUES))
+        alpha_values = self.get_alpha_values(None, None)
         eps = parameters.get_parameter(RORParameter.EPS)
 
         data: Dict[str, List[float]] = result.get_results_dict(alpha_values)
@@ -204,7 +203,8 @@ class DefaultResultAggregator(AbstractResultAggregator):
         return result
     
     def get_alpha_values(self, model: RORModel, parameters: RORParameters) -> AlphaValues:
-        return AlphaValues.from_list(parameters.get_parameter(RORParameter.ALPHA_VALUES))
+        # use only 3 alpha values, ignore parameters
+        return AlphaValues.from_list([0.0, 0.5, 1.0])
 
     def help(self) -> str:
         return """
