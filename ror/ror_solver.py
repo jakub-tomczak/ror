@@ -21,6 +21,9 @@ from ror.CopelandTieResolver import CopelandTieResolver
 from ror.NoTieResolver import NoTieResolver
 from copy import deepcopy
 
+from ror.solvers.AbstractSolver import AbstractSolver
+from ror.solvers.GurobiSolver import GurobiSolver
+
 
 class ProcessingCallbackData:
     def __init__(self, progress: float, status: str):
@@ -65,7 +68,8 @@ def solve_model(
         tie_resolver_name: str = None,
         # if False then only images with ranks are saved,
         # otherwise all data (images, distances and voting data) is saved
-        save_all_data: bool = False
+        save_all_data: bool = False,
+        solver: AbstractSolver = None
     ) -> RORResult:
     _aggregator: AbstractResultAggregator = None
     def validate_aggregator_name(name: str):
@@ -111,11 +115,15 @@ def solve_model(
         _tie_resolver = deepcopy(TIE_RESOLVERS[_tie_resolver_name])
     logging.info(f'Using rank resolver: {_tie_resolver.name}')
 
+    if solver is None:
+        solver = GurobiSolver()
+
     initial_model = RORModel(
         data,
         parameters[RORParameter.INITIAL_ALPHA],
         f"ROR Model, step 1, with alpha {parameters[RORParameter.INITIAL_ALPHA]}"
     )
+    initial_model.solver = solver
 
     initial_model.target = ConstraintVariablesSet([
         ConstraintVariable("delta", 1.0)
@@ -162,6 +170,7 @@ def solve_model(
         for alpha in alpha_values.values:
             tmp_model = RORModel(
                 data, alpha, f"ROR Model, step 2, with alpha {alpha}, alternative {alternative}")
+            tmp_model.solver = solver
             # In addition, the constraints (j) to (m) are defined on extended set A^{R} + a_{j}.
             tmp_model.add_constraints(
                 create_inner_maximization_constraint_for_alternative(data, alternative),
