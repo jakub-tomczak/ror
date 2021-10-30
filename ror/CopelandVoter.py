@@ -20,7 +20,8 @@ class CopelandVoter():
     def save_voting_data(self, directory: str) -> List[str]:
         indices = [alternative_name for alternative_name, _ in self.voting_sum]
         voting_matrix_file = os.path.join(directory, 'voting_matrix.csv')
-        matrix = pd.DataFrame(data=self.voting_matrix, index=indices, headers=indices)
+        logging.info(f'Saved voting matrix from Copeland voting to {voting_matrix_file}')
+        matrix = pd.DataFrame(data=self.voting_matrix, index=indices, columns=indices)
         matrix.to_csv(voting_matrix_file, sep=';')
         voting_sum_file = os.path.join(directory, 'voting_sum.csv')
         data = [value for _, value in self.voting_sum]
@@ -30,6 +31,7 @@ class CopelandVoter():
             index=indices,
             columns=headers)
         data.to_csv(voting_sum_file, sep=';')
+        logging.info(f'Saved voting sum from Copeland voting to {voting_sum_file}')
         return [
             voting_matrix_file,
             voting_sum_file

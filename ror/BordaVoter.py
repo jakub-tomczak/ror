@@ -24,18 +24,20 @@ class BordaVoter():
     def save_voting_data(self, directory: str) -> List[str]:
         votes_per_rank_file = os.path.join(directory, 'votes_per_rank.csv')
         self.votes_per_rank.to_csv(votes_per_rank_file, sep=';')
-        alternative_to_mean_position_file = os.path.join(directory, 'mean_votes_per_alternative.csv')
-        indices = [self.alternative_to_mean_votes.keys()]
-        data = [self.alternative_to_mean_votes.values()]
+        logging.info(f'Saved votes per rank from Borda voting to {votes_per_rank_file}')
+        alternative_to_mean_votes_file = os.path.join(directory, 'mean_votes_per_alternative.csv')
+        indices = list(self.alternative_to_mean_votes.keys())
+        data = list(self.alternative_to_mean_votes.values())
         headers = ['mean votes']
         data = pd.DataFrame(
             data=data,
             index=indices,
             columns=headers)
-        data.to_csv(alternative_to_mean_position_file, sep=';')
+        data.to_csv(alternative_to_mean_votes_file, sep=';')
+        logging.info(f'Saved mean votes from Borda voting to {alternative_to_mean_votes_file}')
         return [
             votes_per_rank_file,
-            alternative_to_mean_position_file
+            alternative_to_mean_votes_file
         ]
 
     def vote(self, data: pd.DataFrame, number_of_alternatives: int, columns_with_ranks: List[str], numpy_alternatives: np.ndarray) -> Dict[str, float]:
