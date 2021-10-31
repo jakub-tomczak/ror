@@ -14,8 +14,8 @@ class GurobiSolver(AbstractSolver):
         self.__model: gp.Model = None
         self.__name: str = 'Gurobi model'    
 
-    def solve_model(self, model: RORModel) -> OptimizationResult:
-        self.create_model(model)
+    def solve(self, model: RORModel) -> OptimizationResult:
+        self._create_model(model)
 
         self.__model.optimize()
         if self.__model.status == GRB.INF_OR_UNBD:
@@ -37,7 +37,7 @@ class GurobiSolver(AbstractSolver):
             raise CalculationsException(f'Model {self.name} is infeasible.')
 
 
-    def create_model(self, model: RORModel):
+    def _create_model(self, model: RORModel):
         model._validate_target(model.target)
 
         self.__name = model.name

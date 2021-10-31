@@ -16,5 +16,5 @@ class AbstractSolver:
         pass
 
     @abstractmethod
-    def create_model(self, model: RORModel):
+    def _create_model(self, model: RORModel):
         pass

@@ -46,7 +46,7 @@ class TestRORModel(unittest.TestCase):
         model.target = ConstraintVariablesSet([
             ConstraintVariable("delta", 1.0)
         ])
-        model.solver.create_model(model)
+        model.solve()
         model.save_model()
 
     def test_solving_model(self):
