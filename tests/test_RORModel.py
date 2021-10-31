@@ -2,7 +2,7 @@ from typing import Set
 from ror.Constraint import ConstraintVariable, ConstraintVariablesSet
 from ror.data_loader import read_dataset_from_txt
 import unittest
-from ror.solvers.GurobiSolver import GurobiSolver
+from ror.GurobiSolver import GurobiSolver
 from ror.RORModel import RORModel
 
 

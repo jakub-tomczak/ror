@@ -113,4 +113,4 @@ class Model:
     def solve(self) -> OptimizationResult:
         assert self.__solver is not None,\
             'Solver is not set, set it with an instance of a class that implements AbstractSolver class'
-        return self.__solver.solve_model(self)
+        return self.__solver.solve(self)

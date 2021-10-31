@@ -1,5 +1,5 @@
 from typing import Dict
-from ror.solvers import AbstractSolver
+from ror.AbstractSolver import AbstractSolver
 from ror.RORModel import RORModel
 from ror.OptimizationResult import OptimizationResult
 from ror.CalculationsException import CalculationsException

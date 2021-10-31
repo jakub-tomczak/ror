@@ -21,8 +21,8 @@ from ror.CopelandTieResolver import CopelandTieResolver
 from ror.NoTieResolver import NoTieResolver
 from copy import deepcopy
 
-from ror.solvers.AbstractSolver import AbstractSolver
-from ror.solvers.GurobiSolver import GurobiSolver
+from ror.AbstractSolver import AbstractSolver
+from ror.GurobiSolver import GurobiSolver
 
 
 class ProcessingCallbackData:
