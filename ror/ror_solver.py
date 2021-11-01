@@ -186,7 +186,7 @@ def solve_model(
             steps_solved = report_progress(steps_solved, f'Step 2, alternative: {alternative}, alpha {round(alpha, precision)}.')
             
             ror_result.add_result(alternative, alpha, result.objective_value)
-            logging.info(
+            logging.debug(
                 f"alternative {alternative}, objective value {result.objective_value}")
 
     steps_solved = report_progress(steps_solved, f'Aggregating results.')

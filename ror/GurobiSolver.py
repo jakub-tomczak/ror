@@ -26,7 +26,7 @@ class GurobiSolver(AbstractSolver):
             self.__model.optimize()
 
         if self.__model.status == GRB.OPTIMAL:
-            logging.info(f'Optimal objective: {self.__model.objVal}')
+            logging.debug(f'Optimal objective: {self.__model.objVal}')
             variables_values: Dict[str, float] = {}
             # save calculated coefficients
             for v in self.__model.getVars():
