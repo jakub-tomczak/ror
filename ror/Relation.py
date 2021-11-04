@@ -31,6 +31,18 @@ class Relation:
     def sign(self, value: str):
         self._sign = value
 
+    def sign_to_latex(self) -> str:
+        if self.sign == ">=":
+            return '\geq'
+        elif self.sign == "<=":
+            return '\leq'
+        elif self.sign == "==":
+            return '='
+        elif self.sign == ">":
+            return '>'
+        elif self.sign == "<":
+            return '<'
+
 WEAK_PREFERENCE = Relation('<=', 'weak preference')
 PREFERENCE = Relation('<=', 'preference')
 INDIFFERENCE = Relation('==', 'indifference')

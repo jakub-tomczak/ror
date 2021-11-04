@@ -269,12 +269,12 @@ class Constraint:
                 continue
             if var.coefficient > 0 and first_added:
                 # + coeff * variable, if coeff is positive and this is not the first variable
-                constraint_str.write(f'+{coeff} * {var.name}')
+                constraint_str.write(f'+{coeff} \\times {var.name}')
             else:
                 # coeff * variable, if coeff < 0 or we add first positive variable
-                constraint_str.write(f'{coeff} * {var.name}')
+                constraint_str.write(f'{coeff} \\times {var.name}')
                 first_added = True
-        constraint_str.write(self._relation.sign)
+        constraint_str.write(self._relation.sign_to_latex())
         constraint_str.write(f'{self._rhs.coefficient}')
         return constraint_str.getvalue()
 
