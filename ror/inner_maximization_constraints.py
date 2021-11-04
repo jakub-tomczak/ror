@@ -7,9 +7,6 @@ from ror.dataset_constants import DEFAULT_M
 
 
 def create_inner_maximization_constraint_for_alternative(data: Dataset, alternative: str) -> List[Constraint]:
-    # c vector is a vector of binary value variables
-    c_vector = get_vector("c", alternative, 1.0, data, True)
-
     constraints: List[Constraint] = []
 
     for criterion_index in range(len(data.criteria)):
@@ -40,7 +37,12 @@ def create_inner_maximization_constraint_for_alternative(data: Dataset, alternat
                     -1.0,
                     alternative
                 ),
-                c_vector[criterion_index].with_coefficient(-DEFAULT_M),
+                ConstraintVariable(
+                    Constraint.create_variable_name('c', criterion_name, alternative),
+                    -DEFAULT_M,
+                    alternative,
+                    is_binary=True
+                ),
                 ValueConstraintVariable(-1.0)
             ]),
             Relation("<="),
@@ -57,7 +59,12 @@ def create_inner_maximization_constraint_for_alternative(data: Dataset, alternat
                     1.0,
                     alternative
                 ),
-                c_vector[criterion_index].with_coefficient(-DEFAULT_M),
+                ConstraintVariable(
+                    Constraint.create_variable_name('c', criterion_name, alternative),
+                    -DEFAULT_M,
+                    alternative,
+                    is_binary=True
+                ),
                 ValueConstraintVariable(1.0)
             ]),
             Relation("<="),
@@ -65,6 +72,14 @@ def create_inner_maximization_constraint_for_alternative(data: Dataset, alternat
         )
         constraints.append(third_constraint)
 
+    c_vector = [
+        ConstraintVariable(
+            Constraint.create_variable_name('c', _criterion, alternative),
+            1.0,
+            alternative,
+            is_binary=True
+        ) for _criterion, _ in data.criteria
+    ]
     sum_constraint = Constraint(
         ConstraintVariablesSet([
             # unpack all c variables from vector
