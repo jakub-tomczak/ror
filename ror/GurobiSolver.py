@@ -10,9 +10,8 @@ import logging
 
 class GurobiSolver(AbstractSolver):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__('Gurobi solver')
         self.__model: gp.Model = None
-        self.__name: str = 'Gurobi model'    
 
     def solve(self, model: RORModel) -> OptimizationResult:
         self._create_model(model)
@@ -40,8 +39,8 @@ class GurobiSolver(AbstractSolver):
     def _create_model(self, model: RORModel):
         model._validate_target(model.target)
 
-        self.__name = model.name
-        gurobi_model = gp.Model(self.__name)
+        self._name = model.name
+        gurobi_model = gp.Model(self.name)
         # set lower verbosity
         gurobi_model.Params.OutputFlag = 0
         distinct_variables = model.variables
