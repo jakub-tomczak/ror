@@ -19,10 +19,12 @@ def _generate_latex_model(model: 'RORModel') -> tex.Document:
         target: ConstraintVariablesSet = model.target
         first_constraint_positive_added = False
         for variable in target.variables:
+            if variable.coefficient == 0:
+                continue
             if variable.coefficient > 0 and first_constraint_positive_added:
-                doc.append(NoEscape(f'$+ {variable.coefficient} * {variable.name}$ \\\\'))
+                doc.append(NoEscape(f'$+ {variable.coefficient} * {variable.name}$ \ '))
             else:
-                doc.append(NoEscape(f'${variable.coefficient} * {variable.name}$ \\\\'))
+                doc.append(NoEscape(f'${variable.coefficient} * {variable.name}$ \ '))
                 first_constraint_positive_added = True
         doc.append(tex.Subsection('Constraints'))
         for name in model.constraints_dict:
@@ -39,6 +41,7 @@ def export_latex(model: 'RORModel', filename: str) -> str:
         filename = filename[:-len('.tex')]
     document.generate_tex(filename)
     logging.info(f'Exported model to latex file, saved as {filename}')
+    return filename
     # doc.generate_pdf('basic_maketitle2', clean_tex=False)
     # tex = doc.dumps()  # The document as string in LaTeX syntax
 
@@ -49,3 +52,4 @@ def export_latex_pdf(model: 'RORModel', filename: str) -> str:
         filename = filename[:-len('.pdf')]
     document.generate_pdf(filename, clean_tex = True)
     logging.info(f'Exported model to latex pdf file, saved as {filename}')
+    return filename
