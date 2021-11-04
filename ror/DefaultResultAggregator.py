@@ -132,8 +132,9 @@ class DefaultResultAggregator(AbstractResultAggregator):
         # now we check whether there are indifferent alternatives
         # alternative a_i and a_j are indifferent if:
         # 1. If a_i < a_j in r_rank and a_i > a_j in q_rank and a_i > a_j in s_rank (position changes in q and s ranks)
-        for alternative_index in range(len(flat_r_rank)-1):
+        for alternative_index in range(len(flat_r_rank)):
             current_alternative = flat_r_rank[alternative_index]
+            logging.debug('current_alternative', alternative_index, 'is', current_alternative)
             if current_alternative.alternative in alternatives_checked:
                 logging.debug(
                     f'skipping alternative {current_alternative.alternative} - already in final rank')
@@ -152,6 +153,7 @@ class DefaultResultAggregator(AbstractResultAggregator):
                 f'q rank: {q_rank_current_alternative_position}, s rank {s_rank_current_alternative_position}')
             for next_alternative_index in range(alternative_index+1, len(flat_r_rank)):
                 next_alternative = flat_r_rank[next_alternative_index]
+                logging.debug('next alternative', next_alternative_index)
                 if values_equal_with_epsilon(current_alternative.value, next_alternative.value, eps):
                     logging.debug(
                         f'next alternative {next_alternative.alternative} is equal to the current alternative {current_alternative.alternative}')
@@ -185,7 +187,6 @@ class DefaultResultAggregator(AbstractResultAggregator):
                     logging.debug('-'*30)
                 # else: next alternative is not added to the final rank yet - it will be added
                 # in the next iteration of the outer for loop
-        
         resolved_final_rank = self._tie_resolver.resolve_rank(final_rank, result, parameters)
         rank_names = ['alpha_0.5', 'alpha_0.0', 'alpha_1.0']
         ranks = [r_rank, q_rank, s_rank]
