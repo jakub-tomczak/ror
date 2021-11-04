@@ -1,3 +1,5 @@
+from ror.Constraint import Constraint
+from ror.Relation import INDIFFERENCE, Relation
 from ror.constraints_constants import ConstraintsName
 from ror.slope_constraints import create_slope_constraints
 from ror.min_max_value_constraints import create_max_value_constraint, create_min_value_constraints
@@ -5,10 +7,11 @@ from ror.monotonicity_constraints import create_monotonicity_constraints
 from ror.Model import Model
 from ror.inner_maximization_constraints import create_inner_maximization_constraints
 from ror.Dataset import RORDataset
+from typing import List
 
 
 class RORModel(Model):
-    def __init__(self, dataset: RORDataset, alpha: float, name: str):
+    def __init__(self, dataset: RORDataset, alpha: float, name: str, step: int = 1):
         super().__init__([], name)
         assert dataset is not None, "Dataset must not be None"
         self._dataset = dataset
@@ -40,7 +43,11 @@ class RORModel(Model):
         self.add_constraints(inner_maximization_constraints, ConstraintsName.INNER_MAXIMIZATION.value)
 
         # slope
-        slope_constraints = create_slope_constraints(self._dataset)
+        slope_constraints: List[Constraint] = None
+        if step == 2:
+            slope_constraints = create_slope_constraints(self._dataset, Relation('=='))
+        else:
+            slope_constraints = create_slope_constraints(self._dataset)
         self.add_constraints(slope_constraints, ConstraintsName.SLOPE.value)
 
     @property

@@ -15,7 +15,7 @@ def check_preconditions(data: Dataset) -> bool:
     return True
 
 
-def _create_slope_constraint(l: int, data: Dataset, criterion_name: str) -> Tuple[Constraint, Constraint]:
+def _create_slope_constraint(l: int, data: Dataset, criterion_name: str, relation: Relation) -> Tuple[Constraint, Constraint]:
     '''
     Returns slope constraint or None if there would be division by 0 (in case when g_i(l) == g_i(l-1) or g_i(l-1) == g_i(l-2))
     Slope constraint is meeting the requirement | z - w | <= rho
@@ -42,11 +42,11 @@ def _create_slope_constraint(l: int, data: Dataset, criterion_name: str) -> Tupl
     second_coeff = 1 / (second_diff)
 
     delta_constraint = ConstraintVariable(
-            "delta",
-            -1.0
-        ) if data.delta is None else ValueConstraintVariable(
-            data.delta
-        )
+        "delta",
+        -1.0
+    ) if data.delta is None else ValueConstraintVariable(
+        data.delta
+    )
 
     # create constraint
     first_constraint = Constraint(ConstraintVariablesSet([
@@ -75,7 +75,7 @@ def _create_slope_constraint(l: int, data: Dataset, criterion_name: str) -> Tupl
             data.alternatives[l-2]
         ),
         delta_constraint
-    ]), Relation("<="), Constraint.create_variable_name("first_slope", criterion_name, l))
+    ]), relation, Constraint.create_variable_name("first_slope", criterion_name, l))
 
     second_constraint = Constraint(ConstraintVariablesSet([
         ConstraintVariable(
@@ -103,12 +103,12 @@ def _create_slope_constraint(l: int, data: Dataset, criterion_name: str) -> Tupl
             data.alternatives[l-2]
         ),
         delta_constraint
-    ]), Relation("<="), Constraint.create_variable_name("second_slope", criterion_name, l))
+    ]), relation, Constraint.create_variable_name("second_slope", criterion_name, l))
 
     return (first_constraint, second_constraint)
 
 
-def create_slope_constraints(data: Dataset) -> List[Constraint]:
+def create_slope_constraints(data: Dataset, relation: Relation = None) -> List[Constraint]:
     '''
     Returns slope constraints for all alternatives except the ones that have duplicated
     values in the criterion space.
@@ -120,11 +120,13 @@ def create_slope_constraints(data: Dataset) -> List[Constraint]:
     if not check_preconditions(data):
         return []
 
+    if relation is None:
+        relation = Relation('<=')
     constraints = []
     for criterion_name, _ in data.criteria:
         for l in range(2, len(data.alternatives)):
             slope_constraints = _create_slope_constraint(
-                l, data, criterion_name
+                l, data, criterion_name, relation
             )
             if slope_constraints is not None:
                 first_constraint, second_constraint = slope_constraints

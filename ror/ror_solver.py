@@ -178,7 +178,7 @@ def solve_model(
         for alternative in data.alternatives:
             for alpha in alpha_values.values:
                 tmp_model = RORModel(
-                    data, alpha, f"ROR Model, step 2, with alpha {alpha}, alternative {alternative}")
+                    data, alpha, f"ROR Model, step 2, with alpha {alpha}, alternative {alternative}", step=2)
                 tmp_model.solver = solver
                 # In addition, the constraints (j) to (m) are defined on extended set A^{R} + a_{j}.
                 tmp_model.add_constraints(
