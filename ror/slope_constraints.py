@@ -3,6 +3,8 @@ from ror.Relation import Relation
 from ror.Dataset import Dataset
 from typing import List, Tuple
 from ror.Constraint import Constraint, ConstraintVariable, ConstraintVariablesSet, ValueConstraintVariable
+import numpy as np
+
 
 # difference of 2 values greater than DIFF_EPS indicates that they are different
 DIFF_EPS = 1e-10
@@ -15,29 +17,31 @@ def check_preconditions(data: Dataset) -> bool:
     return True
 
 
-def _create_slope_constraint(l: int, data: Dataset, criterion_name: str, relation: Relation) -> Tuple[Constraint, Constraint]:
+def _create_slope_constraint(
+        alternative_index: int,
+        data: Dataset,
+        criterion_name: str,
+        relation: Relation,
+        alternatives: List[str],
+        alternative_scores: List[float]) -> Tuple[Constraint, Constraint]:
     '''
     Returns slope constraint or None if there would be division by 0 (in case when g_i(l) == g_i(l-1) or g_i(l-1) == g_i(l-2))
     Slope constraint is meeting the requirement | z - w | <= rho
     This constraint minimizes the differences between 2 consecutive characteristic points.
     This constraint requires partial utility function to be monotonic, non-decreasing
     '''
-    first_diff = data.get_data_for_alternative_and_criterion(data.alternatives[l], criterion_name).coefficient -\
-        data.get_data_for_alternative_and_criterion(
-            data.alternatives[l-1], criterion_name).coefficient
+    first_diff = alternative_scores[alternative_index] - alternative_scores[alternative_index-1]
     # check if the 2 following points are not in the same place
     if abs(first_diff) < DIFF_EPS:
-        logging.debug(
-            f'Criterion {criterion_name} for alternative {data.alternatives[l]} has the same value ({data.get_data_for_alternative_and_criterion(data.alternatives[l], criterion_name).coefficient}) as alternative {data.alternatives[l-1]} on this criterion.')
+        logging.info(
+            f'Criterion {criterion_name} for alternative {alternatives[alternative_index]} has the same value ({alternative_scores[alternative_index-1]}) as alternative {alternatives[alternative_index-1]} on this criterion.')
         return None
     first_coeff = 1 / (first_diff)
-    second_diff = data.get_data_for_alternative_and_criterion(data.alternatives[l-1], criterion_name).coefficient -\
-        data.get_data_for_alternative_and_criterion(
-            data.alternatives[l-2], criterion_name).coefficient
+    second_diff = alternative_scores[alternative_index-1] - alternative_scores[alternative_index-2]
     # check if the 2 following points are not in the same place
     if abs(second_diff) < DIFF_EPS:
-        logging.debug(
-            f'Criterion {criterion_name} for alternative {data.alternatives[l-1]} has the same value ({data.get_data_for_alternative_and_criterion(data.alternatives[l], criterion_name).coefficient}) as alternative {data.alternatives[l-2]} on this criterion.')
+        logging.info(
+            f'Criterion {criterion_name} for alternative {alternatives[alternative_index-1]} has the same value ({alternatives[alternative_index-2]}) as alternative {alternatives[alternative_index-2]} on this criterion.')
         return None
     second_coeff = 1 / (second_diff)
 
@@ -52,58 +56,58 @@ def _create_slope_constraint(l: int, data: Dataset, criterion_name: str, relatio
     first_constraint = Constraint(ConstraintVariablesSet([
         ConstraintVariable(
             Constraint.create_variable_name(
-                'u', criterion_name, data.alternatives[l]),
+                'u', criterion_name, alternatives[alternative_index]),
             first_coeff,
-            data.alternatives[l]
+            alternatives[alternative_index]
         ),
         ConstraintVariable(
             Constraint.create_variable_name(
-                'u', criterion_name, data.alternatives[l-1]),
+                'u', criterion_name, alternatives[alternative_index-1]),
             -first_coeff,
-            data.alternatives[l-1]
+            alternatives
         ),
         ConstraintVariable(
             Constraint.create_variable_name(
-                'u', criterion_name, data.alternatives[l-1]),
+                'u', criterion_name, alternatives[alternative_index-1]),
             -second_coeff,
-            data.alternatives[l-1]
+            alternatives[alternative_index-1]
         ),
         ConstraintVariable(
             Constraint.create_variable_name(
-                'u', criterion_name, data.alternatives[l-2]),
+                'u', criterion_name, alternatives[alternative_index-2]),
             second_coeff,
-            data.alternatives[l-2]
+            alternatives[alternative_index-2]
         ),
         delta_constraint
-    ]), relation, Constraint.create_variable_name("first_slope", criterion_name, l))
+    ]), relation, Constraint.create_variable_name("first_slope", criterion_name, alternative_index))
 
     second_constraint = Constraint(ConstraintVariablesSet([
         ConstraintVariable(
             Constraint.create_variable_name(
-                'u', criterion_name, data.alternatives[l]),
+                'u', criterion_name, alternatives[alternative_index]),
             -first_coeff,
-            data.alternatives[l]
+            alternatives[alternative_index]
         ),
         ConstraintVariable(
             Constraint.create_variable_name(
-                'u', criterion_name, data.alternatives[l-1]),
+                'u', criterion_name, alternatives[alternative_index-1]),
             first_coeff,
-            data.alternatives[l-1]
+            alternatives[alternative_index-1]
         ),
         ConstraintVariable(
             Constraint.create_variable_name(
-                'u', criterion_name, data.alternatives[l-1]),
+                'u', criterion_name, alternatives[alternative_index-1]),
             second_coeff,
-            data.alternatives[l-1]
+            alternatives[alternative_index-1]
         ),
         ConstraintVariable(
             Constraint.create_variable_name(
-                'u', criterion_name, data.alternatives[l-2]),
+                'u', criterion_name, alternatives[alternative_index-2]),
             -second_coeff,
-            data.alternatives[l-2]
+            alternatives[alternative_index-2]
         ),
         delta_constraint
-    ]), relation, Constraint.create_variable_name("second_slope", criterion_name, l))
+    ]), relation, Constraint.create_variable_name("second_slope", criterion_name, alternative_index))
 
     return (first_constraint, second_constraint)
 
@@ -123,10 +127,12 @@ def create_slope_constraints(data: Dataset, relation: Relation = None) -> List[C
     if relation is None:
         relation = Relation('<=')
     constraints = []
-    for criterion_name, _ in data.criteria:
+    for criterion_index, (criterion_name, _) in enumerate(data.criteria):
+        alternative_score_on_criterion = data.matrix[:, criterion_index]
+
         for l in range(2, len(data.alternatives)):
             slope_constraints = _create_slope_constraint(
-                l, data, criterion_name, relation
+                l, data, criterion_name, relation, data.alternatives, alternative_score_on_criterion 
             )
             if slope_constraints is not None:
                 first_constraint, second_constraint = slope_constraints
