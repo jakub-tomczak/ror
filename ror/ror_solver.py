@@ -136,9 +136,10 @@ def solve_model(
 
         initial_model = RORModel(
             data,
-            parameters[RORParameter.INITIAL_ALPHA],
+            parameters.get_parameter(RORParameter.INITIAL_ALPHA),
             f"ROR Model, step 1, with alpha {parameters[RORParameter.INITIAL_ALPHA]}"
         )
+        logging.info(f'Initial alpha for initial model is {parameters.get_parameter(RORParameter.INITIAL_ALPHA)}')
         initial_model.solver = solver
 
         initial_model.target = ConstraintVariablesSet([
