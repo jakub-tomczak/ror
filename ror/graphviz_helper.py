@@ -20,5 +20,5 @@ def draw_rank(alternatives: List[str], dir: str, filename: str) -> str:
 
     filename = os.path.join(dir, filename)
     rendered_filename = dot.render(filename, view=False)
-    logging.info(f'Saving final rank to {filename}')
+    logging.info(f'Saving final rank to "{filename}"')
     return rendered_filename

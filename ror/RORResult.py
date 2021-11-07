@@ -83,7 +83,7 @@ class RORResult:
             if directory is not None:
                 filename = os.path.join(directory, filename)
             result.to_csv(filename, sep=';')
-            logging.info(f'Saved calculated distances to {filename}')
+            logging.info(f'Saved calculated distances to "{filename}"')
         except Exception as e:
             logging.error(f'Failed to save to csv file, cause: {e}')
             raise e
@@ -96,7 +96,7 @@ class RORResult:
             if directory is not None:
                 filename = os.path.join(directory, filename)
             result.to_latex(filename, float_format=f"%.{precision}f")
-            logging.info(f'Saved calculated distances to {filename}')
+            logging.info(f'Saved calculated distances to "{filename}"')
         except Exception as e:
             logging.error(f'Failed to save to latex file, cause: {e}')
             raise e
@@ -124,7 +124,7 @@ class RORResult:
             try:
                 os.makedirs(output_dir)
             except Exception as e:
-                msg = f'Failed to create output dir: {output_dir}, cause: {e}'
+                msg = f'Failed to create output dir: "{output_dir}", cause: {e}'
                 logging.error(msg)
                 raise CalculationsException(e)
         return output_dir

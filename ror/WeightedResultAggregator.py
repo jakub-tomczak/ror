@@ -172,8 +172,7 @@ class WeightedResultAggregator(AbstractResultAggregator):
         logging.info(f'Alpha weights {self._ror_parameters.get_parameter(RORParameter.ALPHA_WEIGHTS)}')
         fullpath = os.path.join(_directory, filename)
         data.to_csv(fullpath, sep=';')
-        print(data)
-        logging.info(f'Saved weighted distances to {fullpath}')
+        logging.info(f'Saved weighted distances to "{fullpath}"')
         return fullpath
 
     def help(self) -> str:

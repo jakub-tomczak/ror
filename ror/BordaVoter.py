@@ -27,7 +27,7 @@ class BordaVoter():
             return []
         votes_per_rank_file = os.path.join(directory, 'votes_per_rank.csv')
         self.votes_per_rank.to_csv(votes_per_rank_file, sep=';')
-        logging.info(f'Saved votes per rank from Borda voting to {votes_per_rank_file}')
+        logging.info(f'Saved votes per rank from Borda voting to "{votes_per_rank_file}"')
         alternative_to_mean_votes_file = os.path.join(directory, 'mean_votes_per_alternative.csv')
         indices = list(self.alternative_to_mean_votes.keys())
         data = list(self.alternative_to_mean_votes.values())
@@ -37,7 +37,7 @@ class BordaVoter():
             index=indices,
             columns=headers)
         data.to_csv(alternative_to_mean_votes_file, sep=';')
-        logging.info(f'Saved mean votes from Borda voting to {alternative_to_mean_votes_file}')
+        logging.info(f'Saved mean votes from Borda voting to "{alternative_to_mean_votes_file}"')
         return [
             votes_per_rank_file,
             alternative_to_mean_votes_file

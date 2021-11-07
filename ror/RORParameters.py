@@ -143,7 +143,7 @@ class RORParameters:
         data = {key.value: value for key, value in self.__parameters.items()}
         with open(filename, "w") as json_out:
             json.dump(data, json_out)
-        logging.info(f'Saved parameters to {filename}')
+        logging.info(f'Saved parameters to "{filename}"')
     
     def __repr__(self) -> str:
         return f'''<RORParameters:
