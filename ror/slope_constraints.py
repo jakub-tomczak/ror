@@ -33,14 +33,14 @@ def _create_slope_constraint(
     first_diff = alternative_scores[alternative_index] - alternative_scores[alternative_index-1]
     # check if the 2 following points are not in the same place
     if abs(first_diff) < DIFF_EPS:
-        logging.info(
+        logging.debug(
             f'Criterion {criterion_name} for alternative {alternatives[alternative_index]} has the same value ({alternative_scores[alternative_index-1]}) as alternative {alternatives[alternative_index-1]} on this criterion.')
         return None
     first_coeff = 1 / (first_diff)
     second_diff = alternative_scores[alternative_index-1] - alternative_scores[alternative_index-2]
     # check if the 2 following points are not in the same place
     if abs(second_diff) < DIFF_EPS:
-        logging.info(
+        logging.debug(
             f'Criterion {criterion_name} for alternative {alternatives[alternative_index-1]} has the same value ({alternatives[alternative_index-2]}) as alternative {alternatives[alternative_index-2]} on this criterion.')
         return None
     second_coeff = 1 / (second_diff)
