@@ -22,6 +22,9 @@ class BordaVoter():
         return self.__alternative_to_mean_votes
 
     def save_voting_data(self, directory: str) -> List[str]:
+        if self.__alternative_to_mean_votes is None or self.votes_per_rank is None:
+            logging.warn('Borda voter was not used yet, skipping saving voting data')
+            return []
         votes_per_rank_file = os.path.join(directory, 'votes_per_rank.csv')
         self.votes_per_rank.to_csv(votes_per_rank_file, sep=';')
         logging.info(f'Saved votes per rank from Borda voting to {votes_per_rank_file}')

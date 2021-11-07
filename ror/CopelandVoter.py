@@ -18,6 +18,9 @@ class CopelandVoter():
         return self.__voting_sum
 
     def save_voting_data(self, directory: str) -> List[str]:
+        if self.__voting_matrix is None or self.__voting_sum is None:
+            logging.warn('Copeland Voter was not used yet, skipping saving voting data')
+            return []
         indices = [alternative_name for alternative_name, _ in self.voting_sum]
         voting_matrix_file = os.path.join(directory, 'voting_matrix.csv')
         logging.info(f'Saved voting matrix from Copeland voting to {voting_matrix_file}')
