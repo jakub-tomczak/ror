@@ -211,6 +211,10 @@ def solve_model(
             parameters.save_to_json('parameters.json', directory = final_result.output_dir)
             if type(_aggregator) is WeightedResultAggregator:
                 _aggregator.save_weighted_distances('weighted_distances.csv')
+            elif type(_aggregator) is BordaResultAggregator:
+                _aggregator.voter.save_voting_data(final_result.output_dir)
+            elif type(_aggregator) is CopelandResultAggregator:
+                _aggregator.voter.save_voting_data(final_result.output_dir)
         steps_solved = report_progress(steps_solved, 'Calculations done.', is_done = True)
         return final_result
     except Exception as e:
