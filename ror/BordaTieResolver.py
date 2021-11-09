@@ -46,7 +46,7 @@ class BordaTieResolver(AbstractTieResolver):
         logging.debug(f'Final rank with ties {final_rank_with_ties}')
         final_rank_with_borda: List[RankItem] = []
 
-        for items_at_same_position in final_rank_with_ties:
+        for items_at_same_position in rank:
             if len(items_at_same_position) > 1:
                 # gets borda's value for all alternatives from this position
                 items_borda_value = [
