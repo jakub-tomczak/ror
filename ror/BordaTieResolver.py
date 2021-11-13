@@ -56,11 +56,11 @@ class BordaTieResolver(AbstractTieResolver):
                 ]
                 # sort all items from the same position by mean position from all ranks using borda voting
                 sorted_by_mean_position = sorted(
-                    items_borda_value, key=lambda item: item[1])
-                logging.debug(
+                    items_borda_value, key=lambda item: item[1], reverse=True)
+                logging.info(
                     f'items at the same position: {items_at_same_position}')
                 for alternative, mean_position in sorted_by_mean_position:
-                    logging.debug(
+                    logging.info(
                         f'Alternative: {alternative}, mean position: {mean_position}')
                     final_rank_with_borda.append(
                         RankItem(alternative, items_at_same_position[0].value))
