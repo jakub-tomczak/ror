@@ -31,8 +31,9 @@ class CopelandTieResolver(AbstractTieResolver):
             set(data.columns) - set(['alpha_sum']))
         per_alternative_votes_mean = self.__copeland_voter.vote(data, columns_with_ranks, eps)
         
-        final_rank = np.sort(per_alternative_votes_mean)
-        final_rank_alternatives_indices = np.argsort(per_alternative_votes_mean)
+        # reverse results as the biggest value is the best
+        final_rank = np.sort(per_alternative_votes_mean)[::-1]
+        final_rank_alternatives_indices = np.argsort(per_alternative_votes_mean)[::-1]
         final_rank_alternatives = numpy_alternatives[final_rank_alternatives_indices]
 
         # produce List[RankItem]
