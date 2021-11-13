@@ -207,6 +207,7 @@ def solve_model(
         final_result.results_aggregator = _aggregator
         if save_all_data:
             final_result.save_result_to_csv('distances.csv', directory = final_result.output_dir)
+            final_result.save_result_to_latex('distances.tex', directory = final_result.output_dir)
             final_result.save_tie_resolvers_data()
             parameters.save_to_json('parameters.json', directory = final_result.output_dir)
             if type(_aggregator) is WeightedResultAggregator:
