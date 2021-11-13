@@ -59,10 +59,10 @@ class CopelandVoter():
                     # then alternative from column gets one point.
                     # Otherwise (alternatives' values are equal, with eps precision)
                     # both alternatives get 0.5
-                    if row_alternative_value > column_alternative_value + eps:
+                    if row_alternative_value + eps < column_alternative_value:
                         logging.debug(f'Alternative in row {row_alternative_name} has greater value than alternative in column {column_alternative_name}')
                         votes[row_idx, col_idx] += 1
-                    elif row_alternative_value + eps < column_alternative_value:
+                    elif row_alternative_value > column_alternative_value + eps:
                         logging.debug(f'Alternative in row {row_alternative_name} has lower value than alternative in column {column_alternative_name}')
                         votes[col_idx, row_idx] += 1
                     else:
