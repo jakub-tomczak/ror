@@ -117,6 +117,7 @@ class DefaultResultAggregator(AbstractResultAggregator):
             return positions
 
         r_rank = group_equal_alternatives_in_ranking(flat_r_rank, eps)
+        r_rank_positions = create_rank_positions(r_rank)
         q_rank = group_equal_alternatives_in_ranking(flat_q_rank, eps)
         q_rank_positions = create_rank_positions(q_rank)
         s_rank = group_equal_alternatives_in_ranking(flat_s_rank, eps)
@@ -134,7 +135,7 @@ class DefaultResultAggregator(AbstractResultAggregator):
         # 1. If a_i < a_j in r_rank and a_i > a_j in q_rank and a_i > a_j in s_rank (position changes in q and s ranks)
         for alternative_index in range(len(flat_r_rank)):
             current_alternative = flat_r_rank[alternative_index]
-            logging.debug('current_alternative', alternative_index, 'is', current_alternative)
+            logging.debug(f'current_alternative {alternative_index} is {current_alternative}')
             if current_alternative.alternative in alternatives_checked:
                 logging.debug(
                     f'skipping alternative {current_alternative.alternative} - already in final rank')
@@ -149,25 +150,27 @@ class DefaultResultAggregator(AbstractResultAggregator):
             # of the next alternative in q and s rank
             q_rank_current_alternative_position = q_rank_positions[current_alternative.alternative]
             s_rank_current_alternative_position = s_rank_positions[current_alternative.alternative]
+            r_rank_current_alternative_position = r_rank_positions[current_alternative.alternative]
             logging.debug(
                 f'q rank: {q_rank_current_alternative_position}, s rank {s_rank_current_alternative_position}')
             for next_alternative_index in range(alternative_index+1, len(flat_r_rank)):
                 next_alternative = flat_r_rank[next_alternative_index]
-                logging.debug('next alternative', next_alternative_index)
-                if values_equal_with_epsilon(current_alternative.value, next_alternative.value, eps):
-                    logging.debug(
-                        f'next alternative {next_alternative.alternative} is equal to the current alternative {current_alternative.alternative}')
-                    final_rank[len(final_rank)-1].append(next_alternative)
-                    alternatives_checked.add(next_alternative.alternative)
-                    continue
+                logging.debug(f'next alternative {next_alternative_index}')
                 if next_alternative.alternative in alternatives_checked:
                     logging.debug(
                         f'skipping next alternative {next_alternative.alternative} - already in final rank')
                     continue
                 q_rank_next_alternative_position = q_rank_positions[next_alternative.alternative]
                 s_rank_next_alternative_position = s_rank_positions[next_alternative.alternative]
+                r_rank_next_alternative_position = r_rank_positions[next_alternative.alternative]
+
+                if  r_rank_next_alternative_position == r_rank_current_alternative_position:
+                    logging.debug(
+                        f'next alternative: {next_alternative.alternative} has the same position as {current_alternative.alternative} alternative in the r rank')
+                    final_rank[len(final_rank)-1].append(next_alternative)
+                    alternatives_checked.add(next_alternative.alternative)
                 logging.debug(
-                    f'next alternative: {next_alternative.alternative}, r rank {next_alternative_index+1}')
+                    f'next alternative: {next_alternative.alternative}, r rank {r_rank_next_alternative_position}')
                 logging.debug(
                     f'q rank: {q_rank_next_alternative_position}, s rank {s_rank_next_alternative_position}')
                 # r_rank was sorted so current_alternative_position <= r_rank_next_alternative_position must be always true
